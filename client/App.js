@@ -5,18 +5,12 @@ import BottomNavigation from './navigation/BottomNavigation';
 
 export default function App() {
   return (
-<<<<<<< HEAD
     <View style={{ flex: 1 }}>
       <BottomNavigation />
-=======
-    <View style={styles.container}>
-      <Text>Nice UI</Text>
-      <StatusBar style="auto" />
->>>>>>> refs/remotes/origin/main
     </View>
   );
 }
-
+r
 const styles = StyleSheet.create({
   container: {
     flex: 1,
