@@ -5,6 +5,7 @@ const ChatBot = () => {
   return (
     <View>
       <Text>ChatBot</Text>
+      
     </View>
   )
 }

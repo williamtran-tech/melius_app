@@ -1,21 +1,27 @@
 import React, { useState } from 'react';
-import { Image } from 'react-native';
-import { NavigationContainer } from '@react-navigation/native';
+import { TouchableOpacity } from 'react-native-gesture-handler';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import Home from '../screens/Home';
 import ChatBot from '../screens/ChatBot';
 
 import Icon from 'react-native-vector-icons/Ionicons';
-
+import HomeScreen from '../screens/Home';
+import { useNavigation } from '@react-navigation/native';
 const Tab = createBottomTabNavigator();
 
 const BottomNavigation = () => {
   const [selectedTab, setSelectedTab] = useState('Screen1');
-
+  const navigation = useNavigation();
+  const openChatBot = () => {
+    navigation.navigate('Chat bot');
+  };
   return (
-    <NavigationContainer>
       <Tab.Navigator
         screenOptions={({ route }) => ({
+            headerRight: () => (
+                <TouchableOpacity style={{ marginRight: 10 }} onPress={openChatBot}>
+                  <Icon name="ios-chatbubble-outline" size={24} />
+                </TouchableOpacity>
+              ),
           tabBarIcon: ({ focused, color, size }) => {
             let iconName;
 
@@ -36,11 +42,10 @@ const BottomNavigation = () => {
           },
         })}
       >
-        <Tab.Screen name="Home" component={Home} />
-        <Tab.Screen name="Status" component={Home} />
+        <Tab.Screen name="Home" component={HomeScreen} />
+        <Tab.Screen name="Status" component={HomeScreen} />
         <Tab.Screen name="Chat bot" component={ChatBot} />
       </Tab.Navigator>
-    </NavigationContainer>
   );
 };
 export default BottomNavigation
