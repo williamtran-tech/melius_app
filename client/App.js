@@ -1,12 +1,12 @@
 import { StatusBar } from 'expo-status-bar';
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { SafeAreaViewBase, StyleSheet, Text, View } from 'react-native';
+import BottomNavigation from './navigation/BottomNavigation';
 
 export default function App() {
   return (
-    <View style={styles.container}>
-      <Text>Vãi Òfffssssssssff!</Text>
-      <StatusBar style="auto" />
+    <View style={{ flex: 1 }}>
+      <BottomNavigation />
     </View>
   );
 }
