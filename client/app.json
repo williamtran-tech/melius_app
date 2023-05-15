@@ -1,0 +1,17 @@
+{
+  "expo": {
+    "name": "client",
+    "slug": "melius",
+    "version": "1.0.0",
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "6d2e871a-c9f2-4e81-b44f-2e7560a45af5"
+      }
+    },
+    "owner": "williamtr4n"
+  },
+  "name": "client"
+}
