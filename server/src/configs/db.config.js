@@ -5,7 +5,7 @@ exports.connectDatabase = () => {
   mongoose.Promise = global.Promise;
   // Connecting to the database
   mongoose
-    .connect(process.env.ATLAS_URI)
+    .connect(process.env.ATLAS_URI, { dbName: "melius_db" })
     .then(() => {
       console.log("Successfully connected to the database");
     })
