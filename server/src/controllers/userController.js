@@ -35,7 +35,12 @@ exports.login = async (req, res) => {
 exports.get_user = async (req, res) => {
   try {
     const users = await User.find({});
-    console.log(users);
+
+    // Static method
+    const staUsers = await User.getUsers();
+    console.log("Static method: ", staUsers);
+
+    console.log("This is not static", users);
     res.status(200).json({
       message: "User found",
       user: users,
@@ -87,5 +92,32 @@ exports.create_user = async (req, res) => {
         error: err,
       });
     }
+  }
+};
+
+exports.update_user = async (req, res) => {
+  try {
+    const user = await User.findOne({
+      _id: req.params.id,
+    });
+    if (!user) {
+      res.status(404).json({
+        message: "User not found",
+      });
+    } else {
+      user.firstName = req.body.firstName;
+      user.lastName = req.body.lastName;
+
+      await user.save();
+      res.status(200).json({
+        message: "User updated",
+        user: user.fullName,
+      });
+    }
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({
+      message: "Server Error",
+    });
   }
 };

@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const validator = require("validator");
 const bcrypt = require("bcrypt");
+let timestampPlugin = require("./plugins/timestamp");
 
 // This is define the shape of the document - Schema
 const userSchema = new mongoose.Schema(
@@ -42,6 +43,12 @@ const userSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+// This is a middleware - plugin for timestamp
+userSchema.plugin(timestampPlugin);
+
+// The "pre" hook is called before the "save" method is called on the schema
+// Other hooks: pre, post
+// Some methods: save, validate, remove, updateOne, deleteOne, deleteMany, find, findOne, findOneAndDelete, findOneAndRemove, findOneAndUpdate, update, updateMany, updateOne
 userSchema.pre("save", async function (next) {
   const user = this;
 
@@ -61,10 +68,21 @@ userSchema.virtual("fullName").get(function () {
   return `${this.firstName} ${this.lastName}`;
 });
 
+// This is an instance method
 userSchema.methods.comparePassword = async function (password) {
   try {
     const isMatch = await bcrypt.compare(password, this.password);
     return isMatch;
+  } catch (err) {
+    throw err;
+  }
+};
+
+// This is a static method
+userSchema.statics.getUsers = async function () {
+  try {
+    const users = await this.find({});
+    return users;
   } catch (err) {
     throw err;
   }
