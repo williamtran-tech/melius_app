@@ -11,8 +11,6 @@ module.exports = function timestamp(schema) {
   // Create a pre-save hook
   schema.pre("save", function (next) {
     let now = Date.now();
-
-    console.log(now);
     this.updatedAt = now;
     // Set a value for createdAt only if it is null
     if (!this.createdAt) {

@@ -19,6 +19,7 @@ const userSchema = new mongoose.Schema(
       required: true,
       max: 50,
       unique: true,
+      lowercase: true,
       validate: [validator.isEmail, "Please enter a valid email"],
     },
     password: {
@@ -43,7 +44,7 @@ const userSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-// This is a middleware - plugin for timestamp
+// This is a middleware - plugin timestamp for all schemas
 userSchema.plugin(timestampPlugin);
 
 // The "pre" hook is called before the "save" method is called on the schema
@@ -88,6 +89,7 @@ userSchema.statics.getUsers = async function () {
   }
 };
 
+// All middleware and plugins must be added to the schema before compiling it with mongoose.model()
 // This is a model - a wrapper for the schema
 const User = mongoose.model("User", userSchema);
 
