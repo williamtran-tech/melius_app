@@ -33,7 +33,7 @@ exports.login = async (req, res) => {
   }
 };
 
-exports.allUsers = async (req, res) => {
+exports.getAllUsers = async (req, res) => {
   try {
     const users = await UserServices.getAllUsers();
     if (users.length !== 0) {
