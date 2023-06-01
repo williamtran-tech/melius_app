@@ -4,6 +4,8 @@ import * as cors from "cors";
 import helmet from "helmet";
 import session from "express-session";
 import { routes } from "./v1/routes/index";
+import { connectDB } from "./../src/configs/db.config";
+import passport from "passport";
 
 class App {
   public app: Application;
@@ -13,7 +15,9 @@ class App {
     this.app = express();
     this.port = port;
 
+    this.connectDatabase();
     this.initializeMiddlewares();
+    this.initializeRoutes();
   }
 
   private initializeMiddlewares() {
@@ -29,9 +33,17 @@ class App {
         secret: "SECRET",
       })
     );
+    // Passport middleware
+    this.app.use(passport.initialize());
+    this.app.use(passport.session());
+  }
 
-    // Routes
+  private initializeRoutes() {
     this.app.use("/api/v1", routes);
+  }
+
+  private connectDatabase() {
+    connectDB();
   }
 
   public listen() {
