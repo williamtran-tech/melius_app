@@ -4,7 +4,7 @@ const helmet = require("helmet");
 const cors = require("cors");
 require("dotenv").config();
 
-const port = process.env.PORT || 5000;
+const port = process.env.PORT || 5050;
 const app = express();
 
 // Database connection
