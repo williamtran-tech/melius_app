@@ -1,5 +1,6 @@
 "use strict";
 const User = require("./../models/User");
+const UserServices = require("./../services/user.service");
 
 exports.login = async (req, res) => {
   try {
@@ -32,22 +33,28 @@ exports.login = async (req, res) => {
   }
 };
 
-exports.get_user = async (req, res) => {
+exports.getAllUsers = async (req, res) => {
   try {
-    const users = await User.find({});
-    console.log(users);
-    res.status(200).json({
-      message: "User found",
-      user: users,
-    });
+    const users = await UserServices.getAllUsers();
+    if (users.length !== 0) {
+      res.status(200).json({
+        message: "Users found",
+        users: users,
+      });
+    } else {
+      res.status(404).json({
+        message: "Users not found",
+      });
+    }
   } catch (err) {
     console.log(err);
-    res.status(400).json({
-      message: "User not found",
-      error: err,
+    res.status(500).json({
+      message: "Server Error",
     });
   }
 };
+
+// The below code needs to be refactored to use the UserServices for interacting with the database
 
 exports.get_user_details = async (req, res) => {
   try {
@@ -76,7 +83,7 @@ exports.create_user = async (req, res) => {
       user: user.fullName,
     });
   } catch (err) {
-    console.log(err);
+    console.log(err.message);
     if (err.code === 11000) {
       return res.status(400).json({
         message: "User already exists",
@@ -84,8 +91,34 @@ exports.create_user = async (req, res) => {
     } else {
       res.status(400).json({
         message: "User not found",
-        error: err,
       });
     }
+  }
+};
+
+exports.update_user = async (req, res) => {
+  try {
+    const user = await User.findOne({
+      _id: req.params.id,
+    });
+    if (!user) {
+      res.status(404).json({
+        message: "User not found",
+      });
+    } else {
+      user.firstName = req.body.firstName;
+      user.lastName = req.body.lastName;
+
+      await user.save();
+      res.status(200).json({
+        message: "User updated",
+        user: user.fullName,
+      });
+    }
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({
+      message: "Server Error",
+    });
   }
 };
