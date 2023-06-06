@@ -6,6 +6,7 @@ import ChatBot from "../screens/ChatBot";
 import Icon from "react-native-vector-icons/Ionicons";
 import HomeScreen from "../screens/Home";
 import { useNavigation } from "@react-navigation/native";
+import LoginPage from "../screens/LoginPage";
 const Tab = createBottomTabNavigator();
 
 const BottomNavigation = () => {
@@ -27,7 +28,7 @@ const BottomNavigation = () => {
 
           if (route.name === "Home") {
             iconName = focused ? "ios-home" : "ios-home-outline";
-          } else if (route.name === "Chat bot") {
+          } else if (route.name === "Login") {
             iconName = focused ? "ios-chatbubble" : "ios-chatbubble-outline";
           } else if (route.name === "Status") {
             iconName = focused ? "ios-settings" : "ios-settings-outline";
@@ -44,7 +45,7 @@ const BottomNavigation = () => {
     >
       <Tab.Screen name="Home" component={HomeScreen} />
       <Tab.Screen name="Status" component={HomeScreen} />
-      <Tab.Screen name="Chat bot" component={ChatBot} />
+      <Tab.Screen name="Login" component={LoginPage} />
     </Tab.Navigator>
   );
 };
