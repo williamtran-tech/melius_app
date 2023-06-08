@@ -1,8 +1,10 @@
 interface IUser {
-  username: string;
+  fullName: string;
   password: string;
+  phone: string;
   email: number;
   role: string;
+  verified: boolean;
 }
 
 export default IUser;

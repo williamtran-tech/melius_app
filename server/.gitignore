@@ -15,6 +15,7 @@ uploaded_files
 # misc
 .DS_Store
 .env
+.env.development
 .env.local
 .env.development.local
 .env.test.local

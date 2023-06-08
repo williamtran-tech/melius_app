@@ -1,7 +1,17 @@
+import dotenv from "dotenv";
 import passport from "passport";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
-import dotenv from "dotenv";
-dotenv.config();
+import path from "path";
+
+const envPath = path.resolve(
+  __dirname,
+  "../../..",
+  "environments",
+  ".env.development"
+);
+dotenv.config({
+  path: envPath,
+});
 
 let userProfile: any;
 // This function is called when passport needs to save the user data into the session

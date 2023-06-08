@@ -6,6 +6,7 @@ import session from "express-session";
 import { routes } from "./v1/routes/index";
 import { connectDB } from "./../src/configs/db.config";
 import passport from "passport";
+import errorMiddleware from "./middlewares/error.middleware";
 
 class App {
   public app: Application;
@@ -18,6 +19,7 @@ class App {
     this.connectDatabase();
     this.initializeMiddlewares();
     this.initializeRoutes();
+    this.initializeErrorHandling();
   }
 
   private initializeMiddlewares() {
@@ -40,6 +42,10 @@ class App {
 
   private initializeRoutes() {
     this.app.use("/api/v1", routes);
+  }
+
+  private initializeErrorHandling() {
+    this.app.use(errorMiddleware);
   }
 
   private connectDatabase() {
