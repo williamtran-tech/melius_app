@@ -7,6 +7,7 @@ import { routes } from "./v1/routes/index";
 import { connectDB } from "./../src/configs/db.config";
 import passport from "passport";
 import errorMiddleware from "./middlewares/error.middleware";
+import * as cookieParser from "cookie-parser";
 
 class App {
   public app: Application;
@@ -38,6 +39,7 @@ class App {
     // Passport middleware
     this.app.use(passport.initialize());
     this.app.use(passport.session());
+    this.app.use(cookieParser.default());
   }
 
   private initializeRoutes() {

@@ -2,10 +2,14 @@ import express from "express";
 import { BaseController } from "../abstractions/base.controller";
 import passport from "./../../configs/passport.config";
 import User from "../../models/User/user.model";
+import IUser from "../../models/User/user.interface";
 import InvalidCredentialsExceptions from "../../exceptions/InvalidCredentialsException";
 import CreateUserDTO from "../../models/User/user.DTO";
 import AuthenticationService from "../../services/authentication.service";
 import LogInDTO from "../../models/login.DTO";
+import TokenData from "../../interfaces/TokenData.interface";
+import DataStoredInToken from "../../interfaces/DataStoredInToken.interface";
+import jwt from "jsonwebtoken";
 
 export default class AuthController extends BaseController {
   private userProfile: any;
@@ -47,11 +51,14 @@ export default class AuthController extends BaseController {
           logInData.password,
           user.password
         );
-        console.log(logInData.password, user.password, result);
         if (result) {
           // Generate token
-
+          const tokenData = this.createToken(user);
           // Store token in cookie httpOnly
+          res.cookie("Authorization", tokenData.token, {
+            httpOnly: true,
+            maxAge: tokenData.expiresIn * 1000,
+          });
           user.password = "";
           res.status(200).json({
             msg: "User logged in successfully",
@@ -71,11 +78,35 @@ export default class AuthController extends BaseController {
     req: express.Request,
     res: express.Response,
     next: express.NextFunction
-  ) => {};
+  ) => {
+    try {
+      res.clearCookie("Authorization");
+      res.status(200).json({
+        msg: "User logged out successfully",
+      });
+    } catch (error: any) {
+      next(error);
+    }
+  };
 
-  private createToken() {}
-
-  private createCookie() {}
+  private createToken(user: IUser): TokenData {
+    const expiresIn = 60 * 60; // an hour
+    const secret = process.env.JWT_SECRET!; // the ! tells the compiler that we know that the variable is defined
+    const dataStoredInToken: DataStoredInToken = {
+      _id: user._id,
+      email: user.email,
+      fullName: user.fullName,
+      img: user.img,
+      role: user.role,
+    };
+    return {
+      expiresIn,
+      token: jwt.sign(dataStoredInToken, secret, {
+        expiresIn,
+        algorithm: "HS384",
+      }),
+    };
+  }
 
   public googleLogin = (req: express.Request, res: express.Response) => {
     try {

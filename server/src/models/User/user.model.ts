@@ -36,7 +36,14 @@ const userSchema = new mongoose.Schema(
       match: [/^\d{10}$/, "Phone number must be 10 digits"],
       RegExp: /^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/im,
     },
-    verified: Boolean,
+    img: {
+      type: String,
+      default: "",
+    },
+    verified: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true }
 );

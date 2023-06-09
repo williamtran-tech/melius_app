@@ -18,6 +18,7 @@ authRouter.post(
   validationMiddleware(LogInDTO, false),
   authController.logIn
 );
+authRouter.get("/logout", authController.logOut);
 authRouter.get("/google", authController.googleLogin);
 authRouter.get("/google/callback", authController.googleCallback);
 authRouter.get("/google/callback/success", authController.success);
