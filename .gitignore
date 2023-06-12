@@ -80,7 +80,7 @@ buck-out/
 *.jsbundle
 
 # CocoaPods
-/ios/Pods/
+client/ios/Pods/
 
 # Expo
 client/.expo/*
