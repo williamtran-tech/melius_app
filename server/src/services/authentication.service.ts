@@ -1,14 +1,14 @@
 import * as jwt from "jsonwebtoken";
 import User from "./../models/User/user.model";
-import IUser from "./../models/User/user.interface";
-import CreateUserDTO from "../models/User/user.DTO";
+import CreateUserDTO from "../models/User/UserCreate.DTO";
+import RegisterUserDTO from "../models/User/UserRegister.DTO";
 import HttpException from "../exceptions/HttpException";
 import bcrypt from "bcrypt";
 
 class AuthenticationService {
   public user = User;
 
-  public async register(user: CreateUserDTO) {
+  public async generateVerifiedToken(user: RegisterUserDTO) {
     if (
       await this.user.findOne({
         email: user.email,
@@ -16,13 +16,52 @@ class AuthenticationService {
     ) {
       throw new HttpException(400, "Email already exists");
     }
-    const hash = await bcrypt.hash(user.password, 10);
+    // Check phone number duplicate
+    if (
+      await this.user.findOne({
+        phone: user.phone,
+      })
+    ) {
+      throw new HttpException(400, "Phone number already exists");
+    }
+    // Generate 4 digit code
+    // Send email with code
+    const verifiedCode = Math.floor(1000 + Math.random() * 9000);
+    // Generate a token for verifying email of user
+    const token = jwt.sign(
+      {
+        user: user,
+        verifiedCode: verifiedCode.toString(),
+      },
+      process.env.JWT_SECRET!,
+      {
+        expiresIn: "1h",
+      }
+    );
+    return { token, verifiedCode: verifiedCode.toString() };
+  }
 
-    const newUser = await this.user.create({ ...user, password: hash });
-    await newUser.save();
+  public async createUser(user: RegisterUserDTO, password: string) {
+    try {
+      const hashedPassword = await this.setPassword(password);
+      const createdUser = await this.user.create({
+        ...user,
+        password: hashedPassword,
+      });
+      return createdUser;
+    } catch (err) {
+      throw err;
+    }
+  }
 
-    // This need to return a token - Store token in cookie httpOnly
-    return user;
+  // Set password
+  public async setPassword(password: string) {
+    try {
+      const hashedPassword = await bcrypt.hash(password, 10);
+      return hashedPassword;
+    } catch (err) {
+      throw err;
+    }
   }
 
   public async passwordCompare(password: string, hash: string) {

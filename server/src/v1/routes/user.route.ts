@@ -1,7 +1,7 @@
 import { Router } from "express";
 import UserController from "../../controllers/User/user.controller";
 import validationMiddleware from "../../middlewares/validation.middleware";
-import CreateUserDTO from "../../models/User/user.DTO";
+import CreateUserDTO from "../../models/User/UserCreate.DTO";
 import authMiddleware from "../../middlewares/auth.middleware";
 
 export const userRouter = Router();

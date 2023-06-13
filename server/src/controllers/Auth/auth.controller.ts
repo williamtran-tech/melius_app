@@ -4,17 +4,25 @@ import passport from "./../../configs/passport.config";
 import User from "../../models/User/user.model";
 import IUser from "../../models/User/user.interface";
 import InvalidCredentialsExceptions from "../../exceptions/InvalidCredentialsException";
-import CreateUserDTO from "../../models/User/user.DTO";
+import CreateUserDTO from "../../models/User/UserCreate.DTO";
+import RegisterUserDTO from "../../models/User/UserRegister.DTO";
 import AuthenticationService from "../../services/authentication.service";
 import LogInDTO from "../../models/login.DTO";
 import TokenData from "../../interfaces/TokenData.interface";
 import DataStoredInToken from "../../interfaces/DataStoredInToken.interface";
+import DecodedVerifiedToken from "../../interfaces/DecodedVerifiedToken.interface";
+import HttpException from "../../exceptions/HttpException";
 import jwt from "jsonwebtoken";
+import DecodedUserToken from "../../interfaces/DecodedUserToken.interface";
 
 export default class AuthController extends BaseController {
   private userProfile: any;
 
   public authenticationService = new AuthenticationService();
+  constructor() {
+    super();
+    this.userProfile = {};
+  }
 
   public register = async (
     req: express.Request,
@@ -23,14 +31,85 @@ export default class AuthController extends BaseController {
   ) => {
     try {
       // Communicate with the DTO
-      const userData: CreateUserDTO = req.body;
-
+      const userData: RegisterUserDTO = req.body;
       // Cast the DTO to the authentication service
-      const user = await this.authenticationService.register(userData);
-      res.status(200).json({
-        msg: "User created successfully",
-        user: user,
+      const { token, verifiedCode } =
+        await this.authenticationService.generateVerifiedToken(userData);
+      res.cookie("token", token, {
+        httpOnly: true,
+        // maxAge for 1 hour
+        maxAge: 3600000,
       });
+      res.status(200).json({
+        msg: "User acceptable",
+        token: token,
+        verifiedCode: verifiedCode,
+      });
+    } catch (error: any) {
+      next(error);
+    }
+  };
+
+  public verifyUser = async (
+    req: express.Request,
+    res: express.Response,
+    next: express.NextFunction
+  ) => {
+    try {
+      if (!req.cookies.token) {
+        next(new HttpException(400, "No verified code found"));
+      } else {
+        const token = req.cookies.token;
+        const verifiedCode: string = req.body.verifiedCode;
+        const decodedToken = jwt.verify(
+          token,
+          process.env.JWT_SECRET!
+        ) as DecodedVerifiedToken;
+
+        if (decodedToken.verifiedCode != verifiedCode) {
+          res.status(404).json({
+            msg: "Invalid code",
+          });
+        } else {
+          res.status(200).json({
+            msg: "User verified",
+          });
+        }
+      }
+    } catch (err: any) {
+      next(err);
+    }
+  };
+
+  public setPassword = async (
+    req: express.Request,
+    res: express.Response,
+    next: express.NextFunction
+  ) => {
+    try {
+      const { password, confirmPassword } = req.body;
+      if (password !== confirmPassword) {
+        next(new HttpException(400, "Password does not match"));
+      }
+      console.log(req.cookies.token);
+      const decodedToken = jwt.verify(
+        req.cookies.token,
+        process.env.JWT_SECRET!
+      ) as DecodedUserToken;
+      const user = await this.authenticationService.createUser(
+        decodedToken.user,
+        password
+      );
+
+      if (!user) {
+        next(new HttpException(400, "Create user failed"));
+      } else {
+        res.cookie("token", "", { maxAge: 0 });
+        res.status(200).json({
+          msg: "Password set successfully",
+          user: user,
+        });
+      }
     } catch (error: any) {
       next(error);
     }
@@ -136,6 +215,9 @@ export default class AuthController extends BaseController {
     }
   };
 
+  // This method is called after the user is authenticated by Google
+
+  // https://www.googleapis.com/oauth2/v1/tokeninfo?access_token={access_token_here}
   public success = (req: express.Request, res: express.Response) => {
     try {
       this.userProfile = req.user;

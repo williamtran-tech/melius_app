@@ -1,8 +1,8 @@
 import {
   IsString,
   IsEmail,
-  IsStrongPassword,
   IsPhoneNumber,
+  IsStrongPassword,
 } from "class-validator";
 
 class CreateUserDTO {
@@ -12,6 +12,9 @@ class CreateUserDTO {
   @IsEmail()
   public email: string;
 
+  @IsPhoneNumber("VN" || "US" || "CA")
+  public phone: string;
+
   @IsStrongPassword({
     minLength: 6,
     minLowercase: 1,
@@ -20,9 +23,6 @@ class CreateUserDTO {
     minSymbols: 1,
   })
   public password: string;
-
-  @IsPhoneNumber("VN" || "US" || "CA")
-  public phone: string;
 
   constructor(
     fullName: string,
