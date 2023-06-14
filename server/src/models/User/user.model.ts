@@ -31,7 +31,6 @@ const userSchema = new mongoose.Schema(
     },
     phone: {
       type: String,
-      required: true,
       unique: true,
       match: [/^\d{10}$/, "Phone number must be 10 digits"],
       RegExp: /^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/im,
@@ -48,34 +47,8 @@ const userSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-// userSchema.pre("save", async function (next) {
-//   const user = this;
-//   if (!this.isModified("password") || this.isNew) {
-//     try {
-//       if (this.password.length < 6) {
-//         throw new HttpException(
-//           400,
-//           "Password must be at least 6 characters long"
-//         );
-//       }
-//       if (this.password.length > 60) {
-//         throw new HttpException(
-//           400,
-//           "Password must be less than 30 characters long"
-//         );
-//       } else {
-//         const hash = await bcrypt.hash(this.password, 10);
-//         user.password = hash;
-//       }
-//     } catch (err) {
-//       throw err;
-//     }
-//   }
-// });
-
 // Enable unique index for the 'email' field
 userSchema.index({ email: 1 }, { unique: true });
-
 const User = mongoose.model<IUser & mongoose.Document>("User", userSchema);
 
 export default User;

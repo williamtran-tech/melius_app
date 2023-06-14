@@ -57,7 +57,7 @@ export default class AuthController extends BaseController {
   ) => {
     try {
       if (!req.cookies.token) {
-        next(new HttpException(400, "No verified code found"));
+        next(new HttpException(401, "Unauthorized access"));
       } else {
         const token = req.cookies.token;
         const verifiedCode: string = req.body.verifiedCode;
@@ -87,22 +87,31 @@ export default class AuthController extends BaseController {
     next: express.NextFunction
   ) => {
     try {
-      const { password, confirmPassword } = req.body;
-      if (password !== confirmPassword) {
-        next(new HttpException(400, "Password does not match"));
+      if (!req.cookies.token) {
+        throw new HttpException(401, "Unauthorized access");
       }
-      console.log(req.cookies.token);
       const decodedToken = jwt.verify(
         req.cookies.token,
         process.env.JWT_SECRET!
       ) as DecodedUserToken;
+
+      console.log(decodedToken);
+      const { password, confirmPassword } = req.body;
+      if (password !== confirmPassword) {
+        throw new HttpException(400, "Password does not match");
+      }
+      const userData: CreateUserDTO = {
+        ...decodedToken.user,
+        password: password,
+      };
+
       const user = await this.authenticationService.createUser(
-        decodedToken.user,
+        userData,
         password
       );
 
       if (!user) {
-        next(new HttpException(400, "Create user failed"));
+        throw new HttpException(400, "Create user failed");
       } else {
         res.cookie("token", "", { maxAge: 0 });
         res.status(200).json({
@@ -137,6 +146,7 @@ export default class AuthController extends BaseController {
           res.cookie("Authorization", tokenData.token, {
             httpOnly: true,
             maxAge: tokenData.expiresIn * 1000,
+            secure: true,
           });
           user.password = "";
           res.status(200).json({
@@ -169,7 +179,7 @@ export default class AuthController extends BaseController {
   };
 
   private createToken(user: IUser): TokenData {
-    const expiresIn = 60 * 60; // an hour
+    const expiresIn = 60 * 60 * 24 * 3; // 3 days
     const secret = process.env.JWT_SECRET!; // the ! tells the compiler that we know that the variable is defined
     const dataStoredInToken: DataStoredInToken = {
       _id: user._id,
@@ -218,13 +228,55 @@ export default class AuthController extends BaseController {
   // This method is called after the user is authenticated by Google
 
   // https://www.googleapis.com/oauth2/v1/tokeninfo?access_token={access_token_here}
-  public success = (req: express.Request, res: express.Response) => {
+  public success = async (req: express.Request, res: express.Response) => {
     try {
       this.userProfile = req.user;
-      res.status(200).json({
-        msg: "User authenticated successfully",
-        user: this.userProfile,
+
+      // Store user information into the database
+      // Check if the user already exists in the database
+      const checkUserExists = await User.findOne({
+        email: this.userProfile.email,
       });
+      if (!checkUserExists) {
+        // Create a new user
+        console.log("Creating a new user");
+        const userData = {
+          email: this.userProfile.email,
+          fullName: this.userProfile.name,
+          img: this.userProfile.picture,
+          role: "user",
+          verified: true,
+          phone: null,
+          password: "",
+        };
+        const createUser = await User.create(userData);
+        const token = this.createToken(createUser);
+        res.cookie("Authorization", token, {
+          maxAge: token.expiresIn * 1000,
+          secure: true,
+          httpOnly: true,
+        });
+        res.status(200).json({
+          msg: "Redirect user to set password page",
+        });
+      } else {
+        if (checkUserExists.password === "") {
+          res.status(200).json({
+            msg: "Redirect user to set password page",
+          });
+        } else {
+          // Let user in
+          const token = this.createToken(this.userProfile);
+          res.cookie("Authorization", token.token, {
+            httpOnly: true,
+            maxAge: token.expiresIn * 1000,
+            secure: true,
+          });
+          res.status(200).json({
+            msg: "User authenticated successfully",
+          });
+        }
+      }
     } catch (error) {
       console.log(error);
       res.status(500).json({

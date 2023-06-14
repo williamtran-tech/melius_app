@@ -37,9 +37,8 @@ passport.use(
       // Callback function after successful authentication
       // Here, you can access the user's profile and perform further actions
       // or store the user data in your application's database.
-      userProfile = profile;
+      userProfile = profile._json;
       userProfile.accessToken = accessToken;
-      console.log("userProfile:", userProfile);
       return done(null, userProfile);
     }
   )

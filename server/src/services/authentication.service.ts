@@ -41,12 +41,13 @@ class AuthenticationService {
     return { token, verifiedCode: verifiedCode.toString() };
   }
 
-  public async createUser(user: RegisterUserDTO, password: string) {
+  public async createUser(user: CreateUserDTO, password: string) {
     try {
       const hashedPassword = await this.setPassword(password);
       const createdUser = await this.user.create({
         ...user,
         password: hashedPassword,
+        verified: true,
       });
       return createdUser;
     } catch (err) {
