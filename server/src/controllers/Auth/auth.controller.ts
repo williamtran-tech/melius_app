@@ -246,7 +246,6 @@ export default class AuthController extends BaseController {
           img: this.userProfile.picture,
           role: "user",
           verified: true,
-          phone: null,
           password: "",
         };
         const createUser = await User.create(userData);
@@ -256,6 +255,7 @@ export default class AuthController extends BaseController {
           secure: true,
           httpOnly: true,
         });
+        console.log("Phone: ", createUser.phone);
         res.status(200).json({
           msg: "Redirect user to set password page",
         });
