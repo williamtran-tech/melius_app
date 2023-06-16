@@ -6,7 +6,7 @@ import IUser from "../../models/User/user.interface";
 import InvalidCredentialsExceptions from "../../exceptions/InvalidCredentialsException";
 import CreateUserDTO from "../../models/User/UserCreate.DTO";
 import RegisterUserDTO from "../../models/User/UserRegister.DTO";
-import AuthenticationService from "../../services/authentication.service";
+import AuthenticationService from "../../services/auth.service";
 import LogInDTO from "../../models/login.DTO";
 import TokenData from "../../interfaces/TokenData.interface";
 import DataStoredInToken from "../../interfaces/DataStoredInToken.interface";
@@ -40,9 +40,12 @@ export default class AuthController extends BaseController {
         // maxAge for 1 hour
         maxAge: 3600000,
       });
+      this.authenticationService.sendVerifiedEmail(
+        userData.email,
+        verifiedCode
+      );
       res.status(200).json({
         msg: "User acceptable",
-        token: token,
         verifiedCode: verifiedCode,
       });
     } catch (error: any) {
@@ -109,13 +112,20 @@ export default class AuthController extends BaseController {
         userData,
         password
       );
-
       if (!user) {
         throw new HttpException(400, "Create user failed");
       } else {
+        const tokenData = this.createToken(user);
+        console.log(tokenData.expiresIn, tokenData.token);
+        res.cookie("Authorization", tokenData.token, {
+          httpOnly: true,
+          maxAge: tokenData.expiresIn * 1000,
+          // secure: true, // for https
+          // The secure flag is set to true in the res.cookie method. This means the cookie will only be sent over a secure HTTPS connection. If you are testing the code on a non-secure connection (HTTP), the cookie will not be set. Make sure you are accessing the server over HTTPS.
+        });
         res.cookie("token", "", { maxAge: 0 });
         res.status(200).json({
-          msg: "Password set successfully",
+          msg: "Password set successfully - Direct user to App without login again",
           user: user,
         });
       }
@@ -139,16 +149,17 @@ export default class AuthController extends BaseController {
           logInData.password,
           user.password
         );
+        console.log(result);
         if (result) {
           // Generate token
-          const tokenData = this.createToken(user);
+          const tokenData = await this.createToken(user);
+
           // Store token in cookie httpOnly
           res.cookie("Authorization", tokenData.token, {
             httpOnly: true,
             maxAge: tokenData.expiresIn * 1000,
             secure: true,
           });
-          user.password = "";
           res.status(200).json({
             msg: "User logged in successfully",
           });
@@ -169,15 +180,29 @@ export default class AuthController extends BaseController {
     next: express.NextFunction
   ) => {
     try {
-      res.clearCookie("Authorization");
-      res.status(200).json({
-        msg: "User logged out successfully",
-      });
+      if (!req.cookies.Authorization) {
+        throw new HttpException(401, "Unauthorized access");
+      } else {
+        const token = req.cookies.Authorization;
+        const decodedToken = jwt.verify(
+          token,
+          process.env.JWT_SECRET!
+        ) as DecodedUserToken;
+        if (!decodedToken) {
+          throw new HttpException(401, "Unauthorized access");
+        } else {
+          res.clearCookie("Authorization");
+          res.status(200).json({
+            msg: "User logged out successfully",
+          });
+        }
+      }
     } catch (error: any) {
       next(error);
     }
   };
 
+  // Generate token for authentication
   private createToken(user: IUser): TokenData {
     const expiresIn = 60 * 60 * 24 * 3; // 3 days
     const secret = process.env.JWT_SECRET!; // the ! tells the compiler that we know that the variable is defined
@@ -255,7 +280,7 @@ export default class AuthController extends BaseController {
           secure: true,
           httpOnly: true,
         });
-        console.log("Phone: ", createUser.phone);
+
         res.status(200).json({
           msg: "Redirect user to set password page",
         });

@@ -1,6 +1,5 @@
 import mongoose from "mongoose";
 import IUser from "./user.interface";
-import validator from "validator";
 
 const userSchema: mongoose.Schema<IUser> = new mongoose.Schema(
   {

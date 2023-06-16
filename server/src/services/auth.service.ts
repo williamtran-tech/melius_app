@@ -1,9 +1,10 @@
 import * as jwt from "jsonwebtoken";
-import User from "./../models/User/user.model";
+import User from "../models/User/user.model";
 import CreateUserDTO from "../models/User/UserCreate.DTO";
 import RegisterUserDTO from "../models/User/UserRegister.DTO";
 import HttpException from "../exceptions/HttpException";
 import bcrypt from "bcrypt";
+import MailUtil from "../utils/mail.util";
 
 class AuthenticationService {
   public user = User;
@@ -17,12 +18,14 @@ class AuthenticationService {
       throw new HttpException(400, "Email already exists");
     }
     // Check phone number duplicate
-    if (
-      await this.user.findOne({
-        phone: user.phone,
-      })
-    ) {
-      throw new HttpException(400, "Phone number already exists");
+    if (user.phone) {
+      if (
+        await this.user.findOne({
+          phone: user.phone,
+        })
+      ) {
+        throw new HttpException(400, "Phone number already exists");
+      }
     }
     // Generate 4 digit code
     // Send email with code
@@ -50,6 +53,23 @@ class AuthenticationService {
         verified: true,
       });
       return createdUser;
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  // Sending mail service
+  public async sendVerifiedEmail(email: string, verifiedCode: string) {
+    try {
+      const mailUtil = new MailUtil();
+      // Saver https://developers.google.com/oauthplayground/?code=4/0AbUR2VNYjBxZjzhS37rSnSBYK2hxiQEVEPPHALsZwewxPU8hA-Er92alWZEWmIDPDl73AQ&scope=https://mail.google.com/
+      const accessToken = await mailUtil.getAccessToken();
+      mailUtil.sendMail(
+        accessToken.token!,
+        email,
+        "Test",
+        `<h1>Verified Code: ${verifiedCode}</h1>`
+      );
     } catch (err) {
       throw err;
     }

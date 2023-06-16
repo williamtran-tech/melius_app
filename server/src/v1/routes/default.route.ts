@@ -1,5 +1,5 @@
-import exp from "constants";
 import { Router } from "express";
+import MailUtil from "../../utils/mail.util";
 
 export const defaultRouter = Router();
 
