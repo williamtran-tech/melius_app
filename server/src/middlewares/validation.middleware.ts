@@ -5,12 +5,13 @@ import HttpException from "../exceptions/HttpException";
 
 function validationMiddleware<T>(
   type: any,
-  skipMissingProperties: false
+  skipMissingProperties: boolean
 ): express.RequestHandler {
   return (req, res, next) => {
     validate(plainToInstance(type, req.body)).then(
       (errors: ValidationError[]) => {
         if (errors.length > 0) {
+          console.log(errors);
           const message = errors.map((error: ValidationError) => {
             return Object.values(error.constraints!).join(", ").toString();
           });
