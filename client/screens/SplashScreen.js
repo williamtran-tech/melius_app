@@ -9,15 +9,15 @@ const SplashScreen = ({ navigation }) => {
   useEffect(() => {
     Animated.timing(opacityAnim, {
       toValue: 1,
-      duration: 5000,
+      duration: 1000,
       useNativeDriver: true,
     }).start();
 
     setTimeout(() => {
       AsyncStorage.getItem("user_id").then((value) =>
-        navigation.replace(value === null ? "Auth" : "DrawerNavigationRoutes")
+        navigation.replace(value === null ? "Auth" : "BottomNavigation")
       );
-    }, 5000);
+    }, 1000);
   }, []);
 
   return (

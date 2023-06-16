@@ -38,7 +38,7 @@ const LoginScreen = ({ navigation }) => {
       return;
     }
     AsyncStorage.setItem("user_id", "OOOHH SHITTTTTTT");
-    navigation.replace("DrawerNavigationRoutes");
+    navigation.replace("BottomNavigation");
 
     // setLoading(true);
     // let dataToSend = { email: userEmail, password: userPassword };

@@ -13,6 +13,7 @@ import RegisterScreen from "./screens/RegisterScreen";
 import LoginScreen from "./screens/LoginScreen";
 import DrawerNavigatorRoutes from "./navigation/DrawerNavigatorRoutes";
 import StartScreen from "./screens/StartScreen";
+import BottomNavigation from "./navigation/BottomNavigation";
 
 const Stack = createStackNavigator();
 
@@ -76,11 +77,17 @@ const App = () => {
         />
         {/* Navigation Drawer as a landing page */}
         <Stack.Screen
+          name="BottomNavigation"
+          component={BottomNavigation}
+          // Hiding header for Navigation Drawer
+          options={{ headerShown: false }}
+        />
+        {/* <Stack.Screen
           name="DrawerNavigationRoutes"
           component={DrawerNavigatorRoutes}
           // Hiding header for Navigation Drawer
           options={{ headerShown: false }}
-        />
+        /> */}
       </Stack.Navigator>
     </NavigationContainer>
   );
