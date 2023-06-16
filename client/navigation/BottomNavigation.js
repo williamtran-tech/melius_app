@@ -3,7 +3,9 @@ import SVGicon from "../assets/icon/SVGicon";
 import HomeScreen from "../screens/HomeScreen";
 import SettingsScreen from "../screens/SettingScreen";
 import { useState } from "react";
+import { StyleSheet } from "react-native";
 import { useNavigation } from "@react-navigation/native";
+import { TouchableOpacity } from "react-native-gesture-handler";
 
 const Tab = createBottomTabNavigator();
 
@@ -17,7 +19,7 @@ function BottomNavigation() {
     <Tab.Navigator
       screenOptions={({ route }) => ({
         headerShown: false,
-        tabBarIcon: ({ focused, color, size }) => {
+        tabBarIcon: () => {
           let IconComponent;
 
           if (route.name === "Home") {
@@ -42,7 +44,11 @@ function BottomNavigation() {
           }
 
           if (IconComponent) {
-            return <IconComponent width={size} height={size} fill={color} />;
+            return (
+              <TouchableOpacity style={styles.tabBar}>
+                <IconComponent />
+              </TouchableOpacity>
+            );
           } else {
             return null;
           }
@@ -103,3 +109,9 @@ function BottomNavigation() {
   );
 }
 export default BottomNavigation;
+
+const styles = StyleSheet.create({
+  tabBar: {
+    padding: 15,
+  },
+});

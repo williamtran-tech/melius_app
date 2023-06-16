@@ -5,6 +5,14 @@
     "version": "1.0.0",
     "assetBundlePatterns": [
       "**/*"
+    ],
+    "fonts": [
+      {
+        "fontFamily": "PaytoneOne",
+        "fontStyle": "normal",
+        "fontWeight": "normal",
+        "src": "./assets/fonts/PaytoneOne-Regular.ttf"
+      }
     ]
   },
   "name": "client"
