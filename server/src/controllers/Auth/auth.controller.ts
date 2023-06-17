@@ -2,14 +2,11 @@ import express from "express";
 import { BaseController } from "../abstractions/base.controller";
 import passport from "./../../configs/passport.config";
 import User from "../../models/User/user.model";
-import IUser from "../../models/User/user.interface";
 import InvalidCredentialsExceptions from "../../exceptions/InvalidCredentialsException";
 import CreateUserDTO from "../../models/User/UserCreate.DTO";
 import RegisterUserDTO from "../../models/User/UserRegister.DTO";
 import AuthenticationService from "../../services/auth.service";
-import LogInDTO from "../../models/login.DTO";
-import TokenData from "../../interfaces/TokenData.interface";
-import DataStoredInToken from "../../interfaces/DataStoredInToken.interface";
+import LogInDTO from "../../models/DTOs/Login.DTO";
 import DecodedVerifiedToken from "../../interfaces/DecodedVerifiedToken.interface";
 import HttpException from "../../exceptions/HttpException";
 import jwt from "jsonwebtoken";
@@ -30,6 +27,12 @@ export default class AuthController extends BaseController {
     next: express.NextFunction
   ) => {
     try {
+      const dupUser = await User.findOne({
+        email: req.body.email,
+      });
+      if (dupUser) {
+        throw new HttpException(400, "Email already exists");
+      }
       // Communicate with the DTO
       const userData: RegisterUserDTO = req.body;
       // Cast the DTO to the authentication service
@@ -64,6 +67,7 @@ export default class AuthController extends BaseController {
       } else {
         const token = req.cookies.token;
         const verifiedCode: string = req.body.verifiedCode;
+
         const decodedToken = jwt.verify(
           token,
           process.env.JWT_SECRET!
@@ -74,6 +78,15 @@ export default class AuthController extends BaseController {
             msg: "Invalid code",
           });
         } else {
+          const token = await this.authenticationService.userVerified(
+            decodedToken.user
+          );
+          res.clearCookie("token");
+          res.cookie("token", token, {
+            httpOnly: true,
+            // maxAge for 15m
+            maxAge: 900000,
+          });
           res.status(200).json({
             msg: "User verified",
           });
@@ -98,37 +111,102 @@ export default class AuthController extends BaseController {
         process.env.JWT_SECRET!
       ) as DecodedUserToken;
 
-      console.log(decodedToken);
       const { password, confirmPassword } = req.body;
       if (password !== confirmPassword) {
         throw new HttpException(400, "Password does not match");
       }
-      const userData: CreateUserDTO = {
-        ...decodedToken.user,
-        password: password,
-      };
+      if (!decodedToken.user.isVerified) {
+        throw new HttpException(400, "User not verified");
+      }
 
-      const user = await this.authenticationService.createUser(
-        userData,
-        password
-      );
-      if (!user) {
-        throw new HttpException(400, "Create user failed");
+      const checkUser = await User.findOne({
+        email: decodedToken.user.email,
+      });
+      if (!checkUser) {
+        const userData: CreateUserDTO = {
+          ...decodedToken.user,
+          password: password,
+        };
+        const user = await this.authenticationService.createUser(
+          userData,
+          password
+        );
+        if (!user) {
+          throw new HttpException(400, "Create user failed");
+        } else {
+          const { expiresIn, token } =
+            this.authenticationService.generateAuthenticationToken(user);
+          console.log(expiresIn, token);
+          res.cookie("Authorization", token, {
+            httpOnly: true,
+            maxAge: expiresIn * 1000,
+            // secure: true, // for https
+            // The secure flag is set to true in the res.cookie method. This means the cookie will only be sent over a secure HTTPS connection. If you are testing the code on a non-secure connection (HTTP), the cookie will not be set. Make sure you are accessing the server over HTTPS.
+          });
+          res.cookie("token", "", { maxAge: 0 });
+          res.status(200).json({
+            msg: "Password set successfully - Direct user to App without login again",
+            user: user,
+          });
+        }
       } else {
-        const tokenData = this.createToken(user);
-        console.log(tokenData.expiresIn, tokenData.token);
-        res.cookie("Authorization", tokenData.token, {
-          httpOnly: true,
-          maxAge: tokenData.expiresIn * 1000,
-          // secure: true, // for https
-          // The secure flag is set to true in the res.cookie method. This means the cookie will only be sent over a secure HTTPS connection. If you are testing the code on a non-secure connection (HTTP), the cookie will not be set. Make sure you are accessing the server over HTTPS.
+        const hash = await this.authenticationService.hashPassword(password);
+        await User.findOneAndUpdate(
+          { email: decodedToken.user.email },
+          { password: hash }
+        );
+
+        const updatedUser = await User.findOne({
+          email: decodedToken.user.email,
         });
+        const { expiresIn, token } =
+          this.authenticationService.generateAuthenticationToken(updatedUser);
         res.cookie("token", "", { maxAge: 0 });
+        res.clearCookie("token");
+        res.cookie("Authorization", token, {
+          httpOnly: true,
+          maxAge: expiresIn * 1000,
+        });
         res.status(200).json({
           msg: "Password set successfully - Direct user to App without login again",
-          user: user,
         });
       }
+    } catch (error: any) {
+      next(error);
+    }
+  };
+
+  public forgotPassword = async (
+    req: express.Request,
+    res: express.Response,
+    next: express.NextFunction
+  ) => {
+    try {
+      const user = await User.findOne({
+        email: req.body.email,
+      });
+      if (!user) {
+        throw new HttpException(404, "User not found");
+      }
+      const userData: RegisterUserDTO = {
+        email: user.email,
+        fullName: user.fullName,
+        isVerified: false,
+      };
+
+      const { token, verifiedCode } =
+        await this.authenticationService.generateVerifiedToken(userData);
+      res.cookie("token", token, {
+        httpOnly: true,
+        // maxAge for 15 minutes
+        maxAge: 900000,
+      });
+      this.authenticationService.sendVerifiedEmail(user.email, verifiedCode);
+
+      res.status(200).json({
+        msg: "Verified Code sent to your email",
+        verifiedCode: verifiedCode,
+      });
     } catch (error: any) {
       next(error);
     }
@@ -149,10 +227,10 @@ export default class AuthController extends BaseController {
           logInData.password,
           user.password
         );
-        console.log(result);
         if (result) {
           // Generate token
-          const tokenData = await this.createToken(user);
+          const tokenData =
+            await this.authenticationService.generateAuthenticationToken(user);
 
           // Store token in cookie httpOnly
           res.cookie("Authorization", tokenData.token, {
@@ -201,26 +279,6 @@ export default class AuthController extends BaseController {
       next(error);
     }
   };
-
-  // Generate token for authentication
-  private createToken(user: IUser): TokenData {
-    const expiresIn = 60 * 60 * 24 * 3; // 3 days
-    const secret = process.env.JWT_SECRET!; // the ! tells the compiler that we know that the variable is defined
-    const dataStoredInToken: DataStoredInToken = {
-      _id: user._id,
-      email: user.email,
-      fullName: user.fullName,
-      img: user.img,
-      role: user.role,
-    };
-    return {
-      expiresIn,
-      token: jwt.sign(dataStoredInToken, secret, {
-        expiresIn,
-        algorithm: "HS384",
-      }),
-    };
-  }
 
   public googleLogin = (req: express.Request, res: express.Response) => {
     try {
@@ -274,7 +332,8 @@ export default class AuthController extends BaseController {
           password: "",
         };
         const createUser = await User.create(userData);
-        const token = this.createToken(createUser);
+        const token =
+          this.authenticationService.generateAuthenticationToken(createUser);
         res.cookie("Authorization", token, {
           maxAge: token.expiresIn * 1000,
           secure: true,
@@ -291,7 +350,9 @@ export default class AuthController extends BaseController {
           });
         } else {
           // Let user in
-          const token = this.createToken(this.userProfile);
+          const token = this.authenticationService.generateAuthenticationToken(
+            this.userProfile
+          );
           res.cookie("Authorization", token.token, {
             httpOnly: true,
             maxAge: token.expiresIn * 1000,

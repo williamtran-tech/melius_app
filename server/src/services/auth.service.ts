@@ -5,18 +5,14 @@ import RegisterUserDTO from "../models/User/UserRegister.DTO";
 import HttpException from "../exceptions/HttpException";
 import bcrypt from "bcrypt";
 import MailUtil from "../utils/mail.util";
+import TokenData from "../interfaces/TokenData.interface";
+import IUser from "../models/User/user.interface";
+import DataStoredInToken from "../interfaces/DataStoredInToken.interface";
 
 class AuthenticationService {
   public user = User;
 
   public async generateVerifiedToken(user: RegisterUserDTO) {
-    if (
-      await this.user.findOne({
-        email: user.email,
-      })
-    ) {
-      throw new HttpException(400, "Email already exists");
-    }
     // Check phone number duplicate
     if (user.phone) {
       if (
@@ -31,6 +27,7 @@ class AuthenticationService {
     // Send email with code
     const verifiedCode = Math.floor(1000 + Math.random() * 9000);
     // Generate a token for verifying email of user
+    console.log("Verified: ", user);
     const token = jwt.sign(
       {
         user: user,
@@ -41,12 +38,48 @@ class AuthenticationService {
         expiresIn: "1h",
       }
     );
+    console.log(user);
     return { token, verifiedCode: verifiedCode.toString() };
+  }
+
+  public async userVerified(user: any) {
+    console.log("AuthService: ", user);
+    console.log("User verified: ", user);
+    user.isVerified = true;
+    const token = jwt.sign(
+      {
+        user: user,
+      },
+      process.env.JWT_SECRET!,
+      {
+        expiresIn: "15m",
+      }
+    );
+    return token;
+  }
+
+  public generateAuthenticationToken(user: IUser | any) {
+    const expiresIn = 60 * 60 * 24 * 3; // 3 days
+    const secret = process.env.JWT_SECRET!; // the ! tells the compiler that we know that the variable is defined
+    const dataStoredInToken: DataStoredInToken = {
+      _id: user._id,
+      email: user.email,
+      fullName: user.fullName,
+      img: user.img,
+      role: user.role,
+    };
+    return {
+      expiresIn,
+      token: jwt.sign(dataStoredInToken, secret, {
+        expiresIn,
+        algorithm: "HS384",
+      }),
+    };
   }
 
   public async createUser(user: CreateUserDTO, password: string) {
     try {
-      const hashedPassword = await this.setPassword(password);
+      const hashedPassword = await this.hashPassword(password);
       const createdUser = await this.user.create({
         ...user,
         password: hashedPassword,
@@ -75,8 +108,7 @@ class AuthenticationService {
     }
   }
 
-  // Set password
-  public async setPassword(password: string) {
+  public async hashPassword(password: string) {
     try {
       const hashedPassword = await bcrypt.hash(password, 10);
       return hashedPassword;

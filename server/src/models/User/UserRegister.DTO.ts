@@ -17,10 +17,18 @@ class RegisterUserDTO {
   @Matches(/^\d{10}$/, { message: "Phone number must be 10 digits" })
   public phone?: string;
 
-  constructor(fullName: string, email: string, phone?: string) {
+  public isVerified: boolean;
+
+  constructor(
+    fullName: string,
+    email: string,
+    phone?: string,
+    isVerified: boolean = false
+  ) {
     this.fullName = fullName;
     this.email = email;
     this.phone = phone || undefined;
+    this.isVerified = isVerified;
   }
 }
 

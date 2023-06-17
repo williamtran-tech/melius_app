@@ -1,29 +1,40 @@
 import { Router } from "express";
 import AuthController from "../../controllers/Auth/auth.controller";
 import validationMiddleware from "../../middlewares/validation.middleware";
-import CreateUserDTO from "../../models/User/UserCreate.DTO";
+
 import RegisterUserDTO from "../../models/User/UserRegister.DTO";
-import LogInDTO from "../../models/login.DTO";
+import LogInDTO from "../../models/DTOs/Login.DTO";
+import ResetPasswordDTO from "../../models/DTOs/ResetPassword.DTO";
+
+import registerMiddleware from "../../middlewares/register.middleware";
+import authMiddleware from "../../middlewares/auth.middleware";
 
 export const authRouter = Router();
 const authController = new AuthController();
 
 authRouter.post(
   "/register",
+  registerMiddleware,
   validationMiddleware(RegisterUserDTO, false),
   authController.register
 );
-
 // Verify via email
 authRouter.post("/verify", authController.verifyUser);
-
 // Verify via phone
 
 // Set password
 authRouter.post("/password", authController.setPassword);
-// Reset password
+// Change password
 
 // Forgot password
+authRouter.post(
+  "/forgot-password",
+  registerMiddleware,
+  validationMiddleware(ResetPasswordDTO, false),
+  authController.forgotPassword
+);
+// Reset password
+authRouter.patch("/password", registerMiddleware, authController.setPassword);
 
 authRouter.post(
   "/login",
