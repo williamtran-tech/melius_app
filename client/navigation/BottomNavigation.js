@@ -5,6 +5,7 @@ import SettingsScreen from "../screens/SettingScreen";
 import { useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { useNavigation } from "@react-navigation/native";
+import ProfileScreen from "../screens/ProfileScreen";
 
 const Tab = createBottomTabNavigator();
 
@@ -44,7 +45,7 @@ function BottomNavigation() {
 
           if (IconComponent) {
             return (
-              <View style={styles.tabBar} onPress={console.log("cc")}>
+              <View style={styles.tabBar}>
                 <IconComponent />
               </View>
             );
@@ -98,7 +99,7 @@ function BottomNavigation() {
       />
       <Tab.Screen
         name="Setting"
-        component={SettingsScreen}
+        component={ProfileScreen}
         listeners={{
           focus: () => setSelectedTab("Setting"), // Set the selected tab as "Setting" when it is focused
         }}

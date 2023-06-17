@@ -5,9 +5,10 @@
     "version": "1.0.0",
     "assetBundlePatterns": [
       "**/*"
+    ],
+    "plugins": [
+      "expo-localization"
     ]
-
-
   },
   "name": "client"
 }

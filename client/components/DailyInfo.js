@@ -200,6 +200,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2, // Opacity of the shadow
     shadowRadius: 4, // Radius of the shadow blur
     shadowSpread: -4,
+    paddingTop: 10,
   },
   updateText: { color: "#518B1A", fontSize: 14 },
   updatebtn: {

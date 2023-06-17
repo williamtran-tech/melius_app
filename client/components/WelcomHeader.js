@@ -1,13 +1,14 @@
 import { Image, StyleSheet, Text, View } from "react-native";
 import React from "react";
-
 import { useEffect, useState } from "react";
 import { LinearGradient } from "expo-linear-gradient";
 import SVGicon from "../assets/icon/SVGicon";
 import * as Font from "expo-font";
 import HeaderText from "./HeaderText";
+import { useTranslation } from "react-i18next";
 
 const WelcomHeader = () => {
+  const { t } = useTranslation();
   const Weather = SVGicon.Weather;
   const [fontLoaded, setFontLoaded] = useState(false);
   const currentDate = new Date();
@@ -43,7 +44,7 @@ const WelcomHeader = () => {
             <Weather />
             <Text style={styles.datetext}> {formattedDate}</Text>
           </View>
-          <HeaderText style={styles.text}>Good morning,</HeaderText>
+          <HeaderText style={styles.text}>{t("welcome")}</HeaderText>
           <HeaderText style={styles.text}>Hello Mother Fcker</HeaderText>
         </View>
         <View>
