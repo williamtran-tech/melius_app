@@ -43,7 +43,6 @@ const WelcomHeader = () => {
             <Weather />
             <Text style={styles.datetext}> {formattedDate}</Text>
           </View>
-
           <HeaderText style={styles.text}>Good morning,</HeaderText>
           <HeaderText style={styles.text}>Hello Mother Fcker</HeaderText>
         </View>
@@ -75,7 +74,7 @@ const styles = StyleSheet.create({
     transform: [{ rotate: "9.28deg" }],
   },
   welcomecontainer: {
-    marginTop: 53,
+    marginTop: 45,
     marginLeft: 25,
   },
   // welcomeText: {
@@ -83,7 +82,6 @@ const styles = StyleSheet.create({
   //   fontStyle: "normal",
   // },
   text: {
-    marginTop: 3,
     fontSize: 20,
     fontWeight: 400,
     color: "rgba(81, 139, 26, 1)",

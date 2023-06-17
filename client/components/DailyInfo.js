@@ -4,7 +4,7 @@ import HeaderText from "./HeaderText";
 import { useState } from "react";
 import SubText from "./SubText";
 const DailyInfo = () => {
-  const [emotion, setEmotion] = useState();
+  const [emotion, setEmotion] = useState("level5");
   const handleEmotion = (level) => {
     setEmotion(level);
   };
@@ -13,7 +13,12 @@ const DailyInfo = () => {
       <HeaderText style={styles.headertext}>HOW IS BABY BEE TODAY?</HeaderText>
       <View style={styles.containeremotion}>
         <TouchableOpacity
-          style={{ padding: 5 }}
+          style={{
+            height: 32,
+            width: 32,
+            justifyContent: "center",
+            alignItems: "center",
+          }}
           onPress={() => handleEmotion("level1")}
         >
           <Image
@@ -25,7 +30,12 @@ const DailyInfo = () => {
           ></Image>
         </TouchableOpacity>
         <TouchableOpacity
-          style={{ padding: 5 }}
+          style={{
+            height: 32,
+            width: 32,
+            justifyContent: "center",
+            alignItems: "center",
+          }}
           onPress={() => handleEmotion("level2")}
         >
           <Image
@@ -37,7 +47,12 @@ const DailyInfo = () => {
           ></Image>
         </TouchableOpacity>
         <TouchableOpacity
-          style={{ padding: 5 }}
+          style={{
+            height: 32,
+            width: 32,
+            justifyContent: "center",
+            alignItems: "center",
+          }}
           onPress={() => handleEmotion("level3")}
         >
           <Image
@@ -49,7 +64,12 @@ const DailyInfo = () => {
           ></Image>
         </TouchableOpacity>
         <TouchableOpacity
-          style={{ padding: 5 }}
+          style={{
+            height: 32,
+            width: 32,
+            justifyContent: "center",
+            alignItems: "center",
+          }}
           onPress={() => handleEmotion("level4")}
         >
           <Image
@@ -61,7 +81,12 @@ const DailyInfo = () => {
           ></Image>
         </TouchableOpacity>
         <TouchableOpacity
-          style={{ padding: 5 }}
+          style={{
+            height: 32,
+            width: 32,
+            justifyContent: "center",
+            alignItems: "center",
+          }}
           onPress={() => handleEmotion("level5")}
         >
           <Image
@@ -77,15 +102,15 @@ const DailyInfo = () => {
         <SubText style={styles.lastupdatetext}>Last updated 15/04/2023</SubText>
         <View style={styles.informationContainer}>
           <View style={styles.inforItem}>
-            <View style={{ flexDirection: "column" }}>
+            <View style={{ flexDirection: "column", marginTop: "auto" }}>
               <SubText style={styles.inforItemText}>90kg</SubText>
               <SubText style={styles.nameItemText}>Weight</SubText>
             </View>
-            <View style={{ flexDirection: "column" }}>
+            <View style={{ flexDirection: "column", marginTop: "auto" }}>
               <SubText style={styles.inforItemText}>200cm</SubText>
               <SubText style={styles.nameItemText}>Height</SubText>
             </View>
-            <View style={{ flexDirection: "column" }}>
+            <View style={{ flexDirection: "column", marginTop: "auto" }}>
               <SubText style={styles.BMIItemText}>80</SubText>
               <SubText style={styles.nameItemText}>BMI</SubText>
             </View>
@@ -112,21 +137,26 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: -1 },
     shadowOpacity: 0.2,
     shadowRadius: 4,
+    display: "flex",
+    paddingVertical: 10,
   },
   headertext: {
     fontSize: 20,
     color: "rgba(255, 150, 0, 1)",
-    marginLeft: 17,
-    marginTop: 15,
+    paddingLeft: 17,
+    flex: 2,
+    // backgroundColor: "#003",
+    paddingBottom: -10,
   },
   containeremotion: {
     flexDirection: "row",
     gap: 5,
-    marginTop: 10,
+    flex: 2,
     marginRight: 35,
     marginLeft: 35,
     justifyContent: "space-between",
     alignItems: "center",
+    // backgroundColor: "#000",
   },
   lastupdatetext: {
     color: "rgba(140, 140, 140, 1)",
@@ -135,7 +165,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   inforItem: {
-    flex: 3,
+    flex: 4,
     flexDirection: "row",
     justifyContent: "space-between",
   },
@@ -154,13 +184,22 @@ const styles = StyleSheet.create({
     flexDirection: "column",
   },
   inforItemContainer: {
+    flex: 4,
     backgroundColor: "#FFFFFF",
     borderRadius: 5,
     boxShadow: "inset 0px 0px 4px rgba(26, 26, 26, 0.2)",
     marginLeft: 13,
     marginRight: 13,
-    paddingVertical: 9,
+    marginTop: 5,
+    // marginBottom: 15,
     paddingHorizontal: 17,
+    borderRadius: 5,
+    elevation: 4, // Specifies the elevation for the drop shadow
+    shadowColor: "#1A1A1A", // Color of the shadow
+    shadowOffset: { width: 0, height: -1 }, // Offset of the shadow (0px horizontally, -1px vertically)
+    shadowOpacity: 0.2, // Opacity of the shadow
+    shadowRadius: 4, // Radius of the shadow blur
+    shadowSpread: -4,
   },
   updateText: { color: "#518B1A", fontSize: 14 },
   updatebtn: {
@@ -180,10 +219,11 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     shadowOpacity: 1,
     elevation: 2,
+    marginTop: "auto",
   },
   informationContainer: {
     marginTop: 5,
     flexDirection: "row",
-    alignItems: "center",
+    // alignItems: "center",
   },
 });

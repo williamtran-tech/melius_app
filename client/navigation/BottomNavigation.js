@@ -3,9 +3,8 @@ import SVGicon from "../assets/icon/SVGicon";
 import HomeScreen from "../screens/HomeScreen";
 import SettingsScreen from "../screens/SettingScreen";
 import { useState } from "react";
-import { StyleSheet } from "react-native";
+import { StyleSheet, View } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import { TouchableOpacity } from "react-native-gesture-handler";
 
 const Tab = createBottomTabNavigator();
 
@@ -45,9 +44,9 @@ function BottomNavigation() {
 
           if (IconComponent) {
             return (
-              <TouchableOpacity style={styles.tabBar}>
+              <View style={styles.tabBar} onPress={console.log("cc")}>
                 <IconComponent />
-              </TouchableOpacity>
+              </View>
             );
           } else {
             return null;
@@ -113,5 +112,6 @@ export default BottomNavigation;
 const styles = StyleSheet.create({
   tabBar: {
     padding: 15,
+    // backgroundColor: "#000",
   },
 });
