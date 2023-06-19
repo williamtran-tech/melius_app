@@ -18,6 +18,7 @@ import * as Localization from "expo-localization";
 import en from "./Services/translation/en.json";
 import vi from "./Services/translation/vi.json";
 import { Button } from "react-native";
+
 const Auth = () => {
   return (
     <Stack.Navigator initialRouteName="StartScreen">

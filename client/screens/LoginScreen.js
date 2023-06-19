@@ -60,14 +60,14 @@ const LoginScreen = ({ navigation }) => {
         if (receivedCookies) AsyncStorage.setItem("cookies", receivedCookies);
         console.log(receivedCookies);
 
-        // Convert the response to JSON
-        return response.json();
+        if (response.status === 200) {
+          // Convert the response to JSON
+          return response.json();
+        }
       })
       .then((responseJson) => {
         setLoading(false);
         console.log(responseJson);
-
-        AsyncStorage.setItem("user_id", "");
         navigation.replace("BottomNavigation");
       })
       .catch((error) => {

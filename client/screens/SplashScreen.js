@@ -14,7 +14,7 @@ const SplashScreen = ({ navigation }) => {
     }).start();
 
     setTimeout(() => {
-      AsyncStorage.getItem("user_id").then((value) =>
+      AsyncStorage.getItem("cookies").then((value) =>
         navigation.replace(value === null ? "Auth" : "BottomNavigation")
       );
     }, 1000);
