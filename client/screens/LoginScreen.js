@@ -16,9 +16,14 @@ import {
 } from "react-native";
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
-
 import Loader from "../components/Loader";
-
+import HeaderText from "../components/HeaderText";
+import SubText from "../components/SubText";
+import { TouchableWithoutFeedback } from "react-native";
+import { useForm, Controller } from "react-hook-form";
+import { Formik } from "formik";
+import Validation from "../Services/Authorizations/Validation";
+import qs from "qs";
 const LoginScreen = ({ navigation }) => {
   const [userEmail, setUserEmail] = useState("");
   const [userPassword, setUserPassword] = useState("");
@@ -27,20 +32,11 @@ const LoginScreen = ({ navigation }) => {
 
   const passwordInputRef = createRef();
 
-  const handleSubmitPress = () => {
-    setErrortext("");
-    if (!userEmail) {
-      alert("Please fill Email");
-      return;
-    }
-    if (!userPassword) {
-      alert("Please fill Password");
-      return;
-    }
-    AsyncStorage.setItem("user_id", "OOOHH SHITTTTTTT");
-    navigation.replace("BottomNavigation");
-
-    // setLoading(true);
+  const handleSubmitPress = (values) => {
+    // AsyncStorage.setItem("user_id", "OOOHH SHITTTTTTT");
+    // navigation.replace("BottomNavigation");
+    console.log(qs.stringify(values));
+    setLoading(true);
     // let dataToSend = { email: userEmail, password: userPassword };
     // let formBody = [];
     // for (let key in dataToSend) {
@@ -50,136 +46,166 @@ const LoginScreen = ({ navigation }) => {
     // }
     // formBody = formBody.join("&");
 
-    // fetch("http://localhost:3000/api/user/login", {
-    //   method: "POST",
-    //   body: formBody,
-    //   headers: {
-    //     //Header Defination
-    //     "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8",
-    //   },
-    // })
-    //   .then((response) => response.json())
-    //   .then((responseJson) => {
-    //     //Hide Loader
-    //     setLoading(false);
-    //     console.log(responseJson);
-    //     // If server response message same as Data Matched
-    //     if (responseJson.status === "success") {
-    //       AsyncStorage.setItem("user_id", responseJson.data.email);
-    //       console.log(responseJson.data.email);
-    //       navigation.replace("DrawerNavigationRoutes");
-    //     } else {
-    //       setErrortext(responseJson.msg);
-    //       console.log("Please check your email id or password");
-    //     }
-    //   })
-    //   .catch((error) => {
-    //     //Hide Loader
-    //     setLoading(false);
-    //     console.error(error);
-    //   });
+    fetch("http://192.168.102.100:5050/api/v1/auth/login", {
+      method: "POST",
+      body: qs.stringify(values),
+      headers: {
+        //Header Defination
+        "Content-Type": "application/x-www-form-urlencoded",
+        credentials: "include",
+      },
+    })
+      .then((response) => {
+        let receivedCookies = response.headers.get("set-cookie");
+        if (receivedCookies) AsyncStorage.setItem("cookies", receivedCookies);
+        console.log(receivedCookies);
+
+        // Convert the response to JSON
+        return response.json();
+      })
+      .then((responseJson) => {
+        setLoading(false);
+        console.log(responseJson);
+
+        AsyncStorage.setItem("user_id", "");
+        navigation.replace("BottomNavigation");
+      })
+      .catch((error) => {
+        //Hide Loader
+        setLoading(false);
+        console.error(error);
+      });
   };
 
   return (
-    <View style={styles.mainBody}>
-      <Loader loading={loading} />
-      <ScrollView
-        keyboardShouldPersistTaps="handled"
-        contentContainerStyle={{
-          flex: 1,
-          justifyContent: "center",
-          alignContent: "center",
-        }}
-      >
-        <View>
-          <KeyboardAvoidingView enabled>
-            <View style={{ alignItems: "center" }}>
-              <Image
-                source={
-                  "https://images.unsplash.com/photo-1686253795429-2fc371ac9895?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1773&q=80"
-                }
-                style={{
-                  width: "50%",
-                  height: 100,
-                  resizeMode: "contain",
-                  margin: 30,
-                }}
-              />
-            </View>
-            <View style={styles.SectionStyle}>
-              <TextInput
-                style={styles.inputStyle}
-                onChangeText={(UserEmail) => setUserEmail(UserEmail)}
-                placeholder="Enter Email" //dummy@abc.com
-                placeholderTextColor="#8b9cb5"
-                autoCapitalize="none"
-                keyboardType="email-address"
-                returnKeyType="next"
-                onSubmitEditing={() =>
-                  passwordInputRef.current && passwordInputRef.current.focus()
-                }
-                underlineColorAndroid="#f000"
-                blurOnSubmit={false}
-              />
-            </View>
-            <View style={styles.SectionStyle}>
-              <TextInput
-                style={styles.inputStyle}
-                onChangeText={(UserPassword) => setUserPassword(UserPassword)}
-                placeholder="Enter Password" //12345
-                placeholderTextColor="#8b9cb5"
-                keyboardType="default"
-                ref={passwordInputRef}
-                onSubmitEditing={Keyboard.dismiss}
-                blurOnSubmit={false}
-                secureTextEntry={true}
-                underlineColorAndroid="#f000"
-                returnKeyType="next"
-              />
-            </View>
-            {errortext != "" ? (
-              <Text style={styles.errorTextStyle}>{errortext}</Text>
-            ) : null}
-            <TouchableOpacity
-              style={styles.buttonStyle}
-              activeOpacity={0.5}
-              onPress={handleSubmitPress}
-            >
-              <Text style={styles.buttonTextStyle}>LOGIN</Text>
-            </TouchableOpacity>
-            <Text
-              style={styles.registerTextStyle}
-              onPress={() => navigation.navigate("RegisterScreen")}
-            >
-              New Here ? Register
-            </Text>
-          </KeyboardAvoidingView>
-        </View>
-      </ScrollView>
-    </View>
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+      <View style={styles.container}>
+        <Loader loading={loading} />
+        <HeaderText style={{ color: "rgba(81, 139, 26, 1)", fontSize: 25 }}>
+          Login
+        </HeaderText>
+        <KeyboardAvoidingView
+          enabled
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+          style={{ backgroundColor: "#fff" }}
+          onPress={Keyboard.dismiss}
+        >
+          <Formik
+            validateOnChange={true}
+            validationSchema={Validation.loginValidationSchema}
+            initialValues={{ email: "", password: "" }}
+            onSubmit={handleSubmitPress}
+          >
+            {({
+              handleChange,
+              handleBlur,
+              handleSubmit,
+              values,
+              errors,
+              touched,
+              isValid,
+            }) => (
+              <>
+                <View style={styles.SectionStyle}>
+                  <TextInput
+                    style={styles.inputStyle}
+                    onChangeText={handleChange("email")}
+                    placeholder="Email" //dummy@abc.com
+                    onBlur={handleBlur("email")}
+                    placeholderTextColor="#8b9cb5"
+                    autoCapitalize="none"
+                    keyboardType="email-address"
+                    returnKeyType="next"
+                    value={values.email}
+                    onSubmitEditing={() =>
+                      passwordInputRef.current &&
+                      passwordInputRef.current.focus()
+                    }
+                    underlineColorAndroid="#f000"
+                  />
+                </View>
+                {errors.email && touched.email && (
+                  <Text style={{ color: "#DD0000", marginLeft: 15 }}>
+                    {errors.email}
+                  </Text>
+                )}
+                <View style={styles.SectionStyle}>
+                  <TextInput
+                    style={styles.inputStyle}
+                    onChangeText={handleChange("password")}
+                    onBlur={handleBlur("password")}
+                    placeholder="Enter Password" //12345
+                    placeholderTextColor="#8b9cb5"
+                    keyboardType="default"
+                    value={values.password}
+                    ref={passwordInputRef}
+                    onSubmitEditing={Keyboard.dismiss}
+                    blurOnSubmit={false}
+                    secureTextEntry={true}
+                    underlineColorAndroid="#f000"
+                    returnKeyType="next"
+                  />
+                </View>
+                {errors.password && touched.password && (
+                  <Text style={{ color: "#DD0000", marginLeft: 15 }}>
+                    {errors.password}
+                  </Text>
+                )}
+                <View
+                  style={{
+                    flexDirection: "row",
+                    justifyContent: "space-between",
+                    marginTop: 15,
+                    paddingHorizontal: 5,
+                  }}
+                >
+                  <SubText
+                    style={styles.forgotTextStyle}
+                    onPress={() => navigation.navigate("forgotTextStyle")}
+                  >
+                    Forgot password?
+                  </SubText>
+                  <TouchableOpacity
+                    onPress={() => navigation.navigate("RegisterScreen")}
+                  >
+                    <SubText style={styles.registerTextStyle}>Register</SubText>
+                  </TouchableOpacity>
+                </View>
+                <TouchableOpacity
+                  style={styles.buttonStyle}
+                  activeOpacity={0.5}
+                  onPress={handleSubmit}
+                  disabled={!isValid || values.email === ""}
+                >
+                  <Text style={styles.buttonTextStyle}>LOGIN</Text>
+                </TouchableOpacity>
+              </>
+            )}
+          </Formik>
+        </KeyboardAvoidingView>
+      </View>
+    </TouchableWithoutFeedback>
   );
 };
 export default LoginScreen;
 
 const styles = StyleSheet.create({
-  mainBody: {
+  container: {
     flex: 1,
     justifyContent: "center",
-    backgroundColor: "#307ecc",
-    alignContent: "center",
+    alignItems: "center",
+    backgroundColor: "#fff",
   },
   SectionStyle: {
     flexDirection: "row",
     height: 40,
-    marginTop: 20,
-    marginLeft: 35,
-    marginRight: 35,
-    margin: 10,
+    width: 265,
+    marginTop: 27,
   },
   buttonStyle: {
-    backgroundColor: "#7DE24E",
+    backgroundColor: "rgba(140, 200, 64, 1)",
     borderWidth: 0,
-    color: "#FFFFFF",
+
     borderColor: "#7DE24E",
     height: 40,
     alignItems: "center",
@@ -198,18 +224,22 @@ const styles = StyleSheet.create({
     flex: 1,
     color: "white",
     paddingLeft: 15,
-    paddingRight: 15,
     borderWidth: 1,
-    borderRadius: 30,
+    borderRadius: 10,
     borderColor: "#dadae8",
+    color: "#000",
+    shadowOffset: { height: 0, width: -10 },
+    shadowRadius: 4,
+    elevation: 25,
+    shadowColor: "rgba(26, 26, 26, 0.2)",
+  },
+  forgotTextStyle: {
+    color: "rgba(140, 140, 140, 1)",
+    fontSize: 14,
   },
   registerTextStyle: {
-    color: "#FFFFFF",
-    textAlign: "center",
-    fontWeight: "bold",
+    color: "rgba(81, 139, 26, 1)",
     fontSize: 14,
-    alignSelf: "center",
-    padding: 10,
   },
   errorTextStyle: {
     color: "red",

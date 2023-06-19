@@ -1,5 +1,3 @@
-// Example of Splash, Login and Sign Up in React Native
-// https://aboutreact.com/react-native-login-and-signup/
 import "react-native-gesture-handler";
 
 // Import React and Component
@@ -19,6 +17,7 @@ import i18next from "i18next";
 import * as Localization from "expo-localization";
 import en from "./Services/translation/en.json";
 import vi from "./Services/translation/vi.json";
+import { Button } from "react-native";
 const Auth = () => {
   return (
     <Stack.Navigator initialRouteName="StartScreen">
@@ -30,16 +29,7 @@ const Auth = () => {
       <Stack.Screen
         name="LoginScreen"
         component={LoginScreen}
-        options={{
-          title: "Login", //Set Header Title
-          headerStyle: {
-            backgroundColor: "#307ecc", //Set Header color
-          },
-          headerTintColor: "#fff", //Set Header text color
-          headerTitleStyle: {
-            fontWeight: "bold", //Set Header text style
-          },
-        }}
+        options={{ headerShown: false }}
       />
       <Stack.Screen
         name="RegisterScreen"
