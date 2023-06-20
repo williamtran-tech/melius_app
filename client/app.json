@@ -3,12 +3,16 @@
     "name": "client",
     "slug": "client",
     "version": "1.0.0",
-    "assetBundlePatterns": [
-      "**/*"
-    ],
-    "plugins": [
-      "expo-localization"
-    ]
+    "assetBundlePatterns": ["**/*"],
+    "plugins": ["expo-localization"],
+    "ios": {
+      "infoPlist": {
+        "NSFaceIDUsageDescription": "Authenticate with Face ID"
+      }
+    },
+    "android": {
+      "permissions": ["USE_BIOMETRIC"]
+    }
   },
   "name": "client"
 }
