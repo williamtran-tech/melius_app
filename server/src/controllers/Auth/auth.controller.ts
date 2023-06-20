@@ -236,7 +236,7 @@ export default class AuthController extends BaseController {
           res.cookie("Authorization", tokenData.token, {
             httpOnly: true,
             maxAge: tokenData.expiresIn * 1000,
-            secure: true,
+            // secure: true,
           });
           res.status(200).json({
             msg: "User logged in successfully",
