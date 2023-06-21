@@ -26,7 +26,13 @@ const registerValidationSchema = yup.object().shape({
     .notOneOf(["default"], "Please choose a verify method")
     .required("Verify method is required"),
 });
+const agreeValidationSchema = yup.object().shape({
+  checkboxValue: yup
+    .boolean()
+    .oneOf([true], "You must accept the terms and conditions"),
+});
 export default {
   loginValidationSchema,
   registerValidationSchema,
+  agreeValidationSchema,
 };

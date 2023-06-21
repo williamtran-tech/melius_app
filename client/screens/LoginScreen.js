@@ -232,6 +232,7 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 25,
     shadowColor: "rgba(26, 26, 26, 0.2)",
+    backgroundColor: "rgba(249, 249, 249, 1)",
   },
   forgotTextStyle: {
     color: "rgba(140, 140, 140, 1)",
