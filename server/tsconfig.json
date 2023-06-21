@@ -8,6 +8,7 @@
     "strict": true,                                      /* Enable all strict type-checking options. */
     "skipLibCheck": true,                                 /* Skip type checking all .d.ts files. */  
     "experimentalDecorators": true,                      /* Enables experimental support for ES7 decorators. */ 
+    "emitDecoratorMetadata": true
   },
   "exclude": [
     "node_modules"]
