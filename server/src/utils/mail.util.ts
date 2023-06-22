@@ -3,7 +3,6 @@ import { OAuth2Client } from "google-auth-library";
 
 export default class MailUtil {
   private myOAuth2Client: OAuth2Client;
-  private accessTokenObject: any;
   // private transporter: nodemailer.Transporter;
 
   constructor() {
@@ -15,10 +14,6 @@ export default class MailUtil {
     this.myOAuth2Client.setCredentials({
       refresh_token: process.env.EMAIL_REFRESH_TOKEN,
     });
-
-    // Generate the access token
-
-    // ya29.a0AWY7CknXD_rok8Q6eB0M0tD7Sp1vv9EMVO8Yvct7R33VrHx2_ycNKXw9nNF9IiziIwFEZGDLNO8FMeFAraUtDTnNg9ujkH2v6yIQskOT8Zv-jIOXNF1JslqPziwI1u4UAfRyXxQdcQkq9oBxX4UwzY4JcTHiaCgYKAdQSARISFQG1tDrpqRpHLkmVvbC0w-Uwwwvf6g0163
   }
 
   public async getAccessToken() {

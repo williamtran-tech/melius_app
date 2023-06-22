@@ -6,7 +6,6 @@ import {
   PrimaryKey,
   AutoIncrement,
   HasOne,
-  HasMany,
 } from "sequelize-typescript";
 import { Account } from "./account.model";
 
@@ -29,6 +28,24 @@ export class User extends Model {
     allowNull: false,
   })
   fullName!: string;
+
+  @Column({
+    type: DataType.STRING,
+    allowNull: true,
+  })
+  img!: string;
+
+  @Column({
+    type: DataType.STRING,
+    allowNull: true,
+  })
+  phone!: string;
+
+  @Column({
+    type: DataType.STRING,
+    allowNull: true,
+  })
+  googleRefreshToken!: string;
 
   @HasOne(() => Account, {
     foreignKey: "userId",
