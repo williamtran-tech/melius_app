@@ -16,7 +16,7 @@ import RNPickerSelect from "react-native-picker-select";
 import { Formik } from "formik";
 import Validation from "../Services/Authorizations/Validation";
 
-const RegisterForm = ({ navigation, setStage }) => {
+const RegisterForm = ({ navigation, setStage, setConfirmMethod }) => {
   const emailInputRef = createRef();
   const ageInputRef = createRef();
   const passwordInputRef = createRef();
@@ -24,6 +24,7 @@ const RegisterForm = ({ navigation, setStage }) => {
 
   const handleSubmitButton = (values) => {
     // setLoading(true);
+    setConfirmMethod(values.verifyMethod);
     setStage("stage2");
     console.log(values);
   };
