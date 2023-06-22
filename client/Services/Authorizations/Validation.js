@@ -31,8 +31,15 @@ const agreeValidationSchema = yup.object().shape({
     .boolean()
     .oneOf([true], "You must accept the terms and conditions"),
 });
+const OPTvalidationSchema = yup.object().shape({
+  code: yup
+    .string()
+    .required("Please enter the OTP code")
+    .min(4, "OTP code must be 4 digits"),
+});
 export default {
   loginValidationSchema,
   registerValidationSchema,
   agreeValidationSchema,
+  OPTvalidationSchema,
 };

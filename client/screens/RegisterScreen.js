@@ -12,9 +12,11 @@ import { Formik } from "formik";
 import Validation from "../Services/Authorizations/Validation";
 import RegisterForm from "../components/RegisterForm";
 import AgreeForm from "../components/AgreeForm";
+import ConfirmCode from "../components/ConfirmCode";
 
 const RegisterScreen = ({ navigation }) => {
   const [stage, setStage] = useState("stage1");
+  const [confirmMethod, setConfirmMethod] = useState("");
   const RenderStage = () => {
     switch (stage) {
       case "stage1":
@@ -23,12 +25,18 @@ const RegisterScreen = ({ navigation }) => {
             navigation={navigation}
             setStage={setStage}
             currentStage={stage}
+            setConfirmMethod={setConfirmMethod}
           />
         );
       case "stage2":
-        return <AgreeForm></AgreeForm>;
+        return <AgreeForm setStage={setStage}></AgreeForm>;
       case "stage3":
-        return <HeaderText>Stage 3</HeaderText>;
+        return (
+          <ConfirmCode
+            setStage={setStage}
+            confirmMethod={confirmMethod}
+          ></ConfirmCode>
+        );
       // Add more cases for each stage
       default:
         return null;

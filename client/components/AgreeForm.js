@@ -11,7 +11,7 @@ import SubText from "./SubText";
 import { Formik } from "formik";
 import Validation from "../Services/Authorizations/Validation";
 import { CheckBox } from "react-native-elements";
-const AgreeForm = () => {
+const AgreeForm = ({ setStage }) => {
   return (
     <View style={styles.container}>
       <View style={styles.titleContainer}>
@@ -101,6 +101,7 @@ const AgreeForm = () => {
         initialValues={{ checkboxValue: false }}
         validationSchema={Validation.agreeValidationSchema}
         onSubmit={(values) => {
+          setStage("stage3");
           console.log(values);
         }}
       >

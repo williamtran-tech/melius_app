@@ -389,6 +389,8 @@ PODS:
   - RNCCheckbox (0.5.15):
     - BEMCheckBox (~> 1.4)
     - React-Core
+  - RNCClipboard (1.5.1):
+    - React-Core
   - RNCMaskedView (0.1.11):
     - React
   - RNGestureHandler (2.11.0):
@@ -478,6 +480,7 @@ DEPENDENCIES:
   - ReactCommon/turbomodule/core (from `../node_modules/react-native/ReactCommon`)
   - "RNCAsyncStorage (from `../node_modules/@react-native-async-storage/async-storage`)"
   - "RNCCheckbox (from `../node_modules/@react-native-community/checkbox`)"
+  - "RNCClipboard (from `../node_modules/@react-native-community/clipboard`)"
   - "RNCMaskedView (from `../node_modules/@react-native-community/masked-view`)"
   - RNGestureHandler (from `../node_modules/react-native-gesture-handler`)
   - RNReanimated (from `../node_modules/react-native-reanimated`)
@@ -588,6 +591,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/@react-native-async-storage/async-storage"
   RNCCheckbox:
     :path: "../node_modules/@react-native-community/checkbox"
+  RNCClipboard:
+    :path: "../node_modules/@react-native-community/clipboard"
   RNCMaskedView:
     :path: "../node_modules/@react-native-community/masked-view"
   RNGestureHandler:
@@ -653,6 +658,7 @@ SPEC CHECKSUMS:
   ReactCommon: 85c98ab0a509e70bf5ee5d9715cf68dbf495b84c
   RNCAsyncStorage: 8616bd5a58af409453ea4e1b246521bb76578d60
   RNCCheckbox: 43bcc6493611468af0e19f19f029dab3da8561c4
+  RNCClipboard: 41d8d918092ae8e676f18adada19104fa3e68495
   RNCMaskedView: 0e1bc4bfa8365eba5fbbb71e07fbdc0555249489
   RNGestureHandler: 026038a97d4c8649ce397a22e162ca58b4e6c230
   RNReanimated: cc5e3aa479cb9170bcccf8204291a6950a3be128
