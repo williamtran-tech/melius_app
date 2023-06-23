@@ -8,11 +8,10 @@ import {
   TextInput,
   View,
   Text,
-  ScrollView,
-  Image,
   Keyboard,
   TouchableOpacity,
   KeyboardAvoidingView,
+  Alert,
 } from "react-native";
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -24,57 +23,83 @@ import { useForm, Controller } from "react-hook-form";
 import { Formik } from "formik";
 import Validation from "../Services/Authorizations/Validation";
 import qs from "qs";
+import HandleApi from "../Services/HandleApi";
+
+import { API_URL, API_KEY } from "@env";
+
 const LoginScreen = ({ navigation }) => {
   const [userEmail, setUserEmail] = useState("");
   const [userPassword, setUserPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [errortext, setErrortext] = useState("");
+  const cookie = require("cookie");
 
   const passwordInputRef = createRef();
-
+  // Use the variables in your code
+  console.log(API_URL); // Output: The API URL based on the current environment
   const handleSubmitPress = (values) => {
-    // AsyncStorage.setItem("user_id", "OOOHH SHITTTTTTT");
-    // navigation.replace("BottomNavigation");
     console.log(qs.stringify(values));
     setLoading(true);
-    // let dataToSend = { email: userEmail, password: userPassword };
-    // let formBody = [];
-    // for (let key in dataToSend) {
-    //   let encodedKey = encodeURIComponent(key);
-    //   let encodedValue = encodeURIComponent(dataToSend[key]);
-    //   formBody.push(encodedKey + "=" + encodedValue);
-    // }
-    // formBody = formBody.join("&");
-
-    fetch("http://192.168.102.100:5050/api/v1/auth/login", {
-      method: "POST",
-      body: qs.stringify(values),
-      headers: {
-        //Header Defination
-        "Content-Type": "application/x-www-form-urlencoded",
-        credentials: "include",
-      },
-    })
+    HandleApi.serverGeneral
+      .post("/v1/auth/login", qs.stringify(values))
       .then((response) => {
         let receivedCookies = response.headers.get("set-cookie");
-        if (receivedCookies) AsyncStorage.setItem("cookies", receivedCookies);
-        console.log(receivedCookies);
-
-        if (response.status === 200) {
-          // Convert the response to JSON
-          return response.json();
+        let cookieString = Array.isArray(receivedCookies)
+          ? receivedCookies.join("; ")
+          : receivedCookies;
+        let parsedCookies = cookie.parse(cookieString);
+        let authorizationCookie = parsedCookies["Authorization"];
+        console.log(authorizationCookie);
+        if (authorizationCookie) {
+          AsyncStorage.setItem("Authentication", authorizationCookie)
+            .then(() => {
+              setLoading(false);
+              navigation.replace("BottomNavigation");
+            })
+            .catch((error) => {
+              setLoading(false);
+              console.error(error.message);
+            });
+        } else {
+          setLoading(false);
         }
       })
-      .then((responseJson) => {
-        setLoading(false);
-        console.log(responseJson);
-        navigation.replace("BottomNavigation");
-      })
       .catch((error) => {
-        //Hide Loader
         setLoading(false);
         console.error(error);
+        Alert.alert(
+          "Invalid Credentials",
+          "The email or password you entered is incorrect.",
+          [
+            {
+              text: "OK",
+              onPress: () => console.log("OK Pressed"),
+            },
+          ],
+          { cancelable: false }
+        );
       });
+
+    //   fetch("http://192.168.102.100:5050/api/v1/auth/login", {
+    //     method: "POST",
+    //     body: qs.stringify(values),
+    //     headers: {
+    //       //Header Defination
+    //       "Content-Type": "application/x-www-form-urlencoded",
+    //       credentials: "include",
+    //     },
+    //   })
+    //     .then((response) => {})
+    //     .then((responseJson) => {
+    //       setLoading(false);
+    //       console.log(responseJson);
+    //       navigation.replace("BottomNavigation");
+    //     })
+    //     .catch((error) => {
+    //       //Hide Loader
+    //       setLoading(false);
+    //       console.error(error);
+    //     });
   };
 
   return (

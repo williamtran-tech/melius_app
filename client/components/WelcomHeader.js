@@ -49,7 +49,7 @@ const WelcomHeader = () => {
         </View>
         <View>
           <Image
-            source={require("../assets/images/Logo.png")}
+            source={require("../assets/images/Home_Artwork.png")}
             style={styles.logo}
           />
         </View>
@@ -72,7 +72,6 @@ const styles = StyleSheet.create({
     width: 195,
     height: 195,
     marginTop: 20,
-    transform: [{ rotate: "9.28deg" }],
   },
   welcomecontainer: {
     marginTop: 45,

@@ -12,11 +12,16 @@ import { Formik } from "formik";
 import Validation from "../Services/Authorizations/Validation";
 import SubText from "./SubText";
 import HeaderText from "./HeaderText";
+import HandleApi from "../Services/HandleApi";
+import QueryString from "qs";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import Loader from "./Loader";
 
-const PasswordSetting = ({ setStage, type }) => {
-  const handleFormSubmit = (values) => {
-    console.log(values);
-  };
+const PasswordSetting = ({ navigation, type }) => {
+  const cookie = require("cookie");
+  const [loading, setLoading] = useState(false);
+
+  const handleFormSubmit = (values) => {};
   const settingPassword = {
     title: "Enter password",
     header1: "Password",
@@ -30,8 +35,41 @@ const PasswordSetting = ({ setStage, type }) => {
   const [typeSetting, setTypeSetting] = useState(
     type === "setting" ? settingPassword : newPassword
   );
+  const setPassword = (values) => {
+    setLoading(true);
+    HandleApi.serverGeneral
+      .post("v1/auth/password", QueryString.stringify(values))
+      .then((response) => {
+        console.log(response.data);
+        let receivedCookies = response.headers.get("set-cookie");
+        let cookieString = Array.isArray(receivedCookies)
+          ? receivedCookies.join("; ")
+          : receivedCookies;
+        let parsedCookies = cookie.parse(cookieString);
+        let authorizationCookie = parsedCookies["Authorization"];
+        console.log(authorizationCookie);
+        if (authorizationCookie) {
+          AsyncStorage.setItem("Authentication", authorizationCookie)
+            .then(() => {
+              setLoading(false);
+              navigation.replace("BottomNavigation");
+            })
+            .catch((error) => {
+              setLoading(false);
+              console.error(error);
+            });
+        } else {
+          setLoading(false);
+        }
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+    // console.log(QueryString.stringify(values));
+  };
   return (
     <View style={styles.container}>
+      <Loader loading={loading}></Loader>
       <HeaderText
         style={{
           textAlign: "center",
@@ -45,7 +83,7 @@ const PasswordSetting = ({ setStage, type }) => {
       <Formik
         initialValues={{ password: "", confirmPassword: "" }}
         validationSchema={Validation.PasswordSettingSchema}
-        onSubmit={handleFormSubmit}
+        onSubmit={setPassword}
         validateOnMount
       >
         {({

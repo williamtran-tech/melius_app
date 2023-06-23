@@ -14,14 +14,14 @@ const registerValidationSchema = yup.object().shape({
     .string()
     .required("Fullname is required")
     .matches(/^[a-zA-Z]+(([',. -][a-zA-Z ])?[a-zA-Z]*)*$/, "Invalid full name"),
-  phoneNumber: yup
+  phone: yup
     .string()
     .required("Phone number is required")
     .matches(/^[0-9]+$/, "Invalid phone number")
     .min(10, "Phone number must be at least 10 digits")
     .max(15, "Phone number can't exceed 15 digits"),
   email: yup.string().email("Invalid email").required("Email is required"),
-  verifyMethod: yup
+  verifiedMethod: yup
     .string()
     .notOneOf(["default"], "Please choose a verify method")
     .required("Verify method is required"),
@@ -32,7 +32,7 @@ const agreeValidationSchema = yup.object().shape({
     .oneOf([true], "You must accept the terms and conditions"),
 });
 const OPTvalidationSchema = yup.object().shape({
-  code: yup
+  verifiedCode: yup
     .string()
     .required("Please enter the OTP code")
     .min(4, "OTP code must be 4 digits"),

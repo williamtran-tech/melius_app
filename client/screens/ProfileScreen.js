@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next";
 import { Button } from "react-native";
 // import LocalAuthentication from "react-native-local-authentication";
 import * as LocalAuthentication from "expo-local-authentication";
+import HandleApi from "../Services/HandleApi";
 
 const ProfileScreen = ({ navigation }) => {
   const handleFaceIDAuthentication = async () => {
@@ -29,25 +30,58 @@ const ProfileScreen = ({ navigation }) => {
     }
   };
   const logout = () => {
-    fetch("http://192.168.102.100:5050/api/v1/auth/logout", {
-      method: "GET",
-      headers: {
-        //Header Defination
-        "Content-Type": "application/x-www-form-urlencoded",
-        credentials: "include",
-      },
-    })
-      .then((response) => response.json())
-      .then((responseJson) => {
-        console.log(responseJson);
-        AsyncStorage.clear();
-        navigation.replace("Auth");
+    // navigation.replace("Auth");
+    // AsyncStorage.removeItem("Authentication", (error) => {
+    //   if (error) {
+    //     console.error(error);
+    //   } else {
+    //     console.log('"Authentication" has been deleted.');
+    //     navigation.replace("Auth");
+    //   }
+    // });
+    HandleApi.serverGeneral
+      .get("/v1/auth/logout")
+      .then((response) => {
+        console.log(response.data);
+        AsyncStorage.removeItem("Authentication", (error) => {
+          if (error) {
+            console.error(error);
+          } else {
+            console.log('"Authentication" has been deleted.');
+            navigation.replace("Auth");
+          }
+        });
       })
       .catch((error) => {
-        //Hide Loader
-        console.error(error);
+        console.error(error.data);
       });
   };
+
+  //   fetch("http://192.168.102.100:5050/api/v1/auth/logout", {
+  //     method: "GET",
+  //     headers: {
+  //       //Header Defination
+  //       "Content-Type": "application/x-www-form-urlencoded",
+  //       credentials: "include",
+  //     },
+  //   })
+  //     .then((response) => response.json())
+  //     .then((responseJson) => {
+  //       console.log(responseJson);
+  //       AsyncStorage.removeItem("Authentication")
+  //         .then(() => {
+  //           console.log(`"Authentication" has been deleted.`);
+  //         })
+  //         .catch((error) => {
+  //           console.error(error);
+  //         });
+  //       navigation.replace("Auth");
+  //     })
+  //     .catch((error) => {
+  //       //Hide Loader
+  //       console.error(error);
+  //     });
+  // };
   const { t, i18n } = useTranslation();
   const changeLanguage = (language) => {
     i18n.changeLanguage(language);

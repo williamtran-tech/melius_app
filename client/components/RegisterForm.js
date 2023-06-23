@@ -15,7 +15,8 @@ import SubText from "../components/SubText";
 import RNPickerSelect from "react-native-picker-select";
 import { Formik } from "formik";
 import Validation from "../Services/Authorizations/Validation";
-
+import HandleApi from "../Services/HandleApi";
+import qs from "qs";
 const RegisterForm = ({ navigation, setStage, setConfirmMethod }) => {
   const emailInputRef = createRef();
   const ageInputRef = createRef();
@@ -23,11 +24,24 @@ const RegisterForm = ({ navigation, setStage, setConfirmMethod }) => {
   const [loading, setLoading] = useState(false);
 
   const handleSubmitButton = (values) => {
-    // setLoading(true);
-    setConfirmMethod(values.verifyMethod);
-    setStage("stage2");
+    setLoading(true);
+    HandleApi.serverGeneral
+      .post("v1/auth/register", qs.stringify(values))
+      .then((response) => {
+        console.log(response.data);
+        setLoading(false);
+        setConfirmMethod(values.verifyMethod);
+        setStage("stage2");
+      })
+      .catch((error) => {
+        setLoading(false);
+        console.error(error);
+      });
+    console.log(qs.stringify(values));
     console.log(values);
-  };
+  }; // // setLoading(true);
+  // setConfirmMethod(values.verifyMethod);
+  // setStage("stage2");
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <View
@@ -46,9 +60,9 @@ const RegisterForm = ({ navigation, setStage, setConfirmMethod }) => {
           <Formik
             initialValues={{
               fullName: "",
-              phoneNumber: "",
+              phone: "",
               email: "",
-              verifyMethod: "",
+              verifiedMethod: "",
             }}
             validateOnChange={true}
             validationSchema={Validation.registerValidationSchema}
@@ -78,9 +92,6 @@ const RegisterForm = ({ navigation, setStage, setConfirmMethod }) => {
                     placeholderTextColor="#8C8C8C"
                     autoCapitalize="words"
                     returnKeyType="next"
-                    onSubmitEditing={() =>
-                      emailInputRef.current && emailInputRef.current.focus()
-                    }
                     blurOnSubmit={false}
                   />
                   {touched.fullName && errors.fullName && (
@@ -93,23 +104,19 @@ const RegisterForm = ({ navigation, setStage, setConfirmMethod }) => {
                   </SubText>
                   <TextInput
                     style={styles.inputStyle}
-                    onChangeText={handleChange("phoneNumber")}
-                    onBlur={handleBlur("phoneNumber")}
-                    value={values.phoneNumber}
+                    onChangeText={handleChange("phone")}
+                    onBlur={handleBlur("phone")}
+                    value={values.phone}
                     underlineColorAndroid="#f000"
                     placeholder="Enter Phone Number"
                     placeholderTextColor="#8C8C8C"
                     keyboardType="numeric"
                     ref={emailInputRef}
                     returnKeyType="next"
-                    onSubmitEditing={() =>
-                      passwordInputRef.current &&
-                      passwordInputRef.current.focus()
-                    }
                     blurOnSubmit={false}
                   />
-                  {touched.phoneNumber && errors.phoneNumber && (
-                    <Text style={styles.errorText}>{errors.phoneNumber}</Text>
+                  {touched.phone && errors.phone && (
+                    <Text style={styles.errorText}>{errors.phone}</Text>
                   )}
                 </View>
                 <View style={styles.SectionStyle}>
@@ -141,8 +148,8 @@ const RegisterForm = ({ navigation, setStage, setConfirmMethod }) => {
                     Verify method
                   </SubText>
                   <RNPickerSelect
-                    value={values.verifyMethod}
-                    onValueChange={handleChange("verifyMethod")}
+                    value={values.verifiedMethod}
+                    onValueChange={handleChange("verifiedMethod")}
                     placeholder={{
                       label: "Choose method to get verify code...",
                       color: "#8C8C8C",
@@ -154,8 +161,10 @@ const RegisterForm = ({ navigation, setStage, setConfirmMethod }) => {
                     ]}
                     style={picker}
                   />
-                  {touched.verifyMethod && errors.verifyMethod && (
-                    <Text style={styles.errorText}>{errors.verifyMethod}</Text>
+                  {touched.verifiedMethod && errors.verifiedMethod && (
+                    <Text style={styles.errorText}>
+                      {errors.verifiedMethod}
+                    </Text>
                   )}
                 </View>
                 <View
@@ -179,8 +188,8 @@ const RegisterForm = ({ navigation, setStage, setConfirmMethod }) => {
                 </View>
                 <TouchableOpacity
                   style={styles.buttonStyle}
-                  //   onPress={handleSubmit}
-                  onPress={() => setStage("stage2")}
+                  onPress={handleSubmit}
+                  // onPress={() => setStage("stage2")}
                   disabled={!isValid}
                 >
                   <Text style={styles.buttonTextStyle}>REGISTER</Text>
@@ -212,8 +221,8 @@ const styles = StyleSheet.create({
     height: 40,
     alignItems: "center",
     borderRadius: 30,
-    marginLeft: 35,
-    marginRight: 35,
+    marginLeft: 100,
+    marginRight: 100,
     marginTop: 20,
     marginBottom: 20,
   },

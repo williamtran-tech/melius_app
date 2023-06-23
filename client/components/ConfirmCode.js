@@ -13,6 +13,8 @@ import SubText from "./SubText";
 import OTPInputView from "@twotalltotems/react-native-otp-input";
 import { Formik } from "formik";
 import Validation from "../Services/Authorizations/Validation";
+import HandleApi from "../Services/HandleApi";
+import qs from "qs";
 
 const ConfirmCode = ({ setStage, confirmMethod }) => {
   const [seconds, setSeconds] = useState(59);
@@ -43,8 +45,16 @@ const ConfirmCode = ({ setStage, confirmMethod }) => {
     };
   }, []);
   const handleCodeChange = (code) => {
+    HandleApi.serverGeneral
+      .post("v1/auth/verify", qs.stringify(code))
+      .then((response) => {
+        console.log(response.data);
+        setStage("stage4");
+      })
+      .catch((error) => {
+        console.error(error);
+      });
     console.log(code);
-    setStage("stage4");
   };
   if (seconds === 0) console.log("cc");
   return (
@@ -80,7 +90,7 @@ const ConfirmCode = ({ setStage, confirmMethod }) => {
             seconds)
           </SubText>
           <Formik
-            initialValues={{ code: "" }}
+            initialValues={{ verifiedCode: "" }}
             validationSchema={Validation.OPTvalidationSchema}
             onSubmit={(values) => handleCodeChange(values)}
             validateOnMount
@@ -108,8 +118,8 @@ const ConfirmCode = ({ setStage, confirmMethod }) => {
                   <OTPInputView
                     pinCount={4}
                     style={styles.OPTcontainer}
-                    code={values.code}
-                    onCodeChanged={handleChange("code")}
+                    code={values.verifiedCode}
+                    onCodeChanged={handleChange("verifiedCode")}
                     autoFocus={false}
                     codeInputFieldStyle={styles.underlineStyleBase}
                     codeInputHighlightStyle={styles.underlineStyleHighLighted}

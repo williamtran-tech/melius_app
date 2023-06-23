@@ -5,7 +5,6 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const SplashScreen = ({ navigation }) => {
   const opacityAnim = useRef(new Animated.Value(0)).current;
-
   useEffect(() => {
     Animated.timing(opacityAnim, {
       toValue: 1,
@@ -14,7 +13,7 @@ const SplashScreen = ({ navigation }) => {
     }).start();
 
     setTimeout(() => {
-      AsyncStorage.getItem("cookies").then((value) =>
+      AsyncStorage.getItem("Authentication").then((value) =>
         navigation.replace(value === null ? "Auth" : "BottomNavigation")
       );
     }, 1000);

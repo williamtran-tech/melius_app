@@ -41,7 +41,7 @@ const RegisterScreen = ({ navigation }) => {
       case "stage4":
         return (
           <PasswordSetting
-            setStage={setStage}
+            navigation={navigation}
             type={"setting"}
           ></PasswordSetting>
         );
