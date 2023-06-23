@@ -37,9 +37,20 @@ const OPTvalidationSchema = yup.object().shape({
     .required("Please enter the OTP code")
     .min(4, "OTP code must be 4 digits"),
 });
+const PasswordSettingSchema = yup.object().shape({
+  password: yup
+    .string()
+    .required("Password is required")
+    .min(6, "Password must be at least 6 characters"),
+  confirmPassword: yup
+    .string()
+    .required("Confirm password is required")
+    .oneOf([yup.ref("password"), null], "Passwords must match"),
+});
 export default {
   loginValidationSchema,
   registerValidationSchema,
   agreeValidationSchema,
   OPTvalidationSchema,
+  PasswordSettingSchema,
 };

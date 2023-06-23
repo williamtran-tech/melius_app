@@ -20,14 +20,16 @@ const ConfirmCode = ({ setStage, confirmMethod }) => {
   const OPTdes = {
     title: "ENTER OPT CODE",
     description: "OTP code will be sent to your phone number",
+    signal: "ME - ",
   };
   const Emaildes = {
     title: "ENTER CONFIRM CODE",
     description: "A confirmation code will be sent to your email.",
+    signal: "LI - ",
   };
   const [methodVerify, setMethodVerify] = useState(
     // confirmMethod === "phone" ? OPTdes : Emaildes
-    OPTdes
+    Emaildes
   );
   useEffect(() => {
     // Start the countdown timer
@@ -43,6 +45,7 @@ const ConfirmCode = ({ setStage, confirmMethod }) => {
   }, []);
   const handleCodeChange = (code) => {
     console.log(code);
+    setStage("stage4");
   };
   if (seconds === 0) console.log("cc");
   return (
@@ -101,7 +104,7 @@ const ConfirmCode = ({ setStage, confirmMethod }) => {
                       textAlign: "center",
                     }}
                   >
-                    ME -
+                    {methodVerify.signal}
                   </HeaderText>
                   <OTPInputView
                     pinCount={4}
