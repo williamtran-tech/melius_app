@@ -13,7 +13,7 @@ import Validation from "../Services/Authorizations/Validation";
 import RegisterForm from "../components/RegisterForm";
 import AgreeForm from "../components/AgreeForm";
 import ConfirmCode from "../components/ConfirmCode";
-import ForgotPassword from "../components/ForgotPassword";
+import PasswordSetting from "../components/PasswordSetting";
 
 const RegisterScreen = ({ navigation }) => {
   const [stage, setStage] = useState("stage1");
@@ -39,7 +39,12 @@ const RegisterScreen = ({ navigation }) => {
           ></ConfirmCode>
         );
       case "stage4":
-        return <ForgotPassword setStage={setStage}></ForgotPassword>;
+        return (
+          <PasswordSetting
+            setStage={setStage}
+            type={"setting"}
+          ></PasswordSetting>
+        );
       default:
         return null;
     }

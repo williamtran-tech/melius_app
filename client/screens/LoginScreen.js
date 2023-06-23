@@ -161,7 +161,7 @@ const LoginScreen = ({ navigation }) => {
                 >
                   <SubText
                     style={styles.forgotTextStyle}
-                    onPress={() => navigation.navigate("forgotTextStyle")}
+                    onPress={() => navigation.navigate("ForgotPassword")}
                   >
                     Forgot password?
                   </SubText>

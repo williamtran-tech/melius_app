@@ -47,10 +47,28 @@ const PasswordSettingSchema = yup.object().shape({
     .required("Confirm password is required")
     .oneOf([yup.ref("password"), null], "Passwords must match"),
 });
+const EmailOrPhoneSchema = yup.object().shape({
+  emailOrPhone: yup
+    .string()
+    .test("emailOrPhone", "Invalid email or phone number", (value) => {
+      if (!value) return false;
+      if (value.includes("@")) {
+        // Validate email format
+        return yup.string().email().isValidSync(value);
+      } else if (value.match(/^[0-9]{10,15}$/, "Invalid phone number")) {
+        // Validate phone number format
+        return yup.string().required("Phone number is required");
+      } else {
+        return false;
+      }
+    })
+    .required("Email or Phone is required"),
+});
 export default {
   loginValidationSchema,
   registerValidationSchema,
   agreeValidationSchema,
   OPTvalidationSchema,
   PasswordSettingSchema,
+  EmailOrPhoneSchema,
 };

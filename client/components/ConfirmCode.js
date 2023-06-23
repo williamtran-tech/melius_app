@@ -28,8 +28,7 @@ const ConfirmCode = ({ setStage, confirmMethod }) => {
     signal: "LI - ",
   };
   const [methodVerify, setMethodVerify] = useState(
-    // confirmMethod === "phone" ? OPTdes : Emaildes
-    Emaildes
+    confirmMethod === "phone" ? OPTdes : Emaildes
   );
   useEffect(() => {
     // Start the countdown timer

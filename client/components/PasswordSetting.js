@@ -5,23 +5,42 @@ import {
   TextInput,
   Button,
   TouchableOpacity,
+  Settings,
 } from "react-native";
-import React from "react";
+import React, { useState } from "react";
 import { Formik } from "formik";
 import Validation from "../Services/Authorizations/Validation";
 import SubText from "./SubText";
 import HeaderText from "./HeaderText";
 
-const ForgotPassword = ({ setStage }) => {
+const PasswordSetting = ({ setStage, type }) => {
   const handleFormSubmit = (values) => {
     console.log(values);
   };
+  const settingPassword = {
+    title: "Enter password",
+    header1: "Password",
+    header2: "Confirm pasword",
+  };
+  const newPassword = {
+    title: "Enter new password",
+    header1: "Password",
+    header2: "Confirm pasword",
+  };
+  const [typeSetting, setTypeSetting] = useState(
+    type === "setting" ? settingPassword : newPassword
+  );
   return (
     <View style={styles.container}>
       <HeaderText
-        style={{ textAlign: "center", color: "#518B1A", fontSize: 25 }}
+        style={{
+          textAlign: "center",
+          color: "#518B1A",
+          fontSize: 25,
+          textTransform: "uppercase",
+        }}
       >
-        ENTER PASSWORD
+        {typeSetting.title}
       </HeaderText>
       <Formik
         initialValues={{ password: "", confirmPassword: "" }}
@@ -41,7 +60,7 @@ const ForgotPassword = ({ setStage }) => {
           <>
             <View style={styles.SectionStyle}>
               <SubText style={{ color: "#8C8C8C", fontSize: 15 }}>
-                Fullname
+                {typeSetting.header1}
               </SubText>
               <TextInput
                 style={styles.inputStyle}
@@ -57,7 +76,7 @@ const ForgotPassword = ({ setStage }) => {
             </View>
             <View style={styles.SectionStyle}>
               <SubText style={{ color: "#8C8C8C", fontSize: 15 }}>
-                Fullname
+                {typeSetting.header2}
               </SubText>
               <TextInput
                 style={styles.inputStyle}
@@ -85,7 +104,7 @@ const ForgotPassword = ({ setStage }) => {
   );
 };
 
-export default ForgotPassword;
+export default PasswordSetting;
 
 const styles = StyleSheet.create({
   container: {
