@@ -34,7 +34,7 @@ export class Account extends Model {
 
   @Column({
     type: DataType.STRING,
-    allowNull: false,
+    allowNull: true,
   })
   password!: string;
 
@@ -46,9 +46,6 @@ export class Account extends Model {
   })
   userId!: number;
 
-  @BelongsTo(() => User, {
-    foreignKey: "userId",
-    as: "user_id",
-  })
+  @BelongsTo(() => User)
   user!: User;
 }

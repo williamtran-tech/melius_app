@@ -1,5 +1,5 @@
 import * as jwt from "jsonwebtoken";
-import User from "../models/User/user.model";
+import UserMongo from "../models/User/user.model";
 import CreateUserDTO from "../models/User/UserCreate.DTO";
 import RegisterUserDTO from "../models/User/UserRegister.DTO";
 import HttpException from "../exceptions/HttpException";
@@ -8,9 +8,11 @@ import MailUtil from "../utils/mail.util";
 import TokenData from "../interfaces/TokenData.interface";
 import IUser from "../models/User/user.interface";
 import DataStoredInToken from "../interfaces/DataStoredInToken.interface";
+import { Account } from "./../orm/models/account.model";
+import { User } from "./../orm/models/user.model";
 
 class AuthenticationService {
-  public user = User;
+  public user = UserMongo;
 
   public async generateVerifiedToken(user: RegisterUserDTO) {
     // Check phone number duplicate
@@ -86,6 +88,85 @@ class AuthenticationService {
         verified: true,
       });
       return createdUser;
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  // MySQL
+  public async findAccountByEmail(email: string) {
+    try {
+      const account = await Account.findOne({
+        where: {
+          email: email,
+        },
+      });
+      if (account) {
+        return true;
+      }
+      return false;
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  public async createUserSQL(user: CreateUserDTO, password: string) {
+    try {
+      const hashedPassword = await this.hashPassword(password);
+      const createdUser = await User.create({
+        fullName: user.fullName,
+      });
+      const createdAccount = await Account.create({
+        userId: createdUser.id,
+        email: user.email,
+        password: hashedPassword,
+      });
+      return createdUser;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  public async createGoogleUser(user: any) {
+    try {
+      // Check if email exists
+      const checkUserExists = await Account.findOne({
+        include: [User],
+        where: { email: user.email },
+      });
+      console.log("UserData: ", user);
+      if (!checkUserExists) {
+        const createdUser = await User.create({
+          fullName: user.fullName,
+          img: user.img,
+          phone: user.phone,
+          googleRefreshToken: user.refreshToken,
+        });
+        const createdAccount = await Account.create({
+          userId: createdUser.id,
+          email: user.email,
+          password: user.password,
+        });
+        return true;
+      } else {
+        return false;
+      }
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  public async checkGoogleUserPassword(email: string) {
+    try {
+      const account = await Account.findOne({
+        include: [User],
+        where: { email: email },
+      });
+      console.log(account);
+      if (account?.password === "") {
+        return false;
+      }
+      return true;
     } catch (err) {
       throw err;
     }

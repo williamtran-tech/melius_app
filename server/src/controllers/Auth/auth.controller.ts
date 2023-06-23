@@ -11,6 +11,7 @@ import DecodedVerifiedToken from "../../interfaces/DecodedVerifiedToken.interfac
 import HttpException from "../../exceptions/HttpException";
 import jwt from "jsonwebtoken";
 import DecodedUserToken from "../../interfaces/DecodedUserToken.interface";
+import { Account } from "../../orm/models/account.model";
 
 export default class AuthController extends BaseController {
   private userProfile: any;
@@ -21,18 +22,139 @@ export default class AuthController extends BaseController {
     this.userProfile = {};
   }
 
+  // Mongo Functions
+  // public register = async (
+  //   req: express.Request,
+  //   res: express.Response,
+  //   next: express.NextFunction
+  // ) => {
+  //   try {
+  //     // MongoDB check for duplicate email
+  //     const dupUser = await User.findOne({
+  //       email: req.body.email,
+  //     });
+
+  //     if (dupUser) {
+  //       throw new HttpException(400, "Email already exists");
+  //     }
+  //     // Communicate with the DTO
+  //     const userData: RegisterUserDTO = req.body;
+  //     // Cast the DTO to the authentication service
+  //     const { token, verifiedCode } =
+  //       await this.authenticationService.generateVerifiedToken(userData);
+  //     res.cookie("token", token, {
+  //       httpOnly: true,
+  //       // maxAge for 1 hour
+  //       maxAge: 3600000,
+  //     });
+  //     this.authenticationService.sendVerifiedEmail(
+  //       userData.email,
+  //       verifiedCode
+  //     );
+  //     res.status(200).json({
+  //       msg: "User acceptable",
+  //       verifiedCode: verifiedCode,
+  //     });
+  //   } catch (error: any) {
+  //     next(error);
+  //   }
+  // };
+
+  // SET PASSWORD - MONGO
+  // public setPassword = async (
+  //   req: express.Request,
+  //   res: express.Response,
+  //   next: express.NextFunction
+  // ) => {
+  //   try {
+  //     if (!req.cookies.token) {
+  //       throw new HttpException(401, "Unauthorized access");
+  //     }
+  //     const decodedToken = jwt.verify(
+  //       req.cookies.token,
+  //       process.env.JWT_SECRET!
+  //     ) as DecodedUserToken;
+
+  //     const { password, confirmPassword } = req.body;
+  //     if (password !== confirmPassword) {
+  //       throw new HttpException(400, "Password does not match");
+  //     }
+  //     if (!decodedToken.user.isVerified) {
+  //       throw new HttpException(400, "User not verified");
+  //     }
+
+  //     const checkUser = await User.findOne({
+  //       email: decodedToken.user.email,
+  //     });
+  //     if (!checkUser) {
+  //       const userData: CreateUserDTO = {
+  //         ...decodedToken.user,
+  //         password: password,
+  //       };
+  //       const user = await this.authenticationService.createUser(
+  //         userData,
+  //         password
+  //       );
+  //       if (!user) {
+  //         throw new HttpException(400, "Create user failed");
+  //       } else {
+  //         const { expiresIn, token } =
+  //           this.authenticationService.generateAuthenticationToken(user);
+  //         console.log(expiresIn, token);
+  //         res.cookie("Authorization", token, {
+  //           httpOnly: true,
+  //           maxAge: expiresIn * 1000,
+  //           secure: true, // for https
+  //           // The secure flag is set to true in the res.cookie method. This means the cookie will only be sent over a secure HTTPS connection. If you are testing the code on a non-secure connection (HTTP), the cookie will not be set. Make sure you are accessing the server over HTTPS.
+  //         });
+  //         res.cookie("token", "", { maxAge: 0 });
+  //         res.status(200).json({
+  //           msg: "Password set successfully - Direct user to App without login again",
+  //           user: user,
+  //         });
+  //       }
+  //     } else {
+  //       const hash = await this.authenticationService.hashPassword(password);
+  //       await User.findOneAndUpdate(
+  //         { email: decodedToken.user.email },
+  //         { password: hash }
+  //       );
+
+  //       const updatedUser = await User.findOne({
+  //         email: decodedToken.user.email,
+  //       });
+  //       const { expiresIn, token } =
+  //         this.authenticationService.generateAuthenticationToken(updatedUser);
+  //       res.cookie("token", "", { maxAge: 0 });
+  //       res.clearCookie("token");
+  //       res.cookie("Authorization", token, {
+  //         httpOnly: true,
+  //         maxAge: expiresIn * 1000,
+  //       });
+  //       res.status(200).json({
+  //         msg: "Password set successfully - Direct user to App without login again",
+  //       });
+  //     }
+  //   } catch (error: any) {
+  //     next(error);
+  //   }
+  // };
+
+  // MYSQL BLENDING
   public register = async (
     req: express.Request,
     res: express.Response,
     next: express.NextFunction
   ) => {
     try {
-      const dupUser = await User.findOne({
-        email: req.body.email,
-      });
-      if (dupUser) {
-        throw new HttpException(400, "Email already exists");
+      // MySQL check for duplicate email
+      const dupAccount = await this.authenticationService.findAccountByEmail(
+        req.body.email
+      );
+      if (dupAccount) {
+        throw new HttpException(401, "Email already registered");
       }
+
       // Communicate with the DTO
       const userData: RegisterUserDTO = req.body;
       // Cast the DTO to the authentication service
@@ -43,19 +165,99 @@ export default class AuthController extends BaseController {
         // maxAge for 1 hour
         maxAge: 3600000,
       });
-      this.authenticationService.sendVerifiedEmail(
-        userData.email,
-        verifiedCode
-      );
+      if (req.body.verifiedMethod === "email") {
+        this.authenticationService.sendVerifiedEmail(
+          userData.email,
+          verifiedCode
+        );
+      }
       res.status(200).json({
         msg: "User acceptable",
         verifiedCode: verifiedCode,
       });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  public setPassword = async (
+    req: express.Request,
+    res: express.Response,
+    next: express.NextFunction
+  ) => {
+    try {
+      if (!req.cookies.token) {
+        throw new HttpException(401, "Unauthorized access");
+      }
+      const decodedToken = jwt.verify(
+        req.cookies.token,
+        process.env.JWT_SECRET!
+      ) as DecodedUserToken;
+
+      const { password, confirmPassword } = req.body;
+      if (password !== confirmPassword) {
+        throw new HttpException(400, "Password does not match");
+      }
+      if (!decodedToken.user.isVerified) {
+        throw new HttpException(400, "User not verified");
+      }
+
+      const userData: CreateUserDTO = {
+        ...decodedToken.user,
+        password: password,
+      };
+      const user = await this.authenticationService.createUserSQL(
+        userData,
+        password
+      );
+      if (!user) {
+        throw new HttpException(400, "Create user failed");
+      } else {
+        const { expiresIn, token } =
+          this.authenticationService.generateAuthenticationToken(user);
+        console.log(expiresIn, token);
+        res.cookie("Authorization", token, {
+          httpOnly: true,
+          maxAge: expiresIn * 1000,
+          secure: true, // for https
+          // The secure flag is set to true in the res.cookie method. This means the cookie will only be sent over a secure HTTPS connection. If you are testing the code on a non-secure connection (HTTP), the cookie will not be set. Make sure you are accessing the server over HTTPS.
+        });
+        res.cookie("token", "", { maxAge: 0 });
+        res.status(200).json({
+          msg: "Password set successfully - Direct user to App without login again",
+          user: user,
+        });
+      }
+      // THe code below used for updating password
+      // First query to check user exist or not, then execute the update
+      // else {
+      //   const hash = await this.authenticationService.hashPassword(password);
+      //   await User.findOneAndUpdate(
+      //     { email: decodedToken.user.email },
+      //     { password: hash }
+      //   );
+
+      //   const updatedUser = await User.findOne({
+      //     email: decodedToken.user.email,
+      //   });
+      //   const { expiresIn, token } =
+      //     this.authenticationService.generateAuthenticationToken(updatedUser);
+      //   res.cookie("token", "", { maxAge: 0 });
+      //   res.clearCookie("token");
+      //   res.cookie("Authorization", token, {
+      //     httpOnly: true,
+      //     maxAge: expiresIn * 1000,
+      //   });
+      //   res.status(200).json({
+      //     msg: "Password set successfully - Direct user to App without login again",
+      //   });
+      // }
     } catch (error: any) {
       next(error);
     }
   };
 
+  // Use for both MySQL and MongoDB
   public verifyUser = async (
     req: express.Request,
     res: express.Response,
@@ -97,84 +299,7 @@ export default class AuthController extends BaseController {
     }
   };
 
-  public setPassword = async (
-    req: express.Request,
-    res: express.Response,
-    next: express.NextFunction
-  ) => {
-    try {
-      if (!req.cookies.token) {
-        throw new HttpException(401, "Unauthorized access");
-      }
-      const decodedToken = jwt.verify(
-        req.cookies.token,
-        process.env.JWT_SECRET!
-      ) as DecodedUserToken;
-
-      const { password, confirmPassword } = req.body;
-      if (password !== confirmPassword) {
-        throw new HttpException(400, "Password does not match");
-      }
-      if (!decodedToken.user.isVerified) {
-        throw new HttpException(400, "User not verified");
-      }
-
-      const checkUser = await User.findOne({
-        email: decodedToken.user.email,
-      });
-      if (!checkUser) {
-        const userData: CreateUserDTO = {
-          ...decodedToken.user,
-          password: password,
-        };
-        const user = await this.authenticationService.createUser(
-          userData,
-          password
-        );
-        if (!user) {
-          throw new HttpException(400, "Create user failed");
-        } else {
-          const { expiresIn, token } =
-            this.authenticationService.generateAuthenticationToken(user);
-          console.log(expiresIn, token);
-          res.cookie("Authorization", token, {
-            httpOnly: true,
-            maxAge: expiresIn * 1000,
-            secure: true, // for https
-            // The secure flag is set to true in the res.cookie method. This means the cookie will only be sent over a secure HTTPS connection. If you are testing the code on a non-secure connection (HTTP), the cookie will not be set. Make sure you are accessing the server over HTTPS.
-          });
-          res.cookie("token", "", { maxAge: 0 });
-          res.status(200).json({
-            msg: "Password set successfully - Direct user to App without login again",
-            user: user,
-          });
-        }
-      } else {
-        const hash = await this.authenticationService.hashPassword(password);
-        await User.findOneAndUpdate(
-          { email: decodedToken.user.email },
-          { password: hash }
-        );
-
-        const updatedUser = await User.findOne({
-          email: decodedToken.user.email,
-        });
-        const { expiresIn, token } =
-          this.authenticationService.generateAuthenticationToken(updatedUser);
-        res.cookie("token", "", { maxAge: 0 });
-        res.clearCookie("token");
-        res.cookie("Authorization", token, {
-          httpOnly: true,
-          maxAge: expiresIn * 1000,
-        });
-        res.status(200).json({
-          msg: "Password set successfully - Direct user to App without login again",
-        });
-      }
-    } catch (error: any) {
-      next(error);
-    }
-  };
+  // Not used
 
   public forgotPassword = async (
     req: express.Request,
@@ -284,6 +409,7 @@ export default class AuthController extends BaseController {
     try {
       passport.authenticate("google", {
         scope: ["profile", "email"],
+        prompt: "consent",
       })(req, res);
     } catch (error) {
       console.log(error);
@@ -317,23 +443,26 @@ export default class AuthController extends BaseController {
 
       // Store user information into the database
       // Check if the user already exists in the database
-      const checkUserExists = await User.findOne({
+      // Create user in Auth Service
+
+      const userData = {
+        _id: "",
+        role: "",
+        verified: true,
         email: this.userProfile.email,
-      });
-      if (!checkUserExists) {
-        // Create a new user
-        console.log("Creating a new user");
-        const userData = {
-          email: this.userProfile.email,
-          fullName: this.userProfile.name,
-          img: this.userProfile.picture,
-          role: "user",
-          verified: true,
-          password: "",
-        };
-        const createUser = await User.create(userData);
+        fullName: this.userProfile.name,
+        img: this.userProfile.picture,
+        password: "",
+        phone: "",
+        refreshToken: this.userProfile.refreshToken,
+      };
+      const createdUser = await this.authenticationService.createGoogleUser(
+        userData
+      );
+
+      if (createdUser) {
         const token =
-          this.authenticationService.generateAuthenticationToken(createUser);
+          this.authenticationService.generateAuthenticationToken(createdUser);
         res.cookie("Authorization", token, {
           maxAge: token.expiresIn * 1000,
           secure: true,
@@ -344,12 +473,25 @@ export default class AuthController extends BaseController {
           msg: "Redirect user to set password page",
         });
       } else {
-        if (checkUserExists.password === "") {
+        // Check if the user has a password
+        const checkPasswordExists =
+          await this.authenticationService.checkGoogleUserPassword(
+            this.userProfile.email
+          );
+        if (!checkPasswordExists) {
+          const token = this.authenticationService.generateAuthenticationToken(
+            this.userProfile
+          );
+          res.cookie("Authorization", token.token, {
+            httpOnly: true,
+            maxAge: token.expiresIn * 1000,
+            secure: true,
+          });
           res.status(200).json({
-            msg: "Redirect user to set password page",
+            msg: "Redirect user to set password page - Or let user in without update password",
           });
         } else {
-          // Let user in
+          // Let user in without creation of new user
           const token = this.authenticationService.generateAuthenticationToken(
             this.userProfile
           );
@@ -363,6 +505,55 @@ export default class AuthController extends BaseController {
           });
         }
       }
+      // END HERE
+
+      //The Code below belongs to the old version of the app - Using MongoDB
+      // const checkUserExists = await User.findOne({
+      //   email: this.userProfile.email,
+      // });
+      // if (!checkUserExists) {
+      //   // Create a new user
+      //   const userData = {
+      //     email: this.userProfile.email,
+      //     fullName: this.userProfile.name,
+      //     img: this.userProfile.picture,
+      //     role: "user",
+      //     verified: true,
+      //     password: "",
+      //   };
+      //   const createUser = await User.create(userData);
+
+      //   const token =
+      //     this.authenticationService.generateAuthenticationToken(createUser);
+      //   res.cookie("Authorization", token, {
+      //     maxAge: token.expiresIn * 1000,
+      //     secure: true,
+      //     httpOnly: true,
+      //   });
+
+      //   res.status(200).json({
+      //     msg: "Redirect user to set password page",
+      //   });
+      // } else {
+      //   if (checkUserExists.password === "") {
+      //     res.status(200).json({
+      //       msg: "Redirect user to set password page",
+      //     });
+      //   } else {
+      //     // Let user in without creation of new user
+      //     const token = this.authenticationService.generateAuthenticationToken(
+      //       this.userProfile
+      //     );
+      //     res.cookie("Authorization", token.token, {
+      //       httpOnly: true,
+      //       maxAge: token.expiresIn * 1000,
+      //       secure: true,
+      //     });
+      //     res.status(200).json({
+      //       msg: "User authenticated successfully",
+      //     });
+      //   }
+      // }
     } catch (error) {
       console.log(error);
       res.status(500).json({

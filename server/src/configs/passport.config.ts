@@ -39,6 +39,9 @@ passport.use(
       // or store the user data in your application's database.
       userProfile = profile._json;
       userProfile.accessToken = accessToken;
+      userProfile.refreshToken = refreshToken;
+      // Should store the refresh token to db for future use
+      // The refresh token can be used to generate new access tokens if they expire
       return done(null, userProfile);
     }
   )
