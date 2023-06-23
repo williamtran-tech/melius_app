@@ -10,6 +10,8 @@ import IUser from "../models/User/user.interface";
 import DataStoredInToken from "../interfaces/DataStoredInToken.interface";
 import { Account } from "./../orm/models/account.model";
 import { User } from "./../orm/models/user.model";
+import LogInDTO from "../models/DTOs/Login.DTO";
+import InvalidCredentialsException from "../exceptions/InvalidCredentialsException";
 
 class AuthenticationService {
   public user = UserMongo;
@@ -120,6 +122,7 @@ class AuthenticationService {
         userId: createdUser.id,
         email: user.email,
         password: hashedPassword,
+        type: "internal",
       });
       return createdUser;
     } catch (error) {
@@ -129,12 +132,23 @@ class AuthenticationService {
 
   public async createGoogleUser(user: any) {
     try {
-      // Check if email exists
+      // Check if email exists in internal type
+      // Link google account to internal account
+      const checkUserExisted = await Account.findOne({
+        include: [User],
+        where: { email: user.email, type: "internal" },
+      });
+      if (checkUserExisted) {
+        checkUserExisted.user.googleRefreshToken = user.refreshToken;
+        await checkUserExisted.user.save();
+        return true;
+      }
+
+      // Check if email exists in external type
       const checkUserExists = await Account.findOne({
         include: [User],
-        where: { email: user.email },
+        where: { email: user.email, type: "external" },
       });
-      console.log("UserData: ", user);
       if (!checkUserExists) {
         const createdUser = await User.create({
           fullName: user.fullName,
@@ -146,6 +160,7 @@ class AuthenticationService {
           userId: createdUser.id,
           email: user.email,
           password: user.password,
+          type: "external",
         });
         return true;
       } else {
@@ -156,22 +171,31 @@ class AuthenticationService {
     }
   }
 
-  public async checkGoogleUserPassword(email: string) {
+  public async logIn(logInData: LogInDTO) {
     try {
       const account = await Account.findOne({
         include: [User],
-        where: { email: email },
+        where: { email: logInData.email, type: "internal" },
       });
-      console.log(account);
-      if (account?.password === "") {
-        return false;
+      if (!account) {
+        throw new InvalidCredentialsException();
       }
-      return true;
+      const isPasswordMatching = await bcrypt.compare(
+        logInData.password,
+        account.password
+      );
+      if (!isPasswordMatching) {
+        throw new InvalidCredentialsException();
+      }
+      const tokenData = this.generateAuthenticationToken(account.user);
+      return {
+        token: tokenData.token,
+        expiresIn: tokenData.expiresIn,
+      };
     } catch (err) {
       throw err;
     }
   }
-
   // Sending mail service
   public async sendVerifiedEmail(email: string, verifiedCode: string) {
     try {

@@ -22,124 +22,6 @@ export default class AuthController extends BaseController {
     this.userProfile = {};
   }
 
-  // Mongo Functions
-  // public register = async (
-  //   req: express.Request,
-  //   res: express.Response,
-  //   next: express.NextFunction
-  // ) => {
-  //   try {
-  //     // MongoDB check for duplicate email
-  //     const dupUser = await User.findOne({
-  //       email: req.body.email,
-  //     });
-
-  //     if (dupUser) {
-  //       throw new HttpException(400, "Email already exists");
-  //     }
-  //     // Communicate with the DTO
-  //     const userData: RegisterUserDTO = req.body;
-  //     // Cast the DTO to the authentication service
-  //     const { token, verifiedCode } =
-  //       await this.authenticationService.generateVerifiedToken(userData);
-  //     res.cookie("token", token, {
-  //       httpOnly: true,
-  //       // maxAge for 1 hour
-  //       maxAge: 3600000,
-  //     });
-  //     this.authenticationService.sendVerifiedEmail(
-  //       userData.email,
-  //       verifiedCode
-  //     );
-  //     res.status(200).json({
-  //       msg: "User acceptable",
-  //       verifiedCode: verifiedCode,
-  //     });
-  //   } catch (error: any) {
-  //     next(error);
-  //   }
-  // };
-
-  // SET PASSWORD - MONGO
-  // public setPassword = async (
-  //   req: express.Request,
-  //   res: express.Response,
-  //   next: express.NextFunction
-  // ) => {
-  //   try {
-  //     if (!req.cookies.token) {
-  //       throw new HttpException(401, "Unauthorized access");
-  //     }
-  //     const decodedToken = jwt.verify(
-  //       req.cookies.token,
-  //       process.env.JWT_SECRET!
-  //     ) as DecodedUserToken;
-
-  //     const { password, confirmPassword } = req.body;
-  //     if (password !== confirmPassword) {
-  //       throw new HttpException(400, "Password does not match");
-  //     }
-  //     if (!decodedToken.user.isVerified) {
-  //       throw new HttpException(400, "User not verified");
-  //     }
-
-  //     const checkUser = await User.findOne({
-  //       email: decodedToken.user.email,
-  //     });
-  //     if (!checkUser) {
-  //       const userData: CreateUserDTO = {
-  //         ...decodedToken.user,
-  //         password: password,
-  //       };
-  //       const user = await this.authenticationService.createUser(
-  //         userData,
-  //         password
-  //       );
-  //       if (!user) {
-  //         throw new HttpException(400, "Create user failed");
-  //       } else {
-  //         const { expiresIn, token } =
-  //           this.authenticationService.generateAuthenticationToken(user);
-  //         console.log(expiresIn, token);
-  //         res.cookie("Authorization", token, {
-  //           httpOnly: true,
-  //           maxAge: expiresIn * 1000,
-  //           secure: true, // for https
-  //           // The secure flag is set to true in the res.cookie method. This means the cookie will only be sent over a secure HTTPS connection. If you are testing the code on a non-secure connection (HTTP), the cookie will not be set. Make sure you are accessing the server over HTTPS.
-  //         });
-  //         res.cookie("token", "", { maxAge: 0 });
-  //         res.status(200).json({
-  //           msg: "Password set successfully - Direct user to App without login again",
-  //           user: user,
-  //         });
-  //       }
-  //     } else {
-  //       const hash = await this.authenticationService.hashPassword(password);
-  //       await User.findOneAndUpdate(
-  //         { email: decodedToken.user.email },
-  //         { password: hash }
-  //       );
-
-  //       const updatedUser = await User.findOne({
-  //         email: decodedToken.user.email,
-  //       });
-  //       const { expiresIn, token } =
-  //         this.authenticationService.generateAuthenticationToken(updatedUser);
-  //       res.cookie("token", "", { maxAge: 0 });
-  //       res.clearCookie("token");
-  //       res.cookie("Authorization", token, {
-  //         httpOnly: true,
-  //         maxAge: expiresIn * 1000,
-  //       });
-  //       res.status(200).json({
-  //         msg: "Password set successfully - Direct user to App without login again",
-  //       });
-  //     }
-  //   } catch (error: any) {
-  //     next(error);
-  //   }
-  // };
-
   // MYSQL BLENDING
   public register = async (
     req: express.Request,
@@ -264,8 +146,9 @@ export default class AuthController extends BaseController {
     next: express.NextFunction
   ) => {
     try {
+      console.log("Verified token: ", req.cookies.token);
       if (!req.cookies.token) {
-        next(new HttpException(401, "Unauthorized access"));
+        throw new HttpException(401, "Unauthorized access");
       } else {
         const token = req.cookies.token;
         const verifiedCode: string = req.body.verifiedCode;
@@ -344,34 +227,15 @@ export default class AuthController extends BaseController {
   ) => {
     try {
       const logInData: LogInDTO = req.body;
-      const user = await User.findOne({
-        email: logInData.email,
+      const logInUser = await this.authenticationService.logIn(logInData);
+      res.cookie("Authorization", logInUser.token, {
+        httpOnly: true,
+        maxAge: logInUser.expiresIn * 1000,
+        // secure: true,
       });
-      if (user) {
-        const result = await this.authenticationService.passwordCompare(
-          logInData.password,
-          user.password
-        );
-        if (result) {
-          // Generate token
-          const tokenData =
-            await this.authenticationService.generateAuthenticationToken(user);
-
-          // Store token in cookie httpOnly
-          res.cookie("Authorization", tokenData.token, {
-            httpOnly: true,
-            maxAge: tokenData.expiresIn * 1000,
-            // secure: true,
-          });
-          res.status(200).json({
-            msg: "User logged in successfully",
-          });
-        } else {
-          next(new InvalidCredentialsExceptions());
-        }
-      } else {
-        next(new InvalidCredentialsExceptions());
-      }
+      res.status(200).json({
+        msg: "User logged in successfully",
+      });
     } catch (error: any) {
       next(error);
     }
@@ -410,6 +274,7 @@ export default class AuthController extends BaseController {
       passport.authenticate("google", {
         scope: ["profile", "email"],
         prompt: "consent",
+        accessType: "offline",
       })(req, res);
     } catch (error) {
       console.log(error);
@@ -443,17 +308,12 @@ export default class AuthController extends BaseController {
 
       // Store user information into the database
       // Check if the user already exists in the database
-      // Create user in Auth Service
-
+      console.log("Controller: ", this.userProfile.refreshToken);
       const userData = {
-        _id: "",
-        role: "",
-        verified: true,
+        verified: this.userProfile.email_verified,
         email: this.userProfile.email,
         fullName: this.userProfile.name,
         img: this.userProfile.picture,
-        password: "",
-        phone: "",
         refreshToken: this.userProfile.refreshToken,
       };
       const createdUser = await this.authenticationService.createGoogleUser(
@@ -462,7 +322,7 @@ export default class AuthController extends BaseController {
 
       if (createdUser) {
         const token =
-          this.authenticationService.generateAuthenticationToken(createdUser);
+          this.authenticationService.generateAuthenticationToken(userData);
         res.cookie("Authorization", token, {
           maxAge: token.expiresIn * 1000,
           secure: true,
@@ -470,90 +330,26 @@ export default class AuthController extends BaseController {
         });
 
         res.status(200).json({
-          msg: "Redirect user to set password page",
+          msg: "Redirect user home screen",
         });
       } else {
-        // Check if the user has a password
-        const checkPasswordExists =
-          await this.authenticationService.checkGoogleUserPassword(
-            this.userProfile.email
-          );
-        if (!checkPasswordExists) {
-          const token = this.authenticationService.generateAuthenticationToken(
-            this.userProfile
-          );
-          res.cookie("Authorization", token.token, {
-            httpOnly: true,
-            maxAge: token.expiresIn * 1000,
-            secure: true,
-          });
-          res.status(200).json({
-            msg: "Redirect user to set password page - Or let user in without update password",
-          });
-        } else {
-          // Let user in without creation of new user
-          const token = this.authenticationService.generateAuthenticationToken(
-            this.userProfile
-          );
-          res.cookie("Authorization", token.token, {
-            httpOnly: true,
-            maxAge: token.expiresIn * 1000,
-            secure: true,
-          });
-          res.status(200).json({
-            msg: "User authenticated successfully",
-          });
-        }
+        // User already exists in the database
+        const userData = {
+          email: this.userProfile.email,
+          fullName: this.userProfile.name,
+          img: this.userProfile.picture,
+        };
+        const token =
+          this.authenticationService.generateAuthenticationToken(userData);
+        res.cookie("Authorization", token.token, {
+          httpOnly: true,
+          maxAge: token.expiresIn * 1000,
+          secure: true,
+        });
+        res.status(200).json({
+          msg: "User authenticated successfully",
+        });
       }
-      // END HERE
-
-      //The Code below belongs to the old version of the app - Using MongoDB
-      // const checkUserExists = await User.findOne({
-      //   email: this.userProfile.email,
-      // });
-      // if (!checkUserExists) {
-      //   // Create a new user
-      //   const userData = {
-      //     email: this.userProfile.email,
-      //     fullName: this.userProfile.name,
-      //     img: this.userProfile.picture,
-      //     role: "user",
-      //     verified: true,
-      //     password: "",
-      //   };
-      //   const createUser = await User.create(userData);
-
-      //   const token =
-      //     this.authenticationService.generateAuthenticationToken(createUser);
-      //   res.cookie("Authorization", token, {
-      //     maxAge: token.expiresIn * 1000,
-      //     secure: true,
-      //     httpOnly: true,
-      //   });
-
-      //   res.status(200).json({
-      //     msg: "Redirect user to set password page",
-      //   });
-      // } else {
-      //   if (checkUserExists.password === "") {
-      //     res.status(200).json({
-      //       msg: "Redirect user to set password page",
-      //     });
-      //   } else {
-      //     // Let user in without creation of new user
-      //     const token = this.authenticationService.generateAuthenticationToken(
-      //       this.userProfile
-      //     );
-      //     res.cookie("Authorization", token.token, {
-      //       httpOnly: true,
-      //       maxAge: token.expiresIn * 1000,
-      //       secure: true,
-      //     });
-      //     res.status(200).json({
-      //       msg: "User authenticated successfully",
-      //     });
-      //   }
-      // }
     } catch (error) {
       console.log(error);
       res.status(500).json({

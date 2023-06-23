@@ -38,6 +38,12 @@ export class Account extends Model {
   })
   password!: string;
 
+  @Column({
+    type: DataType.ENUM("internal", "external"),
+    allowNull: false,
+  })
+  type!: string;
+
   @ForeignKey(() => User)
   @Column({
     type: DataType.INTEGER,

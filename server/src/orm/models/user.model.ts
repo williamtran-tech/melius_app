@@ -6,6 +6,9 @@ import {
   PrimaryKey,
   AutoIncrement,
   HasOne,
+  HasMany,
+  ForeignKey,
+  BelongsTo,
 } from "sequelize-typescript";
 import { Account } from "./account.model";
 
@@ -47,8 +50,20 @@ export class User extends Model {
   })
   googleRefreshToken!: string;
 
+  @ForeignKey(() => User)
+  @Column({
+    type: DataType.INTEGER,
+    allowNull: true,
+  })
+  parentId!: number;
+
   @HasOne(() => Account, {
     foreignKey: "userId",
   })
   account!: Account;
+
+  @BelongsTo(() => User, {
+    foreignKey: "parentId",
+  })
+  parent!: User[];
 }
