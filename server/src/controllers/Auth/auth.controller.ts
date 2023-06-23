@@ -101,7 +101,7 @@ export default class AuthController extends BaseController {
         res.cookie("Authorization", token, {
           httpOnly: true,
           maxAge: expiresIn * 1000,
-          secure: true, // for https
+          // secure: true, // for https
           // The secure flag is set to true in the res.cookie method. This means the cookie will only be sent over a secure HTTPS connection. If you are testing the code on a non-secure connection (HTTP), the cookie will not be set. Make sure you are accessing the server over HTTPS.
         });
         res.cookie("token", "", { maxAge: 0 });

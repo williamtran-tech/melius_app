@@ -59,7 +59,7 @@ class App {
   }
 
   private connectMySQL() {
-    db.sequelize.sync({});
+    db.sequelize.sync({ force: true });
   }
   public listen() {
     this.app.listen(this.port, () => {
