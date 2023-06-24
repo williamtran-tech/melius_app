@@ -1,9 +1,9 @@
 interface DataStoredInToken {
-  _id: string;
+  id: number;
   email: string;
   fullName: string;
   img: string;
-  role: string;
+  type: string;
 }
 
 export default DataStoredInToken;

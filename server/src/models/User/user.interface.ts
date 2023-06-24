@@ -1,10 +1,10 @@
 interface IUser {
-  _id: string;
+  id: number;
   fullName: string;
   password: string;
   phone: string;
   email: string;
-  role: string;
+  type: string;
   img: string;
   verified: boolean;
 }

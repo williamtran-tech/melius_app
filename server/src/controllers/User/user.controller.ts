@@ -1,80 +1,69 @@
 import express, { NextFunction } from "express";
 import { BaseController } from "../abstractions/base.controller";
-import IUser from "../../models/User/user.interface";
-import User from "../../models/User/user.model";
 import HttpException from "../../exceptions/HttpException";
-
+import jwt from "jsonwebtoken";
+import DecodedUserToken from "../../interfaces/DecodedUserToken.interface";
+import UserService from "../../services/user.service";
 export default class UserController extends BaseController {
   constructor() {
     super();
   }
 
-  // public createUser = async (
-  //   req: express.Request,
-  //   res: express.Response,
-  //   next: express.NextFunction
-  // ) => {
-  //   try {
-  //     const user: IUser = req.body;
-  //     const newUser = new User(user);
-  //     await newUser.save();
-  //     if (newUser) {
-  //       res.status(200).json({
-  //         msg: "User created successfully",
-  //         user: newUser,
-  //       });
-  //     } else {
-  //       res.status(400).json({
-  //         msg: "User not created",
-  //       });
-  //     }
-  //   } catch (error: any) {
-  //     if (error.code === 11000) {
-  //       console.log(error.message);
-  //       next(new HttpException(400, "Email already exists"));
-  //     } else {
-  //       console.log(error);
-  //       next(new HttpException(500, "Server error"));
-  //     }
-  //   }
-  // };
+  public userService = new UserService();
 
-  public getAllUsers = async (
+  public getUserProfile = async (
     req: express.Request,
     res: express.Response,
     next: NextFunction
   ) => {
     try {
-      // const users = await User.find();
-      const users = await User.find({});
+      const decodedToken = jwt.verify(
+        req.cookies["Authorization"],
+        process.env.JWT_SECRET!
+      ) as DecodedUserToken;
+      const userProfile = await this.userService.getUserProfile(
+        decodedToken.id
+      );
       res.status(200).json({
-        msg: "This is user route",
-        users: users,
+        msg: "Get user profile successfully",
+        userProfile: userProfile,
       });
-    } catch (error: any) {
-      console.log(error);
-      res.status(500).json({
-        msg: "Internal server error",
-      });
+    } catch (err) {
+      next(err);
     }
   };
 
-  public getUserById = async (
-    request: express.Request,
-    response: express.Response,
-    next: express.NextFunction
+  public createChild = async (
+    req: express.Request,
+    res: express.Response,
+    next: NextFunction
   ) => {
     try {
-      const id = request.params.id;
-      const user = await User.findById(id);
-      if (user) {
-        response.send(user);
+      const decodedToken = jwt.verify(
+        req.cookies["Authorization"],
+        process.env.JWT_SECRET!
+      ) as DecodedUserToken;
+      const userProfile = await this.userService.getUserProfile(
+        decodedToken.id
+      );
+      if (userProfile) {
+        console.log(userProfile);
+        const childProfile = {
+          fullName: req.body.fullName,
+          parentId: userProfile.user.id,
+        };
+
+        const child = await this.userService.createChild(childProfile);
+
+        res.status(200).json({
+          msg: "Create child successfully",
+          child: child,
+        });
       } else {
-        next(new HttpException(404, "Post not found"));
+        throw new HttpException(401, "Unauthorized Access");
       }
     } catch (err) {
-      console.log(err);
-      next(new HttpException(500, "Internal server error"));
+      next(err);
     }
   };
 }

@@ -1,5 +1,4 @@
 import * as jwt from "jsonwebtoken";
-import UserMongo from "../models/User/user.model";
 import CreateUserDTO from "../models/User/UserCreate.DTO";
 import RegisterUserDTO from "../models/User/UserRegister.DTO";
 import HttpException from "../exceptions/HttpException";
@@ -14,19 +13,17 @@ import LogInDTO from "../models/DTOs/Login.DTO";
 import InvalidCredentialsException from "../exceptions/InvalidCredentialsException";
 
 class AuthenticationService {
-  public user = UserMongo;
-
   public async generateVerifiedToken(user: RegisterUserDTO) {
     // Check phone number duplicate
-    if (user.phone) {
-      if (
-        await this.user.findOne({
-          phone: user.phone,
-        })
-      ) {
-        throw new HttpException(400, "Phone number already exists");
-      }
-    }
+    // if (user.phone) {
+    //   if (
+    //     await this.user.findOne({
+    //       phone: user.phone,
+    //     })
+    //   ) {
+    //     throw new HttpException(400, "Phone number already exists");
+    //   }
+    // }
     // Generate 4 digit code
     // Send email with code
     const verifiedCode = Math.floor(1000 + Math.random() * 9000);
@@ -62,15 +59,27 @@ class AuthenticationService {
     return token;
   }
 
-  public generateAuthenticationToken(user: IUser | any) {
+  public async generateAuthenticationToken(user: IUser | any) {
     const expiresIn = 60 * 60 * 24 * 3; // 3 days
     const secret = process.env.JWT_SECRET!; // the ! tells the compiler that we know that the variable is defined
+    let userID = user.id;
+    if (user.id === undefined) {
+      const userData = await Account.findOne({
+        where: {
+          email: user.email,
+        },
+        attributes: ["userId"],
+      });
+      if (userData) {
+        userID = userData.userId;
+      }
+    }
     const dataStoredInToken: DataStoredInToken = {
-      _id: user._id,
+      id: user.id || userID,
       email: user.email,
       fullName: user.fullName,
       img: user.img,
-      role: user.role,
+      type: user.type,
     };
     return {
       expiresIn,
@@ -79,20 +88,6 @@ class AuthenticationService {
         algorithm: "HS384",
       }),
     };
-  }
-
-  public async createUser(user: CreateUserDTO, password: string) {
-    try {
-      const hashedPassword = await this.hashPassword(password);
-      const createdUser = await this.user.create({
-        ...user,
-        password: hashedPassword,
-        verified: true,
-      });
-      return createdUser;
-    } catch (err) {
-      throw err;
-    }
   }
 
   // MySQL
@@ -112,7 +107,7 @@ class AuthenticationService {
     }
   }
 
-  public async createUserSQL(user: CreateUserDTO, password: string) {
+  public async createUser(user: CreateUserDTO, password: string) {
     try {
       const hashedPassword = await this.hashPassword(password);
       const createdUser = await User.create({
@@ -140,6 +135,7 @@ class AuthenticationService {
       });
       if (checkUserExisted) {
         checkUserExisted.user.googleRefreshToken = user.refreshToken;
+        checkUserExisted.user.img = user.img;
         await checkUserExisted.user.save();
         return true;
       }
@@ -187,7 +183,14 @@ class AuthenticationService {
       if (!isPasswordMatching) {
         throw new InvalidCredentialsException();
       }
-      const tokenData = this.generateAuthenticationToken(account.user);
+      const decodedToken = {
+        id: account.user.id,
+        email: account.email,
+        fullName: account.user.fullName,
+        img: account.user.img,
+        type: account.type,
+      };
+      const tokenData = await this.generateAuthenticationToken(decodedToken);
       return {
         token: tokenData.token,
         expiresIn: tokenData.expiresIn,
