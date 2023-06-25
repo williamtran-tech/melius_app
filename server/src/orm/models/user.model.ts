@@ -33,6 +33,12 @@ export class User extends Model {
   fullName!: string;
 
   @Column({
+    type: DataType.ENUM("male", "female"),
+    allowNull: false,
+  })
+  gender!: string;
+
+  @Column({
     type: DataType.STRING,
     allowNull: true,
   })

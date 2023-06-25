@@ -1,8 +1,6 @@
 import express from "express";
 import { BaseController } from "../abstractions/base.controller";
 import passport from "./../../configs/passport.config";
-import User from "../../models/User/user.model";
-import InvalidCredentialsExceptions from "../../exceptions/InvalidCredentialsException";
 import CreateUserDTO from "../../models/User/UserCreate.DTO";
 import RegisterUserDTO from "../../models/User/UserRegister.DTO";
 import AuthenticationService from "../../services/auth.service";
@@ -11,7 +9,6 @@ import DecodedVerifiedToken from "../../interfaces/DecodedVerifiedToken.interfac
 import HttpException from "../../exceptions/HttpException";
 import jwt from "jsonwebtoken";
 import DecodedUserToken from "../../interfaces/DecodedUserToken.interface";
-import { Account } from "../../orm/models/account.model";
 
 export default class AuthController extends BaseController {
   private userProfile: any;
@@ -88,7 +85,7 @@ export default class AuthController extends BaseController {
         ...decodedToken.user,
         password: password,
       };
-      const user = await this.authenticationService.createUserSQL(
+      const user = await this.authenticationService.createUser(
         userData,
         password
       );
@@ -96,7 +93,7 @@ export default class AuthController extends BaseController {
         throw new HttpException(400, "Create user failed");
       } else {
         const { expiresIn, token } =
-          this.authenticationService.generateAuthenticationToken(user);
+          await this.authenticationService.generateAuthenticationToken(user);
         console.log(expiresIn, token);
         res.cookie("Authorization", token, {
           httpOnly: true,
@@ -182,7 +179,7 @@ export default class AuthController extends BaseController {
     }
   };
 
-  // Not used
+  // Not fixed yet
 
   public forgotPassword = async (
     req: express.Request,
@@ -190,31 +187,29 @@ export default class AuthController extends BaseController {
     next: express.NextFunction
   ) => {
     try {
-      const user = await User.findOne({
-        email: req.body.email,
-      });
-      if (!user) {
-        throw new HttpException(404, "User not found");
-      }
-      const userData: RegisterUserDTO = {
-        email: user.email,
-        fullName: user.fullName,
-        isVerified: false,
-      };
-
-      const { token, verifiedCode } =
-        await this.authenticationService.generateVerifiedToken(userData);
-      res.cookie("token", token, {
-        httpOnly: true,
-        // maxAge for 15 minutes
-        maxAge: 900000,
-      });
-      this.authenticationService.sendVerifiedEmail(user.email, verifiedCode);
-
-      res.status(200).json({
-        msg: "Verified Code sent to your email",
-        verifiedCode: verifiedCode,
-      });
+      // const user = await User.findOne({
+      //   email: req.body.email,
+      // });
+      // if (!user) {
+      //   throw new HttpException(404, "User not found");
+      // }
+      // const userData: RegisterUserDTO = {
+      //   email: user.email,
+      //   fullName: user.fullName,
+      //   isVerified: false,
+      // };
+      // const { token, verifiedCode } =
+      //   await this.authenticationService.generateVerifiedToken(userData);
+      // res.cookie("token", token, {
+      //   httpOnly: true,
+      //   // maxAge for 15 minutes
+      //   maxAge: 900000,
+      // });
+      // this.authenticationService.sendVerifiedEmail(user.email, verifiedCode);
+      // res.status(200).json({
+      //   msg: "Verified Code sent to your email",
+      //   verifiedCode: verifiedCode,
+      // });
     } catch (error: any) {
       next(error);
     }
@@ -226,6 +221,13 @@ export default class AuthController extends BaseController {
     next: express.NextFunction
   ) => {
     try {
+      if (req.cookies["Authorization"]) {
+        if (jwt.verify(req.cookies.Authorization, process.env.JWT_SECRET!)) {
+          throw new HttpException(400, "Already logged in");
+        } else {
+          res.clearCookie("Authorization");
+        }
+      }
       const logInData: LogInDTO = req.body;
       const logInUser = await this.authenticationService.logIn(logInData);
       res.cookie("Authorization", logInUser.token, {
@@ -308,7 +310,6 @@ export default class AuthController extends BaseController {
 
       // Store user information into the database
       // Check if the user already exists in the database
-      console.log("Controller: ", this.userProfile.refreshToken);
       const userData = {
         verified: this.userProfile.email_verified,
         email: this.userProfile.email,
@@ -322,10 +323,12 @@ export default class AuthController extends BaseController {
 
       if (createdUser) {
         const token =
-          this.authenticationService.generateAuthenticationToken(userData);
+          await this.authenticationService.generateAuthenticationToken(
+            userData
+          );
         res.cookie("Authorization", token, {
           maxAge: token.expiresIn * 1000,
-          secure: true,
+          // secure: true,
           httpOnly: true,
         });
 
@@ -340,7 +343,9 @@ export default class AuthController extends BaseController {
           img: this.userProfile.picture,
         };
         const token =
-          this.authenticationService.generateAuthenticationToken(userData);
+          await this.authenticationService.generateAuthenticationToken(
+            userData
+          );
         res.cookie("Authorization", token.token, {
           httpOnly: true,
           maxAge: token.expiresIn * 1000,

@@ -7,10 +7,12 @@ import authMiddleware from "../../middlewares/auth.middleware";
 export const userRouter = Router();
 const userController = new UserController();
 
-userRouter.get("/", authMiddleware, userController.getAllUsers);
+userRouter.get("/profile", authMiddleware, userController.getUserProfile);
+userRouter.post("/create-child", authMiddleware, userController.createChild);
+
 // userRouter.post(
 //   "/",
 //   validationMiddleware(CreateUserDTO, false),
 //   userController.createUser
 // );
-userRouter.get("/:id", userController.getUserById);
+// userRouter.get("/:id", userController.getUserById);
