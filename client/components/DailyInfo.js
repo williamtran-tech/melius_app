@@ -129,6 +129,7 @@ export default DailyInfo;
 
 const styles = StyleSheet.create({
   containerToday: {
+    flex: 1,
     backgroundColor: "rgba(255, 255, 238, 1)",
     width: "100%",
     height: 170,
@@ -137,7 +138,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: -1 },
     shadowOpacity: 0.2,
     shadowRadius: 4,
-    display: "flex",
+    // display: "flex",
     paddingVertical: 10,
   },
   headertext: {

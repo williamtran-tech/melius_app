@@ -3,7 +3,7 @@
 
 // Import React and Component
 import React, { useState, createRef, useEffect } from "react";
-import { View } from "react-native";
+import { View, Text } from "react-native";
 import HeaderText from "../components/HeaderText";
 import Loader from "../components/Loader";
 import SubText from "../components/SubText";
@@ -25,7 +25,6 @@ const RegisterScreen = ({ navigation }) => {
           <RegisterForm
             navigation={navigation}
             setStage={setStage}
-            currentStage={stage}
             setConfirmMethod={setConfirmMethod}
           />
         );

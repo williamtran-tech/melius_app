@@ -8,6 +8,8 @@ import { View, Text, SafeAreaView, StyleSheet } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import WelcomHeader from "../components/WelcomHeader";
 import DailyInfo from "../components/DailyInfo";
+import Remind from "../components/Remind";
+import MenuSuggest from "../components/MenuSuggest";
 const HomeScreen = () => {
   const [test, setTest] = useState("");
 
@@ -22,7 +24,15 @@ const HomeScreen = () => {
         <WelcomHeader></WelcomHeader>
       </View>
       <View style={styles.container}>
-        <DailyInfo></DailyInfo>
+        <View style={styles.DaylyInfcontainer}>
+          <DailyInfo></DailyInfo>
+        </View>
+        <View style={styles.ReminderContainer}>
+          <Remind></Remind>
+        </View>
+        <View style={styles.MenuContainer}>
+          <MenuSuggest></MenuSuggest>
+        </View>
       </View>
     </View>
   );
@@ -31,8 +41,17 @@ const HomeScreen = () => {
 export default HomeScreen;
 const styles = StyleSheet.create({
   container: {
-    marginLeft: 12,
-    marginRight: 12,
+    flex: 1,
     marginTop: -85,
+    backgroundColor: "hsla(51, 100%, 50%, 0)",
+  },
+  DaylyInfcontainer: {
+    flex: 1,
+    paddingHorizontal: 15,
+    // backgroundColor: "#000",
+  },
+  ReminderContainer: { flex: 1 },
+  MenuContainer: {
+    flex: 2,
   },
 });

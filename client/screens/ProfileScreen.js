@@ -30,31 +30,31 @@ const ProfileScreen = ({ navigation }) => {
     }
   };
   const logout = () => {
-    // navigation.replace("Auth");
-    // AsyncStorage.removeItem("Authentication", (error) => {
-    //   if (error) {
-    //     console.error(error);
-    //   } else {
-    //     console.log('"Authentication" has been deleted.');
-    //     navigation.replace("Auth");
-    //   }
-    // });
-    HandleApi.serverGeneral
-      .get("/v1/auth/logout")
-      .then((response) => {
-        console.log(response.data);
-        AsyncStorage.removeItem("Authentication", (error) => {
-          if (error) {
-            console.error(error);
-          } else {
-            console.log('"Authentication" has been deleted.');
-            navigation.replace("Auth");
-          }
-        });
-      })
-      .catch((error) => {
-        console.error(error.data);
-      });
+    navigation.replace("Auth");
+    AsyncStorage.removeItem("Authentication", (error) => {
+      if (error) {
+        console.error(error);
+      } else {
+        console.log('"Authentication" has been deleted.');
+        navigation.replace("Auth");
+        HandleApi.serverGeneral
+          .get("/v1/auth/logout")
+          .then((response) => {
+            console.log(response.data);
+            AsyncStorage.removeItem("Authentication", (error) => {
+              if (error) {
+                console.error(error);
+              } else {
+                console.log('"Authentication" has been deleted.');
+                navigation.replace("Auth");
+              }
+            });
+          })
+          .catch((error) => {
+            console.error(error.data);
+          });
+      }
+    });
   };
 
   //   fetch("http://192.168.102.100:5050/api/v1/auth/logout", {

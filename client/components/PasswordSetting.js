@@ -151,7 +151,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
   },
   SectionStyle: {
-    flexDirection: "Column",
+    flexDirection: "column",
     marginTop: 10,
     marginLeft: 60,
     marginRight: 60,

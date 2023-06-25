@@ -25,7 +25,6 @@ const CustomSidebarMenu = (props) => {
         <Text style={stylesSidebar.profileHeaderText}>AboutReact</Text>
       </View>
       <View style={stylesSidebar.profileHeaderLine} />
-
       <DrawerContentScrollView {...props}>
         <DrawerItemList {...props} />
         <DrawerItem

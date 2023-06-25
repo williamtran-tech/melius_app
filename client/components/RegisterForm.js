@@ -8,6 +8,7 @@ import {
   Keyboard,
   TouchableOpacity,
   TouchableWithoutFeedback,
+  Platform,
 } from "react-native";
 import HeaderText from "../components/HeaderText";
 import Loader from "../components/Loader";
@@ -17,12 +18,13 @@ import { Formik } from "formik";
 import Validation from "../Services/Authorizations/Validation";
 import HandleApi from "../Services/HandleApi";
 import qs from "qs";
+
 const RegisterForm = ({ navigation, setStage, setConfirmMethod }) => {
   const emailInputRef = createRef();
   const ageInputRef = createRef();
   const passwordInputRef = createRef();
   const [loading, setLoading] = useState(false);
-
+  console.log(Platform.OS);
   const handleSubmitButton = (values) => {
     setLoading(true);
     HandleApi.serverGeneral
@@ -30,7 +32,7 @@ const RegisterForm = ({ navigation, setStage, setConfirmMethod }) => {
       .then((response) => {
         console.log(response.data);
         setLoading(false);
-        setConfirmMethod(values.verifyMethod);
+        setConfirmMethod(values.verifiedMethod);
         setStage("stage2");
       })
       .catch((error) => {
@@ -64,7 +66,7 @@ const RegisterForm = ({ navigation, setStage, setConfirmMethod }) => {
               email: "",
               verifiedMethod: "",
             }}
-            validateOnChange={true}
+            validateOnChange
             validationSchema={Validation.registerValidationSchema}
             onSubmit={(values) => handleSubmitButton(values)}
           >
@@ -77,7 +79,7 @@ const RegisterForm = ({ navigation, setStage, setConfirmMethod }) => {
               touched,
               isValid,
             }) => (
-              <>
+              <View>
                 <View style={styles.SectionStyle}>
                   <SubText style={{ color: "#8C8C8C", fontSize: 15 }}>
                     Fullname
@@ -194,7 +196,7 @@ const RegisterForm = ({ navigation, setStage, setConfirmMethod }) => {
                 >
                   <Text style={styles.buttonTextStyle}>REGISTER</Text>
                 </TouchableOpacity>
-              </>
+              </View>
             )}
           </Formik>
         </KeyboardAvoidingView>
@@ -206,11 +208,10 @@ export default RegisterForm;
 
 const styles = StyleSheet.create({
   SectionStyle: {
-    flexDirection: "Column",
+    flexDirection: "column",
     marginTop: 10,
     marginLeft: 60,
     marginRight: 60,
-    margin: 10,
     gap: 5,
   },
   buttonStyle: {
@@ -283,17 +284,11 @@ const picker = StyleSheet.create({
     backgroundColor: "rgba(249, 249, 249, 1)",
   },
   inputAndroid: {
-    color: "white",
-    height: 35,
+    height: 60,
     paddingLeft: 15,
     borderWidth: 1,
     borderRadius: 10,
     borderColor: "#dadae8",
-    color: "#000",
-    shadowOffset: { height: 0, width: -10 },
-    shadowRadius: 4,
-    elevation: 25,
-    shadowColor: "rgba(26, 26, 26, 0.2)",
-    backgroundColor: "rgba(249, 249, 249, 1)",
+    backgroundColor: "#fff",
   },
 });

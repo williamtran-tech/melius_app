@@ -18,7 +18,7 @@ import qs from "qs";
 
 const ConfirmCode = ({ setStage, confirmMethod }) => {
   const [seconds, setSeconds] = useState(59);
-
+  console.log(confirmMethod);
   const OPTdes = {
     title: "ENTER OPT CODE",
     description: "OTP code will be sent to your phone number",
@@ -32,9 +32,9 @@ const ConfirmCode = ({ setStage, confirmMethod }) => {
   const [methodVerify, setMethodVerify] = useState(
     confirmMethod === "phone" ? OPTdes : Emaildes
   );
+  console.log(methodVerify);
   useEffect(() => {
     // Start the countdown timer
-    if (seconds === 0) return;
     const intervalId = setInterval(() => {
       setSeconds((prevSeconds) => prevSeconds - 1);
     }, 1000);
@@ -43,7 +43,8 @@ const ConfirmCode = ({ setStage, confirmMethod }) => {
     return () => {
       clearInterval(intervalId);
     };
-  }, []);
+  }, [seconds]);
+  console.log(methodVerify);
   const handleCodeChange = (code) => {
     HandleApi.serverGeneral
       .post("v1/auth/verify", qs.stringify(code))
@@ -56,7 +57,7 @@ const ConfirmCode = ({ setStage, confirmMethod }) => {
       });
     console.log(code);
   };
-  if (seconds === 0) console.log("cc");
+  // if (seconds === 0) console.log("cc");
   return (
     <View style={styles.container}>
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
@@ -69,12 +70,14 @@ const ConfirmCode = ({ setStage, confirmMethod }) => {
               marginBottom: 5,
             }}
           >
-            {methodVerify.title}
+            {methodVerify && methodVerify.title && methodVerify.title}
           </HeaderText>
           <SubText
             style={{ color: "#8C8C8C", fontSize: 15, textAlign: "center" }}
           >
-            {methodVerify.description}
+            {methodVerify &&
+              methodVerify.description &&
+              methodVerify.description}
           </SubText>
           <SubText
             style={{ color: "#8C8C8C", fontSize: 15, textAlign: "center" }}
@@ -84,16 +87,15 @@ const ConfirmCode = ({ setStage, confirmMethod }) => {
               <Text
                 style={{ color: "#518B1A", fontSize: 18, textAlign: "center" }}
               >
-                {seconds}
+                {seconds && seconds}
               </Text>
-            }{" "}
+            }
             seconds)
           </SubText>
           <Formik
             initialValues={{ verifiedCode: "" }}
             validationSchema={Validation.OPTvalidationSchema}
             onSubmit={(values) => handleCodeChange(values)}
-            validateOnMount
           >
             {({ handleChange, handleBlur, handleSubmit, values, isValid }) => (
               <View>
@@ -113,7 +115,7 @@ const ConfirmCode = ({ setStage, confirmMethod }) => {
                       textAlign: "center",
                     }}
                   >
-                    {methodVerify.signal}
+                    {methodVerify && methodVerify.signal}
                   </HeaderText>
                   <OTPInputView
                     pinCount={4}
