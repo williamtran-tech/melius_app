@@ -27,7 +27,7 @@ const Remind = () => {
       </HeaderText>
       {reminders.map((item) => {
         return (
-          <View style={styles.ItemRemindContainer}>
+          <View style={styles.ItemRemindContainer} key={item.time}>
             <Text style={styles.itemTime}>{item.time}</Text>
             <Text style={styles.itemTitle}>{item.title}</Text>
           </View>
