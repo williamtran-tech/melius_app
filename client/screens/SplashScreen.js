@@ -11,12 +11,12 @@ const SplashScreen = ({ navigation }) => {
       duration: 1000,
       useNativeDriver: true,
     }).start();
-
-    setTimeout(() => {
-      AsyncStorage.getItem("Authentication").then((value) =>
-        navigation.replace(value === null ? "Auth" : "BottomNavigation")
-      );
-    }, 1000);
+navigation.replace( "BottomNavigation")
+    // setTimeout(() => {
+    //   AsyncStorage.getItem("Authentication").then((value) =>
+    //     navigation.replace(value === null ? "Auth" : "BottomNavigation")
+    //   );
+    // }, 1000);
   }, []);
 
   return (
