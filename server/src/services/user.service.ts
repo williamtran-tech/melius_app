@@ -1,5 +1,6 @@
 import { User } from "./../orm/models/user.model";
 import { Account } from "./../orm/models/account.model";
+import { Health } from "../orm/models/health.model";
 
 export default class UserService {
   public async getUserProfile(userId: number) {
@@ -9,7 +10,7 @@ export default class UserService {
         attributes: ["id", "email", "type"],
         include: {
           model: User,
-          attributes: ["id", "fullName", "img", "updatedAt"],
+          attributes: ["id", "fullName", "gender", "DOB", "img", "updatedAt"],
         },
       });
       return userProfile;
@@ -22,6 +23,24 @@ export default class UserService {
     try {
       const childCreated = await User.create(childProfile);
       return childCreated;
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  public async getKidProfiles(parentId: number) {
+    try {
+      const kidProfiles = await User.findAll({
+        where: { parentId: parentId },
+        attributes: ["id", "fullName", "dob", "gender", "updatedAt"],
+        include: {
+          model: Health,
+          limit: 1,
+          attributes: ["id", "weight", "height", "bmi", "tdee", "updatedAt"],
+          order: [["createdAt", "DESC"]],
+        },
+      });
+      return kidProfiles;
     } catch (err) {
       throw err;
     }
