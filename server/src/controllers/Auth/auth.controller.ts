@@ -83,6 +83,8 @@ export default class AuthController extends BaseController {
 
       const userData: CreateUserDTO = {
         ...decodedToken.user,
+        DOB: new Date(),
+        gender: "female",
         password: password,
       };
       const user = await this.authenticationService.createUser(
@@ -316,6 +318,8 @@ export default class AuthController extends BaseController {
         fullName: this.userProfile.name,
         img: this.userProfile.picture,
         refreshToken: this.userProfile.refreshToken,
+        DOB: new Date(),
+        gender: "female",
       };
       const createdUser = await this.authenticationService.createGoogleUser(
         userData

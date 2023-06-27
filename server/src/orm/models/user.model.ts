@@ -11,6 +11,7 @@ import {
   BelongsTo,
 } from "sequelize-typescript";
 import { Account } from "./account.model";
+import { Health } from "./health.model";
 
 @Table({
   tableName: "users",
@@ -37,6 +38,12 @@ export class User extends Model {
     allowNull: false,
   })
   gender!: string;
+
+  @Column({
+    type: DataType.DATE,
+    allowNull: false,
+  })
+  dob!: Date;
 
   @Column({
     type: DataType.STRING,
@@ -67,6 +74,9 @@ export class User extends Model {
     foreignKey: "userId",
   })
   account!: Account;
+
+  @HasMany(() => Health)
+  healthRecord!: Health[];
 
   @BelongsTo(() => User, {
     foreignKey: "parentId",

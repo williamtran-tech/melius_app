@@ -38,7 +38,7 @@ export class Health extends Model {
 
   @Column({
     type: DataType.FLOAT,
-    allowNull: false,
+    allowNull: true,
   })
   bmi!: number;
 

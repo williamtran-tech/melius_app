@@ -112,6 +112,8 @@ class AuthenticationService {
       const hashedPassword = await this.hashPassword(password);
       const createdUser = await User.create({
         fullName: user.fullName,
+        gender: user.gender,
+        dob: user.DOB,
       });
       const createdAccount = await Account.create({
         userId: createdUser.id,
@@ -150,6 +152,8 @@ class AuthenticationService {
           fullName: user.fullName,
           img: user.img,
           phone: user.phone,
+          dob: user.DOB,
+          gender: user.gender,
           googleRefreshToken: user.refreshToken,
         });
         const createdAccount = await Account.create({

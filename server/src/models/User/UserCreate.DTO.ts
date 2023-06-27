@@ -17,6 +17,12 @@ class CreateUserDTO {
   @IsPhoneNumber("VN" || "US" || "CA")
   public phone?: string;
 
+  @IsOptional()
+  public gender: string;
+
+  @IsOptional()
+  public DOB: Date;
+
   @IsStrongPassword({
     minLength: 6,
     minLowercase: 1,
@@ -30,12 +36,16 @@ class CreateUserDTO {
     fullName: string,
     email: string,
     password: string,
+    DOB: Date,
+    gender: string,
     phone?: string
   ) {
     this.fullName = fullName;
     this.email = email;
     this.password = password;
     this.phone = phone || undefined;
+    this.DOB = DOB;
+    this.gender = gender;
   }
 }
 
