@@ -1,6 +1,6 @@
-import RegisterUserDTO from "../models/User/UserRegister.DTO";
+import RegisterUserDTO from "../../DTOs/User/UserRegister.DTO";
 interface DecodedUserToken {
-  id: number;
+  id: string;
   user: RegisterUserDTO;
 }
 export default DecodedUserToken;

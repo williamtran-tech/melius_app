@@ -1,14 +1,14 @@
 import express from "express";
 import { BaseController } from "../abstractions/base.controller";
 import passport from "./../../configs/passport.config";
-import CreateUserDTO from "../../models/User/UserCreate.DTO";
-import RegisterUserDTO from "../../models/User/UserRegister.DTO";
+import CreateUserDTO from "../../DTOs/User/UserCreate.DTO";
+import RegisterUserDTO from "../../DTOs/User/UserRegister.DTO";
 import AuthenticationService from "../../services/auth.service";
-import LogInDTO from "../../models/DTOs/Login.DTO";
-import DecodedVerifiedToken from "../../interfaces/DecodedVerifiedToken.interface";
+import LogInDTO from "../../DTOs/Auth/Login.DTO";
+import DecodedVerifiedToken from "../../interfaces/Auth/DecodedVerifiedToken.interface";
 import HttpException from "../../exceptions/HttpException";
 import jwt from "jsonwebtoken";
-import DecodedUserToken from "../../interfaces/DecodedUserToken.interface";
+import DecodedUserToken from "../../interfaces/Auth/DecodedUserToken.interface";
 
 export default class AuthController extends BaseController {
   private userProfile: any;

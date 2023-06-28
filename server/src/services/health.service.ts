@@ -5,6 +5,7 @@ import { User } from "./../orm/models/user.model";
 import { Account } from "./../orm/models/account.model";
 import { Health } from "./../orm/models/health.model";
 import moment from "moment";
+import KidHealthDTO from "../DTOs/Kid/KidHealthData.DTO";
 
 export default class HealthService {
   public calculateBMI(kidData: any): number {
@@ -28,7 +29,7 @@ export default class HealthService {
       // • 0–3 years → BEE (kcal/d) = (28.2 × W) + (859 × H) – 371 (R2 = 0.919)
       // • 3–10 years → BEE (kcal/d) = (15.1 × W) + (74.2 × H) + 306 (R2 = 0.683)
 
-      //Girls*
+      // Oxford with weight and height Girls
       // • 0–3 years → BEE (kcal/d) = (30.4 × W) + (703 × H) – 287 (R2 = 0.929)
       // • 3–10 years → BEE (kcal/d) = (15.9 × W) + (210 × H) + 349 (R2 = 0.680)
 
@@ -75,7 +76,7 @@ export default class HealthService {
     return moment().diff(date, measurement);
   }
 
-  public async createHealthRecord(kidData: any) {
+  public async createHealthRecord(kidData: KidHealthDTO) {
     try {
       const ageInMonth = this.ageCalculator(kidData.DOB, "months");
       const age = this.ageCalculator(kidData.DOB, "years");
@@ -86,7 +87,7 @@ export default class HealthService {
         height: kidData.height,
         gender: kidData.gender,
         age: age,
-        PAL: kidData.PAL,
+        PAL: kidData.PAL ? kidData.PAL : 1.2,
       };
       const tdee = this.calculateTDEE(tdeeParams);
 
@@ -101,6 +102,64 @@ export default class HealthService {
         tdee: tdee,
         kidId: kidData.kidId,
       });
+
+      return healthRecord;
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  public async updateHealthRecord(kidData: KidHealthDTO) {
+    try {
+      const ageInMonth = this.ageCalculator(kidData.DOB, "months");
+      const age = this.ageCalculator(kidData.DOB, "years");
+      let BMI;
+      const latestHealthRecord = await Health.findOne({
+        where: { kidId: kidData.kidId },
+        order: [["createdAt", "DESC"]],
+      });
+
+      const tdeeParams = {
+        weight: kidData.weight,
+        height: kidData.height,
+        gender: kidData.gender,
+        age: age,
+        PAL: kidData.PAL ? kidData.PAL : 1.2,
+      };
+      const tdee = this.calculateTDEE(tdeeParams);
+
+      let healthRecord = {};
+
+      if (age > 2) {
+        BMI = this.calculateBMI(kidData);
+      }
+
+      if (moment().diff(latestHealthRecord!.createdAt, "days") > 1) {
+        // create new health record
+        healthRecord = await Health.create({
+          weight: kidData.weight,
+          height: kidData.height,
+          bmi: BMI || null,
+          tdee: tdee,
+          kidId: kidData.kidId,
+        });
+      } else {
+        // update health record
+        healthRecord = await Health.update(
+          {
+            weight: kidData.weight,
+            height: kidData.height,
+            bmi: BMI || null,
+            tdee: tdee,
+          },
+          {
+            where: {
+              kidId: kidData.kidId,
+              createdAt: latestHealthRecord!.createdAt,
+            },
+          }
+        );
+      }
 
       return healthRecord;
     } catch (err) {

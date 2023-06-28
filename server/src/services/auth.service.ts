@@ -1,15 +1,15 @@
 import * as jwt from "jsonwebtoken";
-import CreateUserDTO from "../models/User/UserCreate.DTO";
-import RegisterUserDTO from "../models/User/UserRegister.DTO";
+import CreateUserDTO from "../DTOs/User/UserCreate.DTO";
+import RegisterUserDTO from "../DTOs/User/UserRegister.DTO";
 import HttpException from "../exceptions/HttpException";
 import bcrypt from "bcrypt";
 import MailUtil from "../utils/mail.util";
-import TokenData from "../interfaces/TokenData.interface";
-import IUser from "../models/User/user.interface";
-import DataStoredInToken from "../interfaces/DataStoredInToken.interface";
+import TokenData from "../interfaces/Auth/TokenData.interface";
+import IUser from "../interfaces/User/user.interface";
+import DataStoredInToken from "../interfaces/Auth/DataStoredInToken.interface";
 import { Account } from "./../orm/models/account.model";
 import { User } from "./../orm/models/user.model";
-import LogInDTO from "../models/DTOs/Login.DTO";
+import LogInDTO from "../DTOs/Auth/Login.DTO";
 import InvalidCredentialsException from "../exceptions/InvalidCredentialsException";
 
 class AuthenticationService {
@@ -81,6 +81,7 @@ class AuthenticationService {
       img: user.img,
       type: user.type,
     };
+    console.log("Data stored in token: ", dataStoredInToken);
     return {
       expiresIn,
       token: jwt.sign(dataStoredInToken, secret, {
