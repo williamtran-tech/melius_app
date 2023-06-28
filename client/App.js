@@ -1,7 +1,7 @@
 import "react-native-gesture-handler";
 
 // Import React and Component
-import React from "react";
+import React, {useEffect} from "react";
 
 // Import Navigators from React Navigation
 import { NavigationContainer } from "@react-navigation/native";
@@ -15,8 +15,11 @@ import * as Localization from "expo-localization";
 import en from "./Services/translation/en.json";
 import vi from "./Services/translation/vi.json";
 import AuthenticationNavigation from "./navigation/AuthenticationNavigation";
-
+import { StatusBar } from "react-native";
 const App = () => {
+  useEffect(() => {
+    StatusBar.setBarStyle("dark-content");
+  }, []);
   i18next.use(initReactI18next).init({
     compatibilityJSON: "v3",
     resources: {

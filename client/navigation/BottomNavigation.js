@@ -6,6 +6,7 @@ import { useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import ProfileScreen from "../screens/ProfileScreen";
+import MenuScreen from "../screens/MenuScreen";
 
 const Tab = createBottomTabNavigator();
 
@@ -83,7 +84,7 @@ function BottomNavigation() {
       />
       <Tab.Screen
         name="Menu"
-        component={SettingsScreen}
+        component={MenuScreen}
         listeners={{
           focus: () => setSelectedTab("Menu"), // Set the selected tab as "Setting" when it is focused
         }}

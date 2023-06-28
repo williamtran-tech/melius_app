@@ -38,6 +38,8 @@
     "react-hook-form": "^7.45.0",
     "react-i18next": "^13.0.0",
     "react-native": "0.71.8",
+    "react-native-calendar-strip": "^2.2.6",
+    "react-native-calendars": "^1.1299.0",
     "react-native-custom-switch": "^1.0.7",
     "react-native-dotenv": "^3.4.9",
     "react-native-elements": "^3.4.3",

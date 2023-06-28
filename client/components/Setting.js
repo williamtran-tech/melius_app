@@ -34,23 +34,23 @@ const Setting = () => {
     }
   };
   const logout = () => {
-    navigation.replace("Auth");
-  }; // AsyncStorage.removeItem("Authentication", (error) => {
-  //   if (error) {
-  //     console.error(error);
-  //   } else {
-  //     console.log('"Authentication" has been deleted.');
-  //     HandleApi.serverGeneral
-  //       .get("/v1/auth/logout")
-  //       .then((response) => {
-  //         console.log(response.data);
-  //         navigation.replace("Auth");
-  //       })
-  //       .catch((error) => {
-  //         console.error(error.data);
-  //       });
-  //   }
-  // });
+    AsyncStorage.removeItem("Authentication", (error) => {
+      if (error) {
+        console.error(error);
+      } else {
+        console.log('"Authentication" has been deleted.');
+        HandleApi.serverGeneral
+          .get("/v1/auth/logout")
+          .then((response) => {
+            console.log(response.data);
+            navigation.replace("Auth");
+          })
+          .catch((error) => {
+            console.error(error.data);
+          });
+      }
+    });
+  };
   const { t, i18n } = useTranslation();
   const changeLanguage = (language) => {
     i18n.changeLanguage(language);
