@@ -6,8 +6,8 @@ export default class UserService {
   public async getUserProfile(userId: number) {
     try {
       const userProfile = await Account.findOne({
-        where: { userId },
-        attributes: ["id", "email", "type"],
+        where: { userId: userId },
+        attributes: ["email", "type"],
         include: {
           model: User,
           attributes: ["id", "fullName", "gender", "DOB", "img", "updatedAt"],
@@ -28,7 +28,7 @@ export default class UserService {
     }
   }
 
-  public async getKidProfiles(parentId: number) {
+  public async getKidProfiles(parentId: string) {
     try {
       const kidProfiles = await User.findAll({
         where: { parentId: parentId },

@@ -2,9 +2,10 @@ import express, { NextFunction } from "express";
 import { BaseController } from "../abstractions/base.controller";
 import HttpException from "../../exceptions/HttpException";
 import jwt from "jsonwebtoken";
-import DecodedUserToken from "../../interfaces/DecodedUserToken.interface";
+import DecodedUserToken from "../../interfaces/Auth/DecodedUserToken.interface";
 import UserService from "../../services/user.service";
 import HealthService from "../../services/health.service";
+import KidHealthDTO from "../../DTOs/Kid/KidHealthData.DTO";
 export default class UserController extends BaseController {
   constructor() {
     super();
@@ -20,20 +21,14 @@ export default class UserController extends BaseController {
     next: NextFunction
   ) => {
     try {
-      const decodedToken = jwt.verify(
-        req.cookies["Authorization"],
-        process.env.JWT_SECRET!
-      ) as DecodedUserToken;
       const userProfile = await this.userService.getUserProfile(
-        decodedToken.id
+        req.userData.id
       );
-      const kidProfiles = await this.userService.getKidProfiles(
-        decodedToken.id
-      );
+      const kidProfile = await this.userService.getKidProfiles(req.userData.id);
       res.status(200).json({
         msg: "Get user profile successfully",
         userProfile: userProfile,
-        kidProfiles: kidProfiles,
+        kidProfile: kidProfile,
       });
     } catch (err) {
       next(err);
@@ -46,13 +41,8 @@ export default class UserController extends BaseController {
     next: NextFunction
   ) => {
     try {
-      const decodedToken = jwt.verify(
-        req.cookies["Authorization"],
-        process.env.JWT_SECRET!
-      ) as DecodedUserToken;
-      const userProfile = await this.userService.getUserProfile(
-        decodedToken.id
-      );
+      const userId = req.userData.id;
+      const userProfile = await this.userService.getUserProfile(userId);
       if (userProfile) {
         console.log(userProfile);
         const childProfile = {
@@ -71,7 +61,7 @@ export default class UserController extends BaseController {
           DOB: child.dob,
           gender: child.gender,
           PAL: req.body.PAL || 1.4,
-        };
+        } as KidHealthDTO;
 
         const createdHealthRecord = await this.healthService.createHealthRecord(
           healthRecord
@@ -90,9 +80,48 @@ export default class UserController extends BaseController {
     }
   };
 
+  public updateChildHealth = async (
+    req: express.Request,
+    res: express.Response,
+    next: NextFunction
+  ) => {
+    try {
+      const kidInfo = await this.userService.getKidProfiles(req.userData.id);
+      const kidData: KidHealthDTO = {
+        kidId: kidInfo[0].id,
+        weight: req.body.weight,
+        height: req.body.height,
+        DOB: kidInfo[0].dob,
+        PAL: req.body.PAL ? req.body.PAL : 1.4,
+        gender: kidInfo[0].gender,
+      };
+
+      const kidHealth = await this.healthService.updateHealthRecord(kidData);
+
+      res.status(200).json({
+        msg: "Create kid health successfully",
+        kidHealth: kidHealth,
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
+
   public getKidProfile = async (
     req: express.Request,
     res: express.Response,
     next: NextFunction
-  ) => {};
+  ) => {
+    try {
+      const userId = req.userData.id;
+
+      const kidProfiles = await this.userService.getKidProfiles(userId);
+      res.status(200).json({
+        msg: "Get child profile successfully",
+        kidProfiles: kidProfiles,
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
 }

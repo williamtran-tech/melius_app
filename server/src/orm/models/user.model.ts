@@ -25,7 +25,7 @@ export class User extends Model {
     autoIncrement: true,
     primaryKey: true,
   })
-  id!: string;
+  id!: number;
 
   @Column({
     type: DataType.STRING,

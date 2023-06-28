@@ -2,9 +2,9 @@ import { Router } from "express";
 import AuthController from "../../controllers/Auth/auth.controller";
 import validationMiddleware from "../../middlewares/validation.middleware";
 
-import RegisterUserDTO from "../../models/User/UserRegister.DTO";
-import LogInDTO from "../../models/DTOs/Login.DTO";
-import ResetPasswordDTO from "../../models/DTOs/ResetPassword.DTO";
+import RegisterUserDTO from "../../DTOs/User/UserRegister.DTO";
+import LogInDTO from "../../DTOs/Auth/Login.DTO";
+import ResetPasswordDTO from "../../DTOs/Auth/ResetPassword.DTO";
 
 import registerMiddleware from "../../middlewares/register.middleware";
 import authMiddleware from "../../middlewares/auth.middleware";

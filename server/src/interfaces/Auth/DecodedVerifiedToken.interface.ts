@@ -1,4 +1,4 @@
-import RegisterUserDTO from "../models/User/UserRegister.DTO";
+import RegisterUserDTO from "../../DTOs/User/UserRegister.DTO";
 interface DecodedVerifiedToken {
   email: string;
   user: RegisterUserDTO;

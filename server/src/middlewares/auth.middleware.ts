@@ -1,26 +1,26 @@
-import { NextFunction, Response, Request } from "express";
+import express, { NextFunction } from "express";
 import * as jwt from "jsonwebtoken";
 import HttpException from "../exceptions/HttpException";
-import DataStoredInToken from "../interfaces/DataStoredInToken.interface";
+import DataStoredInToken from "../interfaces/Auth/DataStoredInToken.interface";
 import { User } from "../orm/models/user.model";
 
 async function authMiddleware(
-  request: Request,
-  response: Response,
+  request: express.Request,
+  response: express.Response,
   next: NextFunction
 ) {
   const cookies = request.cookies;
   if (cookies && cookies.Authorization) {
     const secret = process.env.JWT_SECRET!;
     try {
-      const verificationResponse = jwt.verify(
+      const decodedToken = jwt.verify(
         cookies.Authorization,
         secret
       ) as DataStoredInToken;
-      const id = verificationResponse.id;
+      const id = decodedToken.id;
       const user = await User.findByPk(id);
       if (user) {
-        request.user = user;
+        request.userData = decodedToken;
         next();
       } else {
         next(new HttpException(401, "Unauthorized Access"));
