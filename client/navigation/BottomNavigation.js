@@ -7,6 +7,7 @@ import { StyleSheet, View } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import ProfileScreen from "../screens/ProfileScreen";
 import MenuScreen from "../screens/MenuScreen";
+import Community from "../screens/Community";
 
 const Tab = createBottomTabNavigator();
 
@@ -76,7 +77,7 @@ function BottomNavigation() {
       />
       <Tab.Screen
         name="Community"
-        component={SettingsScreen}
+        component={Community}
         listeners={{
           focus: () => setSelectedTab("Community"), // Set the selected tab as "Setting" when it is focused
         }}

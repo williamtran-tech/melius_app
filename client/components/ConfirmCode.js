@@ -60,7 +60,7 @@ const ConfirmCode = ({ setStage, confirmMethod }) => {
   // if (seconds === 0) console.log("cc");
   return (
     <View style={styles.container}>
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+      <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
         <View>
           <HeaderText
             style={{
@@ -92,7 +92,7 @@ const ConfirmCode = ({ setStage, confirmMethod }) => {
             }
             seconds)
           </SubText>
-          <Formik
+          {/* <Formik
             initialValues={{ verifiedCode: "" }}
             validationSchema={Validation.OPTvalidationSchema}
             onSubmit={(values) => handleCodeChange(values)}
@@ -147,7 +147,74 @@ const ConfirmCode = ({ setStage, confirmMethod }) => {
                 </TouchableOpacity>
               </View>
             )}
+          </Formik> */}
+          <Formik
+            initialValues={{ verifiedCode: "" }}
+            validationSchema={Validation.OPTvalidationSchema}
+            onSubmit={handleCodeChange}
+            validateOnChange
+          >
+            {({ handleChange, handleBlur, handleSubmit, values, isValid }) => (
+              <View>
+                <View
+                  style={{
+                    flexDirection: "row",
+                    width: "100%",
+                    alignItems: "center",
+                    paddingHorizontal: 40,
+                    marginVertical: 35,
+                  }}
+                >
+                  <HeaderText
+                    style={{
+                      color: "#8C8C8C",
+                      fontSize: 22,
+                      textAlign: "center",
+                    }}
+                  >
+                    {methodVerify && methodVerify.signal}
+                  </HeaderText>
+                  <OTPInputView
+                    pinCount={4}
+                    style={styles.OPTcontainer}
+                    code={values.verifiedCode}
+                    onCodeChanged={handleChange("verifiedCode")}
+                    autoFocus={false}
+                    codeInputFieldStyle={styles.underlineStyleBase}
+                    codeInputHighlightStyle={styles.underlineStyleHighLighted}
+                  />
+                </View>
+                <View>
+                  <SubText
+                    style={{
+                      color: "#8C8C8C",
+                      fontSize: 15,
+                      textAlign: "center",
+                    }}
+                  >
+                    Did not receive the OTP code? Send again
+                  </SubText>
+                </View>
+                <TouchableOpacity
+                  onPress={handleSubmit}
+                  disabled={!isValid}
+                  style={isValid ? styles.BtnEnable : styles.BtnDisable}
+                >
+                  <Text style={styles.buttonTextStyle}>Confirm</Text>
+                </TouchableOpacity>
+              </View>
+            )}
           </Formik>
+          {/* <OTPInputView
+            pinCount={4}
+            style={styles.OPTcontainer}
+            // code={values.verifiedCode}
+            // onCodeChanged={handleChange("verifiedCode")}
+            autofillFromClipboard={false}
+            autoFocus={false}
+            codeInputFieldStyle={styles.underlineStyleBase}
+            codeInputHighlightStyle={styles.underlineStyleHighLighted}
+          /> */}
         </View>
       </TouchableWithoutFeedback>
     </View>
