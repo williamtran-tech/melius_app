@@ -38,24 +38,20 @@ const Community = () => {
   }, []);
 
   return (
-    <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-        // keyboardVerticalOffset={Platform.OS === "ios" ? 64 : 0}
-        style={{
-          flex: 1,
-          backgroundColor: "#FDFDFD",
-        }}
-      >
-        <View style={{ flex: 1 }}>
-          <MessageList messages={messages} />
-        </View>
-
-        <View>
-          <ChatInput messages={messages} sendMessage={sendMessage}></ChatInput>
-        </View>
-      </KeyboardAvoidingView>
-    </TouchableWithoutFeedback>
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      style={{
+        flex: 1,
+        backgroundColor: "#FDFDFD",
+      }}
+    >
+      <View style={{ flex: 1 }}>
+        <MessageList messages={messages} />
+      </View>
+      <View>
+        <ChatInput messages={messages} sendMessage={sendMessage}></ChatInput>
+      </View>
+    </KeyboardAvoidingView>
   );
 };
 
