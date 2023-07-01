@@ -1,6 +1,7 @@
 import express from "express";
 import { BaseController } from "../abstractions/base.controller";
 import USDAService from "../../services/usda.service";
+import HttpException from "../../exceptions/HttpException";
 export default class IngredientController extends BaseController {
   constructor() {
     super();
@@ -14,9 +15,8 @@ export default class IngredientController extends BaseController {
     next: express.NextFunction
   ) => {
     try {
-      console.log("getIngredientNutrition");
-
       const ingredientData = {
+        foodCategory: req.query.foodCategory,
         ingredient: req.query.ingredient,
         pagesize: req.query.pagesize ? req.query.pagesize : 10,
       };
