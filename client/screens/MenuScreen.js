@@ -4,7 +4,9 @@ import HeaderText from "../components/HeaderText";
 import { useState } from "react";
 import MonthCalendar from "../components/MonthCalendar";
 import WeekCalendar from "../components/WeekCalendar";
-
+import moment from "moment";
+import ProjectNutrition from "../components/ProjectNutrition";
+import Menu from "../components/Menu";
 const MenuScreen = () => {
   const [activeTab, setActiveTab] = useState("daily");
   const [selectedDate, setSelectedDate] = useState("2023-06-29");
@@ -12,17 +14,19 @@ const MenuScreen = () => {
   const handleTabPress = (tab) => {
     setActiveTab(tab);
   };
-
+  const currentDate = moment().format('dddd, MMMM D');
   const renderCalendar = () => {
     switch (activeTab) {
       case "daily":
-        return (
+        return <HeaderText style={{ color:"#8CC840", fontSize:20, paddingTop:20}}>
+          {currentDate}
+        </HeaderText>
+      case "week":return (
           <WeekCalendar
             selectedDate={selectedDate}
             setSelectedDate={setSelectedDate}
           ></WeekCalendar>
         );
-      case "week":
       case "month":
         return (
           <MonthCalendar
@@ -37,7 +41,8 @@ const MenuScreen = () => {
 
   return (
     <View style={{ flex: 1, backgroundColor: "#FDFDFD" }}>
-      <View style={styles.headerTab}>
+      <View>
+         <View style={styles.headerTab}>
         <TouchableOpacity
           onPress={() => handleTabPress("daily")}
           style={
@@ -94,6 +99,14 @@ const MenuScreen = () => {
         </TouchableOpacity>
       </View>
       <View style={{paddingHorizontal:25}}>{renderCalendar()}</View>
+      </View>
+      <View style={{paddingHorizontal:25, marginTop:10}}>
+        <ProjectNutrition></ProjectNutrition>
+      </View>
+      <View style={{ marginTop:20 , flex:1}}>
+          <Menu></Menu>
+      </View>
+     
     </View>
   );
 };
