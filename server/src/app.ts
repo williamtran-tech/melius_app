@@ -61,8 +61,13 @@ class App {
   private connectMySQL() {
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     // db.sequelize.sync({});
     db.sequelize.sync({ force: true })
+=======
+    db.sequelize.sync({});
+    // db.sequelize.sync({force: true})
+>>>>>>> refs/remotes/origin/main
 =======
     db.sequelize.sync({});
     // db.sequelize.sync({force: true})
