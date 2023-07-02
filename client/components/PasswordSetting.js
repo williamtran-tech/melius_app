@@ -17,7 +17,7 @@ import QueryString from "qs";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Loader from "./Loader";
 
-const PasswordSetting = ({ navigation, type }) => {
+const PasswordSetting = ({ navigation, type, setStage }) => {
   const cookie = require("cookie");
   const [loading, setLoading] = useState(false);
 
@@ -37,34 +37,37 @@ const PasswordSetting = ({ navigation, type }) => {
   );
   const setPassword = (values) => {
     setLoading(true);
-    HandleApi.serverGeneral
-      .post("v1/auth/password", QueryString.stringify(values))
-      .then((response) => {
-        console.log(response.data);
-        let receivedCookies = response.headers.get("set-cookie");
-        let cookieString = Array.isArray(receivedCookies)
-          ? receivedCookies.join("; ")
-          : receivedCookies;
-        let parsedCookies = cookie.parse(cookieString);
-        let authorizationCookie = parsedCookies["Authorization"];
-        console.log(authorizationCookie);
-        if (authorizationCookie) {
-          AsyncStorage.setItem("Authentication", authorizationCookie)
-            .then(() => {
-              setLoading(false);
-              navigation.replace("BottomNavigation");
-            })
-            .catch((error) => {
-              setLoading(false);
-              console.error(error);
-            });
-        } else {
-          setLoading(false);
-        }
-      })
-      .catch((error) => {
-        console.error(error);
-      });
+    setStage("stage5");
+
+    // HandleApi.serverGeneral
+    //   .post("v1/auth/password", QueryString.stringify(values))
+    //   .then((response) => {
+    //     console.log(response.data);
+    //     let receivedCookies = response.headers.get("set-cookie");
+    //     let cookieString = Array.isArray(receivedCookies)
+    //       ? receivedCookies.join("; ")
+    //       : receivedCookies;
+    //     let parsedCookies = cookie.parse(cookieString);
+    //     let authorizationCookie = parsedCookies["Authorization"];
+    //     console.log(authorizationCookie);
+    //     if (authorizationCookie) {
+    //       AsyncStorage.setItem("Authentication", authorizationCookie)
+    //         .then(() => {
+    //           setLoading(false);
+    //           // navigation.replace("BottomNavigation");
+    //           setStage("stage5");
+    //         })
+    //         .catch((error) => {
+    //           setLoading(false);
+    //           console.error(error);
+    //         });
+    //     } else {
+    //       setLoading(false);
+    //     }
+    //   })
+    //   .catch((error) => {
+    //     console.error(error);
+    //   });
     // console.log(QueryString.stringify(values));
   };
   return (

@@ -46,16 +46,17 @@ const ConfirmCode = ({ setStage, confirmMethod }) => {
   }, [seconds]);
   console.log(methodVerify);
   const handleCodeChange = (code) => {
-    HandleApi.serverGeneral
-      .post("v1/auth/verify", qs.stringify(code))
-      .then((response) => {
-        console.log(response.data);
-        setStage("stage4");
-      })
-      .catch((error) => {
-        console.error(error);
-      });
-    console.log(code);
+    setStage("stage4");
+    // HandleApi.serverGeneral
+    //   .post("v1/auth/verify", qs.stringify(code))
+    //   .then((response) => {
+    //     console.log(response.data);
+    //     setStage("stage4");
+    //   })
+    //   .catch((error) => {
+    //     console.error(error);
+    //   });
+    // console.log(code);
   };
   // if (seconds === 0) console.log("cc");
   return (

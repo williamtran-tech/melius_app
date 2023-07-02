@@ -39,6 +39,7 @@ const Setting = () => {
         console.error(error);
       } else {
         console.log('"Authentication" has been deleted.');
+        // navigation.replace("Auth");
         HandleApi.serverGeneral
           .get("/v1/auth/logout")
           .then((response) => {

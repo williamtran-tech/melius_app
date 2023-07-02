@@ -27,18 +27,19 @@ const RegisterForm = ({ navigation, setStage, setConfirmMethod }) => {
   console.log(Platform.OS);
   const handleSubmitButton = (values) => {
     setLoading(true);
-    HandleApi.serverGeneral
-      .post("v1/auth/register", qs.stringify(values))
-      .then((response) => {
-        console.log(response.data);
-        setLoading(false);
-        setConfirmMethod(values.verifiedMethod);
-        setStage("stage2");
-      })
-      .catch((error) => {
-        setLoading(false);
-        console.error(error);
-      });
+    setStage("stage2");
+    // HandleApi.serverGeneral
+    //   .post("v1/auth/register", qs.stringify(values))
+    //   .then((response) => {
+    //     console.log(response.data);
+    //     setLoading(false);
+    //     setConfirmMethod(values.verifiedMethod);
+    //     setStage("stage2");
+    //   })
+    //   .catch((error) => {
+    //     setLoading(false);
+    //     console.error(error);
+    //   });
     console.log(qs.stringify(values));
     console.log(values);
   }; // // setLoading(true);

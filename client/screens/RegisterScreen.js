@@ -14,6 +14,7 @@ import RegisterForm from "../components/RegisterForm";
 import AgreeForm from "../components/AgreeForm";
 import ConfirmCode from "../components/ConfirmCode";
 import PasswordSetting from "../components/PasswordSetting";
+import ProfileChildeFrom from "../components/ProfileChildeFrom";
 
 const RegisterScreen = ({ navigation }) => {
   const [stage, setStage] = useState("stage1");
@@ -42,8 +43,11 @@ const RegisterScreen = ({ navigation }) => {
           <PasswordSetting
             navigation={navigation}
             type={"setting"}
+            setStage={setStage}
           ></PasswordSetting>
         );
+      case "stage5":
+        return <ProfileChildeFrom navigation={navigation}></ProfileChildeFrom>;
       default:
         return null;
     }

@@ -40,46 +40,46 @@ const LoginScreen = ({ navigation }) => {
   const handleSubmitPress = (values) => {
     console.log(qs.stringify(values));
     setLoading(true);
-    navigation.replace("BottomNavigation");
-    // HandleApi.serverGeneral
-    //   .post("/v1/auth/login", qs.stringify(values))
-    //   .then((response) => {
-    //     let receivedCookies = response.headers.get("set-cookie");
-    //     let cookieString = Array.isArray(receivedCookies)
-    //       ? receivedCookies.join("; ")
-    //       : receivedCookies;
-    //     let parsedCookies = cookie.parse(cookieString);
-    //     let authorizationCookie = parsedCookies["Authorization"];
-    //     console.log(authorizationCookie);
-    //     if (authorizationCookie) {
-    //       AsyncStorage.setItem("Authentication", authorizationCookie)
-    //         .then(() => {
-    //           setLoading(false);
-    //           navigation.replace("BottomNavigation");
-    //         })
-    //         .catch((error) => {
-    //           setLoading(false);
-    //           console.error(error.message);
-    //         });
-    //     } else {
-    //       setLoading(false);
-    //     }
-    //   })
-    //   .catch((error) => {
-    //     setLoading(false);
-    //     console.error(error);
-    //     Alert.alert(
-    //       "Invalid Credentials",
-    //       "The email or password you entered is incorrect.",
-    //       [
-    //         {
-    //           text: "OK",
-    //           onPress: () => console.log("OK Pressed"),
-    //         },
-    //       ],
-    //       { cancelable: false }
-    //     );
-    //   });
+    // navigation.replace("BottomNavigation");
+    HandleApi.serverGeneral
+      .post("/v1/auth/login", qs.stringify(values))
+      .then((response) => {
+        let receivedCookies = response.headers.get("set-cookie");
+        let cookieString = Array.isArray(receivedCookies)
+          ? receivedCookies.join("; ")
+          : receivedCookies;
+        let parsedCookies = cookie.parse(cookieString);
+        let authorizationCookie = parsedCookies["Authorization"];
+        console.log(authorizationCookie);
+        if (authorizationCookie) {
+          AsyncStorage.setItem("Authentication", authorizationCookie)
+            .then(() => {
+              setLoading(false);
+              navigation.replace("BottomNavigation");
+            })
+            .catch((error) => {
+              setLoading(false);
+              console.error(error.message);
+            });
+        } else {
+          setLoading(false);
+        }
+      })
+      .catch((error) => {
+        setLoading(false);
+        console.error(error);
+        Alert.alert(
+          "Invalid Credentials",
+          "The email or password you entered is incorrect.",
+          [
+            {
+              text: "OK",
+              onPress: () => console.log("OK Pressed"),
+            },
+          ],
+          { cancelable: false }
+        );
+      });
 
     // fetch("http://192.168.102.100:5050/api/v1/auth/login", {
     //   method: "POST",

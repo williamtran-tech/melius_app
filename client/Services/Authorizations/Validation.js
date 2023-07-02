@@ -64,6 +64,13 @@ const EmailOrPhoneSchema = yup.object().shape({
     })
     .required("Email or Phone is required"),
 });
+const validationProfileChildSchema = yup.object().shape({
+  fullName: yup.string().required("Full Name is required"),
+  gender: yup.string().required("Gender is required"),
+  dob: yup.date().required("Date of Birth is required"),
+  weight: yup.number().required("Weight is required"),
+  height: yup.number().required("Height is required"),
+});
 export default {
   loginValidationSchema,
   registerValidationSchema,
@@ -71,4 +78,5 @@ export default {
   OPTvalidationSchema,
   PasswordSettingSchema,
   EmailOrPhoneSchema,
+  validationProfileChildSchema,
 };
