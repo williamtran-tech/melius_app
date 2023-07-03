@@ -1,7 +1,9 @@
 import { Router } from "express";
 import { User } from "../../orm/models/user.model";
 import { Account } from "../../orm/models/account.model";
+import { Recipe } from "../../orm/models/recipe.model";
 import express, { NextFunction } from "express";
+import sequelize from "sequelize";
 export const defaultRouter = Router();
 
 defaultRouter.get("/", async (req, res) => {
@@ -13,6 +15,39 @@ defaultRouter.get("/", async (req, res) => {
       users: users,
       accounts: accounts,
       // dupUserAccount: dupUserAccount,
+    });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({
+      msg: "Internal server error",
+    });
+  }
+});
+
+defaultRouter.get("/recipes", async (req, res) => {
+  try {
+    const recipes = await Recipe.findAll({
+      limit: 10,
+      attributes: ["name", "nSteps", "nIngredients"],
+      order: sequelize.literal("rand()"),
+    });
+
+    // console.log(recipes[0].name);
+    // // Get the step string from the recipe;
+    // const data = recipes[0].steps;
+    // // Replace all single quotes with double quotes
+    // const stringData = data.replace(/'/g, '"');
+    // // Parse the string into an array
+    // const stepsArray = JSON.parse(stringData);
+
+    // stepsArray.forEach((step: any) => {
+    //   console.log(step);
+    // });
+
+    res.status(200).json({
+      msg: "This is default route",
+      recipes: recipes,
+      // steps: stepsArray,
     });
   } catch (err) {
     console.log(err);
@@ -67,39 +102,3 @@ defaultRouter.post("/test", async (req, res) => {
     }
   }
 });
-
-// defaultRouter.get(
-//   "/ingredients/search",
-//   async (req: express.Request, res: express.Response) => {
-//     try {
-//       const params = {
-//         api_key: process.env.USDA_API,
-//         query: req.query.ingredient,
-//         dataType: ["Survey (FNDDS)"],
-//         pagesize: req.query.pagesize ? req.query.pagesize : 10,
-//       };
-
-//       const url = `https://api.nal.usda.gov/fdc/v1/foods/search?api_key=${params.api_key}&query=${params.query}&dataType=${params.dataType}&pageSize=${params.pagesize}`;
-
-//       const response = await fetch(url);
-//       const data = await response.json();
-
-//       console.log(data.foods[0]);
-
-//       const responseData = {
-//         foods: data.foods[0].description,
-//         category: data.foods[0].foodCategory,
-//         foodNutrients: data.foods[0].foodNutrients,
-//       };
-//       res.status(200).json({
-//         msg: "This is default route",
-//         foodData: responseData,
-//       });
-//     } catch (err) {
-//       console.log(err);
-//       res.status(500).json({
-//         msg: "Internal server error",
-//       });
-//     }
-//   }
-// );
