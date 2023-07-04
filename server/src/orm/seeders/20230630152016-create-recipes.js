@@ -1,6 +1,8 @@
 "use strict";
 const fs = require("fs");
 const csv = require("fast-csv");
+const transform = require("stream-transform");
+const { Transform } = require("stream");
 
 module.exports = {
   up: async (queryInterface, Sequelize) => {
@@ -10,6 +12,7 @@ module.exports = {
     let insertedRecords = 0;
     const batchSize = 1000; // Number of records to insert in each batch
     const delay = 3000; // Delay in milliseconds between batches
+    const results = [];
 
     return new Promise((resolve, reject) => {
       fs.createReadStream(csvFilePath)
@@ -44,16 +47,25 @@ module.exports = {
             };
             // console.log("parsedData", testParseData);
             // Insert the row into the database table
-            await queryInterface.bulkInsert(tableName, [testParseData]);
-            insertedRecords++;
+            // await queryInterface.bulkInsert(tableName, [testParseData]);
+
+            if (
+              testParseData.ingredients.includes("\\") ||
+              testParseData.steps.includes("\\")
+            ) {
+              console.log("Skipping row with backslash");
+            } else {
+              results.push(testParseData);
+              insertedRecords++;
+            }
             // Display progress
             console.log(
               `Inserted ${insertedRecords} records out of ${totalRecords}`
             );
 
             if (insertedRecords % batchSize === 0) {
-              // Delay before starting the next batch
-              await new Promise((resolve) => setTimeout(resolve, delay));
+              await queryInterface.bulkInsert(tableName, results);
+              results.length = 0;
             }
           } catch (error) {
             console.error("Error inserting row:", error);
