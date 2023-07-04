@@ -11,7 +11,6 @@ import HomeScreen from "../screens/HomeScreen";
 import NavigationDrawerHeader from "../components/NavigationDrawerHeader";
 import SettingsScreen from "../screens/SettingScreen";
 import CustomSidebarMenu from "../components/CustomSidebarMenu";
-
 // Import Screens
 const Stack = createStackNavigator();
 const Drawer = createDrawerNavigator();

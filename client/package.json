@@ -58,6 +58,7 @@
     "react-native-screens": "^3.20.0",
     "react-native-svg": "13.4.0",
     "react-native-svg-uri": "^1.2.3",
+    "react-native-swipe-list-view": "^3.2.9",
     "react-native-switch-selector": "^2.3.0",
     "yup": "^1.2.0"
   },

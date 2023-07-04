@@ -1,30 +1,108 @@
 import { StyleSheet, Text, View, TouchableOpacity, Image } from "react-native";
-import React from "react";
+import React, { useState } from "react";
 import HeaderText from "./HeaderText";
 import SubText from "./SubText";
 import { ScrollView } from "react-native-gesture-handler";
+import { SwipeListView } from "react-native-swipe-list-view";
 
-const Menu = ({ navigation, selectedDate, setSelectedDate }) => {
+const MenuEdit = () => {
+  const [data, setData] = useState([
+    { id: 1, text: "Item 1" },
+    { id: 2, text: "Item 2" },
+    { id: 3, text: "Item 3" },
+  ]);
+  const renderHiddenItem = (rowData, rowMap) => {
+    const { item } = rowData;
+
+    return (
+      <View style={styles.ItemContainerHidden}>
+        <TouchableOpacity
+          style={styles.deleteButton}
+          onPress={() => handleDelete(item.id)}
+        >
+          <Text>Delete</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  };
+
+  const renderListItem = (rowData) => {
+    // const { item } = rowData;
+
+    return (
+      <View style={styles.ItemContainer}>
+        <SubText>7:30</SubText>
+        <SubText style={{ flex: 1 }}>
+          Noodles with tomato sauce with bruised meat
+        </SubText>
+        <TouchableOpacity style={styles.reciprebtn}>
+          <Image
+            source={require("../assets/icon/Iconrecipe.png")}
+            style={{ width: 15, height: 15 }}
+          ></Image>
+        </TouchableOpacity>
+      </View>
+    );
+  };
   return (
     <View style={{ flex: 1 }}>
       <View style={{ flex: 3 }}>
-        <View style={styles.headerContainer}>
-          <HeaderText style={{ color: "#518B1A", fontSize: 18 }}>
-            BEE's menu !
-          </HeaderText>
-          <TouchableOpacity
-            style={styles.updatebtn}
-            onPress={() =>
-              navigation.navigate("MenuEditScreen", {
-                setSelectedDate: setSelectedDate,
-                selectedDate: selectedDate,
-              })
-            }
-          >
-            <SubText style={styles.updateText}>Edit</SubText>
-          </TouchableOpacity>
+        <View style={styles.section}>
+          <Image
+            source={require("../assets/icon/Iconmorning.png")}
+            style={{ width: 15, height: 15 }}
+            resizeMode="contain"
+          ></Image>
+          <SubText style={{ color: "rgba(26, 26, 26, 0.50)", fontSize: 12 }}>
+            Morning
+          </SubText>
         </View>
-        <ScrollView>
+        <View>
+          <SwipeListView
+            data={data}
+            renderItem={renderListItem}
+            renderHiddenItem={renderHiddenItem}
+            rightOpenValue={-90}
+          />
+        </View>
+        <View style={styles.section}>
+          <Image
+            source={require("../assets/icon/Iconmorning.png")}
+            style={{ width: 15, height: 15 }}
+            resizeMode="contain"
+          ></Image>
+          <SubText style={{ color: "rgba(26, 26, 26, 0.50)", fontSize: 12 }}>
+            Afternoon
+          </SubText>
+        </View>
+        <View>
+          <SwipeListView
+            data={data}
+            renderItem={renderListItem}
+            renderHiddenItem={renderHiddenItem}
+            rightOpenValue={-90}
+          />
+        </View>
+        <View style={styles.section}>
+          <Image
+            source={require("../assets/icon/Iconmorning.png")}
+            style={{ width: 15, height: 15 }}
+            resizeMode="contain"
+          ></Image>
+          <SubText style={{ color: "rgba(26, 26, 26, 0.50)", fontSize: 12 }}>
+            Evening
+          </SubText>
+        </View>
+        <View>
+          <SwipeListView
+            data={data}
+            renderItem={renderListItem}
+            renderHiddenItem={renderHiddenItem}
+            rightOpenValue={-90}
+          />
+        </View>
+
+        {/* <ScrollView>
           <View style={styles.section}>
             <Image
               source={require("../assets/icon/Iconmorning.png")}
@@ -169,68 +247,13 @@ const Menu = ({ navigation, selectedDate, setSelectedDate }) => {
               </TouchableOpacity>
             </View>
           </View>
-        </ScrollView>
-      </View>
-      <View style={{ flex: 2 }}>
-        <View style={styles.headerContainer}>
-          <HeaderText style={{ color: "#518B1A", fontSize: 18 }}>
-            BEE's menu !
-          </HeaderText>
-          <TouchableOpacity style={styles.updatebtn}>
-            <SubText style={styles.updateText}>Edit</SubText>
-          </TouchableOpacity>
-        </View>
-        <ScrollView>
-          <View style={styles.ingredient}>
-            <Image
-              source={require("../assets/icon/Iconrice.png")}
-              style={styles.image}
-            />
-            <Image
-              source={require("../assets/icon/Iconrice.png")}
-              style={styles.image}
-            />
-            <Image
-              source={require("../assets/icon/Iconrice.png")}
-              style={styles.image}
-            />
-            <Image
-              source={require("../assets/icon/Iconrice.png")}
-              style={styles.image}
-            />
-            <Image
-              source={require("../assets/icon/Iconrice.png")}
-              style={styles.image}
-            />
-            <Image
-              source={require("../assets/icon/Iconrice.png")}
-              style={styles.image}
-            />
-            <Image
-              source={require("../assets/icon/Iconrice.png")}
-              style={styles.image}
-            />
-            <Image
-              source={require("../assets/icon/Iconrice.png")}
-              style={styles.image}
-            />
-            <View style={{ flex: 1 }}>
-              <TouchableOpacity>
-                <Image
-                  source={require("../assets/icon/Iconadd.png")}
-                  style={styles.image}
-                  resizeMode="contain"
-                ></Image>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </ScrollView>
+        </ScrollView> */}
       </View>
     </View>
   );
 };
 
-export default Menu;
+export default MenuEdit;
 
 const styles = StyleSheet.create({
   headerContainer: {
@@ -279,6 +302,7 @@ const styles = StyleSheet.create({
     paddingVertical: 5,
     borderBottomWidth: 1,
     borderBottomColor: "#8CC840",
+    backgroundColor: "#FDFDFD",
   },
   ItemContainerActive: {
     flexDirection: "row",
@@ -302,5 +326,12 @@ const styles = StyleSheet.create({
     width: 50,
     height: 50,
     resizeMode: "contain",
+  },
+  ItemContainerHidden: {
+    backgroundColor: "#FF0000",
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "flex-end",
+    paddingRight: 25,
   },
 });
