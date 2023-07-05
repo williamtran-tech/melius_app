@@ -25,8 +25,15 @@ export class Ingredient extends Model {
   id!: number;
 
   @Column({
+    type: DataType.INTEGER,
+    allowNull: false,
+  })
+  fdcId!: number;
+
+  @Column({
     type: DataType.STRING,
     allowNull: false,
+    unique: true,
   })
   name!: string;
 
@@ -47,7 +54,7 @@ export class Ingredient extends Model {
     type: DataType.STRING,
     allowNull: false,
   })
-  unitName!: string;
+  portionUnit!: string;
 
   @Column({
     type: DataType.JSON,

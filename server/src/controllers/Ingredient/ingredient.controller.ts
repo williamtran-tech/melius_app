@@ -2,12 +2,13 @@ import express from "express";
 import { BaseController } from "../abstractions/base.controller";
 import USDAService from "../../services/usda.service";
 import HttpException from "../../exceptions/HttpException";
+import IngredientService from "../../services/ingredient.service";
 export default class IngredientController extends BaseController {
   constructor() {
     super();
   }
 
-  public USDAService = new USDAService();
+  public ingredientService = new IngredientService();
 
   public getIngredientNutrition = async (
     req: express.Request,
@@ -21,9 +22,8 @@ export default class IngredientController extends BaseController {
         pagesize: req.query.pagesize ? req.query.pagesize : 10,
       };
 
-      const ingredientNutrition = await this.USDAService.getFoodNutritionData(
-        ingredientData
-      );
+      const ingredientNutrition =
+        await this.ingredientService.getFoodNutritionData(ingredientData);
 
       res.status(200).json({
         msg: "Get ingredient nutrition successfully",
