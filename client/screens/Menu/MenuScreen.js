@@ -7,12 +7,11 @@ import WeekCalendar from "../../components/WeekCalendar";
 import moment from "moment";
 import ProjectNutrition from "../../components/ProjectNutrition";
 import Menu from "../../components/Menu";
-const MenuScreen = ({ navigation }) => {
+const MenuScreen = ({ route }) => {
   const [activeTab, setActiveTab] = useState("daily");
-  const [selectedDate, setSelectedDate] = useState(
-    moment().format("DD-MM-YYYY")
-  );
-
+  console.log(route.params);
+  const { navigation, selectedDate, setSelectedDate } = route.params;
+  console.log(selectedDate);
   const handleTabPress = (tab) => {
     setActiveTab(tab);
   };
@@ -28,6 +27,7 @@ const MenuScreen = ({ navigation }) => {
           </HeaderText>
         );
       case "week":
+        // console.log(selectedDate);
         return (
           <WeekCalendar
             selectedDate={selectedDate}

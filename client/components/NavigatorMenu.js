@@ -10,10 +10,10 @@ const NavigatorMenu = ({
   navigation,
   action,
 }) => {
-  const modifiedDate = moment(Date).format("dddd, MMMM D");
+  const formattedDate = moment(Date, "DD-MM-YYYY").format("dddd, MMMM D");
   return (
     <View style={styles.container}>
-      <HeaderText style={styles.date}>{modifiedDate}</HeaderText>
+      <HeaderText style={styles.date}>{formattedDate}</HeaderText>
       <View
         style={{
           flexDirection: "row",

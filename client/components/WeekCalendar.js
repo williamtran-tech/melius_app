@@ -2,9 +2,14 @@ import React, { useEffect, useState } from "react";
 import { Text } from "react-native";
 import * as Font from "expo-font";
 import CalendarStrip from "react-native-calendar-strip";
+import moment from "moment";
 
 const WeekCalendar = ({ selectedDate, setSelectedDate }) => {
   const [fontLoaded, setFontLoaded] = useState(false);
+  const formatDate = moment(selectedDate, "DD-MM-YYYY");
+  useEffect(() => {
+    console.log(selectedDate);
+  }, [selectedDate]);
   useEffect(() => {
     const loadFonts = async () => {
       await Font.loadAsync({
@@ -44,9 +49,10 @@ const WeekCalendar = ({ selectedDate, setSelectedDate }) => {
         color: "#518B1A",
       }}
       calendarHeaderFormat={"MMMM"}
-      selectedDate={selectedDate}
+      selectedDate={formatDate}
       onDateSelected={(value) => {
-        console.log(value);
+        console.log(moment(value).format("DD-MM-YYYY"));
+        setSelectedDate(moment(value).format("DD-MM-YYYY"));
       }}
     />
   );

@@ -37,7 +37,7 @@ const MenuEdit = () => {
         </SubText>
         <TouchableOpacity style={styles.reciprebtn}>
           <Image
-            source={require("../assets/icon/Iconrecipe.png")}
+            source={require("../assets/icon/IconeditMenu.png")}
             style={{ width: 15, height: 15 }}
           ></Image>
         </TouchableOpacity>

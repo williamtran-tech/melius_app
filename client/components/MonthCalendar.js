@@ -1,5 +1,7 @@
 import HeaderText from "../components/HeaderText";
 import { Calendar } from "react-native-calendars";
+import moment from "moment";
+import { useEffect, useState } from "react";
 const MonthCalendar = ({ selectedDate, setSelectedDate }) => {
   const CustomHeader = ({ month }) => {
     return (
@@ -8,15 +10,24 @@ const MonthCalendar = ({ selectedDate, setSelectedDate }) => {
       </HeaderText>
     );
   };
+
+  const [formatDate, setFormatDate] = useState(
+    moment(selectedDate, "DD-MM-YYYY").format("YYYY-MM-DD")
+  );
+  useEffect(() => {
+    setFormatDate(moment(selectedDate, "DD-MM-YYYY").format("YYYY-MM-DD"));
+    console.log(selectedDate);
+  }, [selectedDate]);
   return (
     <Calendar
-      current={selectedDate}
+      current={moment().format("YYYY-MM-DD")}
       renderHeader={(date) => <CustomHeader month={date.toString("MMMM")} />}
-      onDayPress={(day) => {setSelectedDate(day.dateString) 
-    console.log(day)
-    }}
+      onDayPress={(day) => {
+        setSelectedDate(moment(day.dateString).format("DD-MM-YYYY"));
+        // console.log(moment(day.dateString).format("DD-MM-YYYY"));
+      }}
       markedDates={{
-        [selectedDate]: { selected: true, selectedColor: "#FED800" },
+        [formatDate]: { selected: true, selectedColor: "#FED800" },
       }}
       firstDay={1}
       theme={{
@@ -25,7 +36,7 @@ const MonthCalendar = ({ selectedDate, setSelectedDate }) => {
         selectedDayBackgroundColor: "#FED800",
         selectedDayTextColor: "#518B1A",
 
-        todayTextColor: "#518B1A",
+        // todayTextColor: "#518B1A",
         dayTextColor: "#000",
         textDisabledColor: "#d9e1e8",
         dotColor: "#00adf5",
@@ -62,4 +73,3 @@ const MonthCalendar = ({ selectedDate, setSelectedDate }) => {
 };
 
 export default MonthCalendar;
-
