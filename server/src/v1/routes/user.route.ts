@@ -14,6 +14,13 @@ userRouter.patch(
   authMiddleware,
   userController.updateChildHealth
 );
+
+// Add ingredient to allergy list of kid
+userRouter.post(
+  "/allergy",
+  authMiddleware,
+  userController.addIngredientToAllergyList
+);
 // userRouter.post(
 //   "/",
 //   validationMiddleware(CreateUserDTO, false),

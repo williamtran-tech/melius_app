@@ -6,6 +6,7 @@ import DecodedUserToken from "../../interfaces/Auth/DecodedUserToken.interface";
 import UserService from "../../services/user.service";
 import HealthService from "../../services/health.service";
 import KidHealthDTO from "../../DTOs/Kid/KidHealthData.DTO";
+import IngredientService from "../../services/ingredient.service";
 export default class UserController extends BaseController {
   constructor() {
     super();
@@ -14,6 +15,8 @@ export default class UserController extends BaseController {
   public healthService = new HealthService();
 
   public userService = new UserService();
+
+  public ingredientService = new IngredientService();
 
   public getUserProfile = async (
     req: express.Request,
@@ -122,6 +125,32 @@ export default class UserController extends BaseController {
       });
     } catch (error) {
       next(error);
+    }
+  };
+
+  public addIngredientToAllergyList = async (
+    req: express.Request,
+    res: express.Response,
+    next: express.NextFunction
+  ) => {
+    try {
+      const ingredientData = {
+        ingredientId: Number(req.body.ingredientId),
+        kidId: Number(req.body.kidId),
+      };
+
+      const [ingredient, result] =
+        await this.ingredientService.addIngredientToAllergy(ingredientData);
+      if (!result) {
+        console.log("Ingredient already exists");
+        throw new HttpException(400, "Ingredient already exists");
+      }
+      res.status(200).json({
+        msg: "Insert ingredient to allergy successfully",
+        allergies: ingredient,
+      });
+    } catch (err) {
+      next(err);
     }
   };
 }

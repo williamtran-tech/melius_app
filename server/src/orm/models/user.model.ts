@@ -9,9 +9,12 @@ import {
   HasMany,
   ForeignKey,
   BelongsTo,
+  BelongsToMany,
 } from "sequelize-typescript";
 import { Account } from "./account.model";
 import { Health } from "./health.model";
+import { Allergy } from "./allergy.model";
+import { Ingredient } from "./ingredient.model";
 
 @Table({
   tableName: "users",
@@ -72,11 +75,22 @@ export class User extends Model {
 
   @HasOne(() => Account, {
     foreignKey: "userId",
+    onDelete: "CASCADE",
   })
   account!: Account;
 
-  @HasMany(() => Health)
+  @HasMany(() => Health, {
+    onDelete: "CASCADE",
+  })
   healthRecord!: Health[];
+
+  @BelongsToMany(() => Ingredient, () => Allergy)
+  ingredients!: Ingredient[];
+
+  @HasMany(() => Allergy, {
+    onDelete: "CASCADE",
+  })
+  allergies!: Allergy[];
 
   @BelongsTo(() => User, {
     foreignKey: "parentId",

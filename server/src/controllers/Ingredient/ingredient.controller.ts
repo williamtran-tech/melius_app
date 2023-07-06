@@ -33,4 +33,30 @@ export default class IngredientController extends BaseController {
       next(err);
     }
   };
+
+  public getIngredientList = async (
+    req: express.Request,
+    res: express.Response,
+    next: express.NextFunction
+  ) => {
+    try {
+      const ingredientData = {
+        foodCategory: req.query.foodCategory,
+        ingredient: req.query.ingredient,
+        pageSize: req.query.pageSize ? req.query.pageSize : 10,
+      };
+
+      console.log(ingredientData);
+
+      const ingredientsList = await this.ingredientService.getIngredientList(
+        ingredientData
+      );
+      res.status(200).json({
+        msg: "Get ingredients list successfully",
+        ingredientsList: ingredientsList,
+      });
+    } catch (err) {
+      next(err);
+    }
+  };
 }

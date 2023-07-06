@@ -7,8 +7,13 @@ import {
   AutoIncrement,
   ForeignKey,
   BelongsTo,
+  HasMany,
+  BelongsToMany,
 } from "sequelize-typescript";
 import { ingreCategory } from "./ingre.category.model";
+import { Allergy } from "./allergy.model";
+import { AvailableIngredient } from "./available.ingredient.model";
+import { User } from "./user.model";
 
 @Table({
   tableName: "ingredients",
@@ -64,4 +69,17 @@ export class Ingredient extends Model {
 
   @BelongsTo(() => ingreCategory)
   category!: ingreCategory;
+
+  @BelongsToMany(() => User, () => Allergy)
+  users!: User[];
+
+  @HasMany(() => Allergy, {
+    onDelete: "CASCADE",
+  })
+  allergies!: Allergy[];
+
+  @HasMany(() => AvailableIngredient, {
+    onDelete: "CASCADE",
+  })
+  availableIngredients!: AvailableIngredient[];
 }

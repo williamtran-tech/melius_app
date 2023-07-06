@@ -7,25 +7,35 @@ import {
   AutoIncrement,
   ForeignKey,
   BelongsTo,
-  BelongsToMany,
 } from "sequelize-typescript";
 import { User } from "./user.model";
 import { Ingredient } from "./ingredient.model";
 
 @Table({
-  tableName: "allergies",
+  tableName: "available_ingredients",
   timestamps: true,
 })
-export class Allergy extends Model {
+export class AvailableIngredient extends Model {
+  @PrimaryKey
+  @AutoIncrement
+  @Column({
+    type: DataType.INTEGER,
+    autoIncrement: true,
+    primaryKey: true,
+  })
+  id!: number;
+
   @ForeignKey(() => User)
   @Column({
     type: DataType.INTEGER,
+    allowNull: false,
   })
-  kidId!: number;
+  userId!: number;
 
   @ForeignKey(() => Ingredient)
   @Column({
     type: DataType.INTEGER,
+    allowNull: false,
   })
   ingredientId!: number;
 

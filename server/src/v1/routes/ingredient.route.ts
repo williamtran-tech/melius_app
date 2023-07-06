@@ -11,3 +11,10 @@ ingredientRouter.get(
   authMiddleware,
   ingredientController.getIngredientNutrition
 );
+
+// Get ingredient list
+ingredientRouter.get(
+  "/search-list",
+  authMiddleware,
+  ingredientController.getIngredientList
+);

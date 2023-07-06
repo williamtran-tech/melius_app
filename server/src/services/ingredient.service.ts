@@ -3,6 +3,8 @@ import HttpException from "../exceptions/HttpException";
 import { Ingredient } from "../orm/models/ingredient.model";
 import { ingreCategory } from "../orm/models/ingre.category.model";
 import USDAService from "./usda.service";
+import { Allergy } from "../orm/models/allergy.model";
+import { User } from "../orm/models/user.model";
 
 export default class IngredientService {
   public USDAService = new USDAService();
@@ -28,7 +30,6 @@ export default class IngredientService {
         const ingredientNutrition = await this.USDAService.getFoodNutritionData(
           ingredientDTO
         );
-        // Get the first digit of the foodCode to get the category ID
         const categoryId = Number(ingredientNutrition.foodCode.toString()[0]);
         const [ingredient, result] = await Ingredient.findOrCreate({
           where: {
@@ -50,13 +51,10 @@ export default class IngredientService {
             portionValue: ingredientNutrition.foodPortions.value,
             portionUnit: ingredientNutrition.foodPortions.unitName,
             // remove the backslash from the string
-            nutrients: JSON.stringify(
-              ingredientNutrition.foodNutrients
-            ).replace(/\\/g, ""),
+            nutrients: JSON.stringify(ingredientNutrition.foodNutrients),
           },
         });
 
-        console.log(" Result: ", result);
         let responseData = {};
         if (result === false) {
           responseData = {
@@ -70,16 +68,10 @@ export default class IngredientService {
             foodNutrients: JSON.parse(ingredient?.nutrients!),
           };
         } else {
-          const category = await ingreCategory.findOne({
-            where: {
-              id: ingredient.categoryId,
-            },
-            attributes: ["name"],
-          });
           responseData = {
             fdcId: ingredientNutrition.fdcId,
             name: ingredientNutrition.foods,
-            category: category!.name,
+            category: ingredientNutrition.category,
             foodPortions: {
               unitName: ingredientNutrition.foodPortions.unitName,
               value: ingredientNutrition.foodPortions.value,
@@ -105,6 +97,57 @@ export default class IngredientService {
     } catch (error) {
       console.log(error);
       throw new HttpException(404, "Cannot get ingredient nutrition data");
+    }
+  }
+
+  public async getIngredientList(ingredientDTO: any) {
+    try {
+      const ingredients = await this.USDAService.getFoodNutritionList(
+        ingredientDTO
+      );
+      return ingredients;
+    } catch (err) {
+      console.log(err);
+      throw new HttpException(404, "Cannot get ingredient list");
+    }
+  }
+
+  public async addIngredientToAllergy(allergiesData: any) {
+    try {
+      console.log(allergiesData);
+      const [addedIngredient, result] = await Allergy.findOrCreate({
+        where: {
+          kidId: allergiesData.kidId,
+          ingredientId: allergiesData.ingredientId,
+        },
+        defaults: {
+          kidId: allergiesData.kidId,
+          ingredientId: allergiesData.ingredientId,
+        },
+      });
+
+      const ingredient = await Ingredient.findOne({
+        where: {
+          id: allergiesData.ingredientId,
+        },
+      });
+      const kid = await User.findOne({
+        where: {
+          id: allergiesData.kidId,
+        },
+      });
+
+      const responseData = {
+        id: addedIngredient.id,
+        kidId: kid?.id,
+        kidName: kid?.fullName,
+        ingredientId: ingredient?.id,
+        ingredientName: ingredient?.name,
+      };
+      return [responseData, result];
+    } catch (err) {
+      console.log(err);
+      throw new HttpException(401, "Cannot add ingredient to allergy");
     }
   }
 }
