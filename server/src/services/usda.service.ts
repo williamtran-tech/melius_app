@@ -25,6 +25,8 @@ export default class USDAService {
       }
 
       const responseData = {
+        fdcId: data.foods[0].fdcId,
+        foodCode: data.foods[0].foodCode,
         foods: data.foods[0].description,
         category: data.foods[0].foodCategory,
         foodPortions: {

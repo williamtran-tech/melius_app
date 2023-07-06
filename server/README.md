@@ -30,3 +30,10 @@ Undo the seed
 ```
 npx sequelize-cli db:seed:undo --seed 20230630152016-create-recipes.js
 ```
+
+# 3. Seeding data from Category dataset of USDA
+
+```
+cd src/orm
+npx sequelize-cli db:seed --seed 20230703100607-create-ingre-categories.js
+```
