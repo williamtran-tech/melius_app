@@ -9,11 +9,13 @@ import { useNavigation } from "@react-navigation/native";
 import HeaderText from "../components/HeaderText";
 import NewMenuScreen from "../screens/Menu/NewMenuScreen";
 import moment from "moment";
+import MotherIngredients from "../screens/Menu/MotherIngredients";
 const MenuNavigation = () => {
   const navigation = useNavigation();
   const [selectedDate, setSelectedDate] = useState(
     moment().format("DD-MM-YYYY")
   );
+  const [selectedIngredient, setSelectedIngredient] = useState();
   useEffect(() => {
     console.log(selectedDate);
   }, [selectedDate]);
@@ -34,7 +36,11 @@ const MenuNavigation = () => {
       <Stack.Screen
         name="MenuEditScreen"
         component={MenuEditScreen}
-        initialParams={{ navigation, selectedDate, setSelectedDate }}
+        initialParams={{
+          navigation: navigation,
+          selectedDate: selectedDate,
+          setSelectedDate: setSelectedDate,
+        }}
         options={{
           headerShown: false,
         }}
@@ -42,26 +48,27 @@ const MenuNavigation = () => {
       <Stack.Screen
         name="NewMenuScreen"
         component={NewMenuScreen}
-        initialParams={{ navigation, selectedDate, setSelectedDate }}
+        initialParams={{
+          navigation: navigation,
+          selectedDate: selectedDate,
+          setSelectedDate: setSelectedDate,
+        }}
         options={{
           headerShown: false,
         }}
       />
-      {/* <Stack.Screen
-        name="LoginScreen"
-        component={LoginScreen}
-        options={{ headerShown: false }}
-      />
       <Stack.Screen
-        name="RegisterScreen"
-        component={RegisterScreen}
-        options={{ headerShown: false }}
+        name="MotherIngredients"
+        component={MotherIngredients}
+        initialParams={{
+          navigation: navigation,
+          selectedDate: selectedDate,
+          setSelectedDate: setSelectedDate,
+        }}
+        options={{
+          headerShown: false,
+        }}
       />
-      <Stack.Screen
-        name="ForgotPassword"
-        component={ForgotPassword}
-        options={{ headerShown: false }}
-      /> */}
     </Stack.Navigator>
   );
 };

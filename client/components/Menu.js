@@ -14,12 +14,7 @@ const Menu = ({ navigation, selectedDate, setSelectedDate }) => {
           </HeaderText>
           <TouchableOpacity
             style={styles.updatebtn}
-            onPress={() =>
-              navigation.navigate("MenuEditScreen", {
-                setSelectedDate: setSelectedDate,
-                selectedDate: selectedDate,
-              })
-            }
+            onPress={() => navigation.navigate("MenuEditScreen")}
           >
             <SubText style={styles.updateText}>Edit</SubText>
           </TouchableOpacity>
@@ -176,7 +171,10 @@ const Menu = ({ navigation, selectedDate, setSelectedDate }) => {
           <HeaderText style={{ color: "#518B1A", fontSize: 18 }}>
             BEE's menu !
           </HeaderText>
-          <TouchableOpacity style={styles.updatebtn}>
+          <TouchableOpacity
+            style={styles.updatebtn}
+            onPress={() => navigation.navigate("MotherIngredients")}
+          >
             <SubText style={styles.updateText}>Edit</SubText>
           </TouchableOpacity>
         </View>
