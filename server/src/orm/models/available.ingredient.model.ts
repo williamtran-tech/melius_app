@@ -39,8 +39,10 @@ export class AvailableIngredient extends Model {
   })
   ingredientId!: number;
 
-  // Quantity of ingredient in a meal (each meal has 1 ingredient with 1 quantity)
+  // Quantity of ingredient in a meal (each meal has 1 ingredient in 1 day)
   // Cannot specify quantity of ingredient in a recipe
+
+  // Turn this into duration
   @Column({
     type: DataType.INTEGER,
     allowNull: false,

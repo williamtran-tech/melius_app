@@ -23,6 +23,9 @@ userRouter.post(
   userController.addIngredientToAllergyList
 );
 
+// Read allergy list of kid
+userRouter.get("/allergy", authMiddleware, userController.getAllergyList);
+
 // AVAILABLE INGREDIENTS
 // Add ingredient to available list of mother
 userRouter.post(

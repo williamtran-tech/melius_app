@@ -22,12 +22,13 @@ export default class IngredientService {
           "nutrients",
         ],
         where: {
-          name: ingredientDTO.ingredient,
+          fdcId: ingredientDTO.fdcId,
         },
         include: ["category"],
       });
 
       if (!ingredient) {
+        console.log("Supdude: ", ingredientDTO);
         const ingredientNutrition = await this.USDAService.getFoodNutritionData(
           ingredientDTO
         );
@@ -115,22 +116,24 @@ export default class IngredientService {
 
   public async addIngredientToAllergy(allergiesData: any) {
     try {
+      const ingredient = await Ingredient.findOne({
+        where: {
+          fdcId: allergiesData.fdcId,
+        },
+      });
+      console.log(ingredient);
+
       const [addedIngredient, result] = await Allergy.findOrCreate({
         where: {
           kidId: allergiesData.kidId,
-          ingredientId: allergiesData.ingredientId,
+          ingredientId: ingredient?.id,
         },
         defaults: {
           kidId: allergiesData.kidId,
-          ingredientId: allergiesData.ingredientId,
+          ingredientId: ingredient?.id,
         },
       });
 
-      const ingredient = await Ingredient.findOne({
-        where: {
-          id: allergiesData.ingredientId,
-        },
-      });
       const kid = await User.findOne({
         where: {
           id: allergiesData.kidId,

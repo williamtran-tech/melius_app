@@ -1,6 +1,8 @@
 import { User } from "./../orm/models/user.model";
 import { Account } from "./../orm/models/account.model";
 import { Health } from "../orm/models/health.model";
+import { Allergy } from "../orm/models/allergy.model";
+import { Ingredient } from "../orm/models/ingredient.model";
 
 export default class UserService {
   public async getUserProfile(userId: number) {
@@ -41,6 +43,23 @@ export default class UserService {
         },
       });
       return kidProfiles;
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  public async getAllergyList(kidId: number) {
+    try {
+      const allergyList = await Allergy.findAll({
+        where: { kidId: kidId },
+        attributes: ["id", "updatedAt"],
+        include: {
+          model: Ingredient,
+          attributes: ["id", "name"],
+        },
+      });
+
+      return allergyList;
     } catch (err) {
       throw err;
     }

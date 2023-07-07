@@ -17,9 +17,10 @@ export default class IngredientController extends BaseController {
   ) => {
     try {
       const ingredientData = {
-        foodCategory: req.query.foodCategory,
-        ingredient: req.query.ingredient,
-        pagesize: req.query.pagesize ? req.query.pagesize : 10,
+        fdcId: req.query.fdcId,
+        // foodCategory: req.query.foodCategory,
+        // ingredient: req.query.ingredient,
+        // pagesize: req.query.pagesize ? req.query.pagesize : 10,
       };
 
       const ingredientNutrition =

@@ -129,7 +129,6 @@ export default class UserController extends BaseController {
   };
 
   // ALLERGIES FUNCTIONS
-
   public addIngredientToAllergyList = async (
     req: express.Request,
     res: express.Response,
@@ -137,7 +136,7 @@ export default class UserController extends BaseController {
   ) => {
     try {
       const ingredientData = {
-        ingredientId: Number(req.body.ingredientId),
+        fdcId: Number(req.body.fdcId),
         kidId: Number(req.body.kidId),
       };
 
@@ -152,6 +151,25 @@ export default class UserController extends BaseController {
         allergies: ingredient,
       });
     } catch (err) {
+      next(err);
+    }
+  };
+  public getAllergyList = async (
+    req: express.Request,
+    res: express.Response,
+    next: express.NextFunction
+  ) => {
+    try {
+      const allergyList = await this.userService.getAllergyList(
+        Number(req.query.kidId)
+      );
+
+      res.status(200).json({
+        msg: "Get allergy list successfully",
+        allergyList: allergyList,
+      });
+    } catch (err) {
+      console.log(err);
       next(err);
     }
   };
