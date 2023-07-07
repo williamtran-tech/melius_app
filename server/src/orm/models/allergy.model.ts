@@ -17,6 +17,13 @@ import { Ingredient } from "./ingredient.model";
   timestamps: true,
 })
 export class Allergy extends Model {
+  @PrimaryKey
+  @AutoIncrement
+  @Column({
+    type: DataType.INTEGER,
+  })
+  id!: number;
+
   @ForeignKey(() => User)
   @Column({
     type: DataType.INTEGER,

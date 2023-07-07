@@ -15,6 +15,7 @@ import { Account } from "./account.model";
 import { Health } from "./health.model";
 import { Allergy } from "./allergy.model";
 import { Ingredient } from "./ingredient.model";
+import { AvailableIngredient } from "./available.ingredient.model";
 
 @Table({
   tableName: "users",
@@ -87,10 +88,8 @@ export class User extends Model {
   @BelongsToMany(() => Ingredient, () => Allergy)
   ingredients!: Ingredient[];
 
-  @HasMany(() => Allergy, {
-    onDelete: "CASCADE",
-  })
-  allergies!: Allergy[];
+  @BelongsToMany(() => Ingredient, () => AvailableIngredient)
+  availableIngredients!: Ingredient[];
 
   @BelongsTo(() => User, {
     foreignKey: "parentId",

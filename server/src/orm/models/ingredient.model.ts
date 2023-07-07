@@ -71,12 +71,10 @@ export class Ingredient extends Model {
   category!: ingreCategory;
 
   @BelongsToMany(() => User, () => Allergy)
-  users!: User[];
+  kids!: User[];
 
-  @HasMany(() => Allergy, {
-    onDelete: "CASCADE",
-  })
-  allergies!: Allergy[];
+  @BelongsToMany(() => User, () => AvailableIngredient)
+  mothers!: User[];
 
   @HasMany(() => AvailableIngredient, {
     onDelete: "CASCADE",

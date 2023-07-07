@@ -5,6 +5,7 @@ import { ingreCategory } from "../orm/models/ingre.category.model";
 import USDAService from "./usda.service";
 import { Allergy } from "../orm/models/allergy.model";
 import { User } from "../orm/models/user.model";
+import { AvailableIngredient } from "../orm/models/available.ingredient.model";
 
 export default class IngredientService {
   public USDAService = new USDAService();
@@ -114,7 +115,6 @@ export default class IngredientService {
 
   public async addIngredientToAllergy(allergiesData: any) {
     try {
-      console.log(allergiesData);
       const [addedIngredient, result] = await Allergy.findOrCreate({
         where: {
           kidId: allergiesData.kidId,
@@ -148,6 +148,43 @@ export default class IngredientService {
     } catch (err) {
       console.log(err);
       throw new HttpException(401, "Cannot add ingredient to allergy");
+    }
+  }
+
+  public async addIngredientToAvailableList(available_ingredientDTO: any) {
+    try {
+      const [addedIngredient, result] = await AvailableIngredient.findOrCreate({
+        where: {
+          userId: available_ingredientDTO.userId,
+          ingredientId: available_ingredientDTO.ingredientId,
+        },
+        defaults: {
+          userId: available_ingredientDTO.userId,
+          ingredientId: available_ingredientDTO.ingredientId,
+          quantity: available_ingredientDTO.quantity,
+        },
+      });
+      if (result === false) {
+        addedIngredient.quantity++;
+        await addedIngredient.save();
+      }
+
+      const ingredient = await Ingredient.findOne({
+        where: {
+          id: available_ingredientDTO.ingredientId,
+        },
+      });
+
+      const responseData = {
+        id: addedIngredient.id,
+        ingredientId: ingredient?.id,
+        ingredientName: ingredient?.name,
+        quantity: addedIngredient.quantity,
+      };
+      return [responseData, result];
+    } catch (err) {
+      console.log(err);
+      throw new HttpException(401, "Cannot add ingredient to available list");
     }
   }
 }

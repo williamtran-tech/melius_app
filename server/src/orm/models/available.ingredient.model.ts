@@ -39,6 +39,14 @@ export class AvailableIngredient extends Model {
   })
   ingredientId!: number;
 
+  // Quantity of ingredient in a meal (each meal has 1 ingredient with 1 quantity)
+  // Cannot specify quantity of ingredient in a recipe
+  @Column({
+    type: DataType.INTEGER,
+    allowNull: false,
+  })
+  quantity!: number;
+
   @BelongsTo(() => User)
   user!: User;
 

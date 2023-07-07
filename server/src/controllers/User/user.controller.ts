@@ -128,6 +128,8 @@ export default class UserController extends BaseController {
     }
   };
 
+  // ALLERGIES FUNCTIONS
+
   public addIngredientToAllergyList = async (
     req: express.Request,
     res: express.Response,
@@ -148,6 +150,31 @@ export default class UserController extends BaseController {
       res.status(200).json({
         msg: "Insert ingredient to allergy successfully",
         allergies: ingredient,
+      });
+    } catch (err) {
+      next(err);
+    }
+  };
+
+  // AVAILABLE INGREDIENTS FUNCTIONS
+  public addIngredientToAvailableList = async (
+    req: express.Request,
+    res: express.Response,
+    next: express.NextFunction
+  ) => {
+    try {
+      const ingredientData = {
+        ingredientId: Number(req.body.ingredientId),
+        userId: Number(req.userData.id),
+        quantity: Number(req.body.quantity) ? Number(req.body.quantity) : 1,
+      };
+      const [ingredient, result] =
+        await this.ingredientService.addIngredientToAvailableList(
+          ingredientData
+        );
+      res.status(200).json({
+        msg: "Successfully add ingredient to available list",
+        ingredient: ingredient,
       });
     } catch (err) {
       next(err);

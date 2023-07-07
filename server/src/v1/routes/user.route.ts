@@ -15,12 +15,22 @@ userRouter.patch(
   userController.updateChildHealth
 );
 
+// ALLERGIES
 // Add ingredient to allergy list of kid
 userRouter.post(
   "/allergy",
   authMiddleware,
   userController.addIngredientToAllergyList
 );
+
+// AVAILABLE INGREDIENTS
+// Add ingredient to available list of mother
+userRouter.post(
+  "/available-ingredients",
+  authMiddleware,
+  userController.addIngredientToAvailableList
+);
+
 // userRouter.post(
 //   "/",
 //   validationMiddleware(CreateUserDTO, false),
