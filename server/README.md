@@ -37,3 +37,9 @@ npx sequelize-cli db:seed:undo --seed 20230630152016-create-recipes.js
 cd src/orm
 npx sequelize-cli db:seed --seed 20230703100607-create-ingre-categories.js
 ```
+
+# Issues may occur
+
+## 1. Error: Fetch is not defined
+
+    Solution: Update the Node version later than 18.0.0

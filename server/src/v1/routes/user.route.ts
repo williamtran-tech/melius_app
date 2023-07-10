@@ -33,6 +33,11 @@ userRouter.post(
   authMiddleware,
   userController.addIngredientToAvailableList
 );
+userRouter.get(
+  "/available-ingredients",
+  authMiddleware,
+  userController.getAvailableIngredientList
+);
 
 // userRouter.post(
 //   "/",

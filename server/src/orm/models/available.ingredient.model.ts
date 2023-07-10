@@ -47,7 +47,7 @@ export class AvailableIngredient extends Model {
     type: DataType.INTEGER,
     allowNull: false,
   })
-  quantity!: number;
+  dueTime!: number;
 
   @BelongsTo(() => User)
   user!: User;

@@ -15,7 +15,7 @@ import { Ingredient } from "./ingredient.model";
   tableName: "ingre_categories",
   timestamps: true,
 })
-export class ingreCategory extends Model {
+export class IngreCategory extends Model {
   @PrimaryKey
   @AutoIncrement
   @Column({

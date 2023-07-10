@@ -184,7 +184,7 @@ export default class UserController extends BaseController {
       const ingredientData = {
         ingredientId: Number(req.body.ingredientId),
         userId: Number(req.userData.id),
-        quantity: Number(req.body.quantity) ? Number(req.body.quantity) : 1,
+        dueTime: Number(req.body.dueTime) ? Number(req.body.dueTime) : 1,
       };
       const [ingredient, result] =
         await this.ingredientService.addIngredientToAvailableList(
@@ -195,6 +195,25 @@ export default class UserController extends BaseController {
         ingredient: ingredient,
       });
     } catch (err) {
+      next(err);
+    }
+  };
+
+  public getAvailableIngredientList = async (
+    req: express.Request,
+    res: express.Response,
+    next: express.NextFunction
+  ) => {
+    try {
+      const availableIngredientList =
+        await this.userService.getAvailableIngredientList(req.userData.id);
+
+      res.status(200).json({
+        msg: "Get available ingredient list successfully",
+        availableIngredientList: availableIngredientList,
+      });
+    } catch (err) {
+      console.log(err);
       next(err);
     }
   };

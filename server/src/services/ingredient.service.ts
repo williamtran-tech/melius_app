@@ -1,7 +1,7 @@
 import KidHealthDTO from "../DTOs/Kid/KidHealthData.DTO";
 import HttpException from "../exceptions/HttpException";
 import { Ingredient } from "../orm/models/ingredient.model";
-import { ingreCategory } from "../orm/models/ingre.category.model";
+import { IngreCategory } from "../orm/models/ingre.category.model";
 import USDAService from "./usda.service";
 import { Allergy } from "../orm/models/allergy.model";
 import { User } from "../orm/models/user.model";
@@ -164,12 +164,14 @@ export default class IngredientService {
         defaults: {
           userId: available_ingredientDTO.userId,
           ingredientId: available_ingredientDTO.ingredientId,
-          quantity: available_ingredientDTO.quantity,
+          dueTime: available_ingredientDTO.dueTime,
         },
       });
       if (result === false) {
-        addedIngredient.quantity++;
-        await addedIngredient.save();
+        throw new HttpException(
+          401,
+          "Ingredient already added to available list"
+        );
       }
 
       const ingredient = await Ingredient.findOne({
@@ -182,12 +184,11 @@ export default class IngredientService {
         id: addedIngredient.id,
         ingredientId: ingredient?.id,
         ingredientName: ingredient?.name,
-        quantity: addedIngredient.quantity,
+        dueTime: addedIngredient.dueTime,
       };
       return [responseData, result];
     } catch (err) {
-      console.log(err);
-      throw new HttpException(401, "Cannot add ingredient to available list");
+      throw err;
     }
   }
 }

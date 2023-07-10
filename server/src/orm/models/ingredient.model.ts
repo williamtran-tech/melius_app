@@ -10,7 +10,7 @@ import {
   HasMany,
   BelongsToMany,
 } from "sequelize-typescript";
-import { ingreCategory } from "./ingre.category.model";
+import { IngreCategory } from "./ingre.category.model";
 import { Allergy } from "./allergy.model";
 import { AvailableIngredient } from "./available.ingredient.model";
 import { User } from "./user.model";
@@ -42,7 +42,7 @@ export class Ingredient extends Model {
   })
   name!: string;
 
-  @ForeignKey(() => ingreCategory)
+  @ForeignKey(() => IngreCategory)
   @Column({
     type: DataType.INTEGER,
     allowNull: false,
@@ -67,8 +67,8 @@ export class Ingredient extends Model {
   })
   nutrients!: string;
 
-  @BelongsTo(() => ingreCategory)
-  category!: ingreCategory;
+  @BelongsTo(() => IngreCategory)
+  category!: IngreCategory;
 
   @BelongsToMany(() => User, () => Allergy)
   kids!: User[];

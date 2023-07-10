@@ -59,7 +59,7 @@ class App {
   }
 
   private connectMySQL() {
-    // db.sequelize.sync({});
+    // db.sequelize.sync({ force: true });
     db.sequelize.sync({});
   }
   public listen() {

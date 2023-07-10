@@ -4,7 +4,7 @@ import { User } from "./user.model";
 import { Account } from "./account.model";
 import { Health } from "./health.model";
 import { Recipe } from "./recipe.model";
-import { ingreCategory } from "./ingre.category.model";
+import { IngreCategory } from "./ingre.category.model";
 import { Ingredient } from "./ingredient.model";
 import { Allergy } from "./allergy.model";
 import { AvailableIngredient } from "./available.ingredient.model";
@@ -21,7 +21,7 @@ const sequelize = config.url
         User,
         Health,
         Recipe,
-        ingreCategory,
+        IngreCategory,
         Ingredient,
         AvailableIngredient,
         Allergy,
