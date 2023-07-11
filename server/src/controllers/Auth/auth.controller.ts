@@ -35,8 +35,9 @@ export default class AuthController extends BaseController {
       }
 
       // Communicate with the DTO
-      const userData: RegisterUserDTO = req.body;
+      const userData: RegisterUserDTO = { ...req.body, role: "User" };
       // Cast the DTO to the authentication service
+      console.log(userData);
       const { token, verifiedCode } =
         await this.authenticationService.generateVerifiedToken(userData);
       res.cookie("token", token, {
@@ -87,6 +88,7 @@ export default class AuthController extends BaseController {
         gender: "female",
         password: password,
       };
+      console.log(decodedToken.user, userData);
       const user = await this.authenticationService.createUser(
         userData,
         password

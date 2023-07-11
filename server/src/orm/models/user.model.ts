@@ -16,6 +16,8 @@ import { Health } from "./health.model";
 import { Allergy } from "./allergy.model";
 import { Ingredient } from "./ingredient.model";
 import { AvailableIngredient } from "./available.ingredient.model";
+import { Role } from "./role.model";
+import { UserRole } from "./user.role.model";
 
 @Table({
   tableName: "users",
@@ -90,6 +92,9 @@ export class User extends Model {
 
   @BelongsToMany(() => Ingredient, () => AvailableIngredient)
   availableIngredients!: Ingredient[];
+
+  @BelongsToMany(() => Role, () => UserRole)
+  roles!: Role[];
 
   @BelongsTo(() => User, {
     foreignKey: "parentId",

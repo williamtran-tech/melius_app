@@ -19,16 +19,20 @@ class RegisterUserDTO {
 
   public isVerified: boolean;
 
+  public role: string;
+
   constructor(
     fullName: string,
     email: string,
     phone?: string,
-    isVerified: boolean = false
+    isVerified: boolean = false,
+    role?: string
   ) {
     this.fullName = fullName;
     this.email = email;
     this.phone = phone || undefined;
     this.isVerified = isVerified;
+    this.role = role || "User";
   }
 }
 

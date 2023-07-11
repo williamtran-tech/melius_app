@@ -3,6 +3,7 @@ import UserController from "../../controllers/User/user.controller";
 import validationMiddleware from "../../middlewares/validation.middleware";
 import CreateUserDTO from "../../DTOs/User/UserCreate.DTO";
 import authMiddleware from "../../middlewares/auth.middleware";
+import checkKidIDMiddleware from "../../middlewares/checkKidUser.middleware";
 
 export const userRouter = Router();
 const userController = new UserController();
@@ -20,6 +21,7 @@ userRouter.patch(
 userRouter.post(
   "/allergy",
   authMiddleware,
+  checkKidIDMiddleware,
   userController.addIngredientToAllergyList
 );
 

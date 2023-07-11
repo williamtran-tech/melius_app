@@ -8,6 +8,8 @@ import { IngreCategory } from "./ingre.category.model";
 import { Ingredient } from "./ingredient.model";
 import { Allergy } from "./allergy.model";
 import { AvailableIngredient } from "./available.ingredient.model";
+import { Role } from "./role.model";
+import { UserRole } from "./user.role.model";
 
 const env = process.env.NODE_ENV || "development";
 const config = require(path.resolve("dist/src/configs/database.config"))[env];
@@ -18,6 +20,8 @@ const sequelize = config.url
       ...config,
       models: [
         Account,
+        Role,
+        UserRole,
         User,
         Health,
         Recipe,
