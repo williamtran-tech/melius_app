@@ -32,13 +32,17 @@ class CreateUserDTO {
   })
   public password: string;
 
+  @IsOptional()
+  public role?: string;
+
   constructor(
     fullName: string,
     email: string,
     password: string,
     DOB: Date,
     gender: string,
-    phone?: string
+    phone?: string,
+    role?: string
   ) {
     this.fullName = fullName;
     this.email = email;
@@ -46,6 +50,7 @@ class CreateUserDTO {
     this.phone = phone || undefined;
     this.DOB = DOB;
     this.gender = gender;
+    this.role = role || "User";
   }
 }
 

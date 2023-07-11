@@ -18,7 +18,9 @@ _This will drop all the tables and create new ones._
 
 To keep the data, comment the line `// await sequelize.sync({});` and run the following command to create the tables.
 
-# 2. Seeding data from Recipes dataset
+# 2. Seeding data
+
+## 2.1. Seeding data from Recipes dataset
 
 ```
 cd src/orm
@@ -31,11 +33,18 @@ Undo the seed
 npx sequelize-cli db:seed:undo --seed 20230630152016-create-recipes.js
 ```
 
-# 3. Seeding data from Category dataset of USDA
+## 2.2. Seeding data from Category dataset of USDA
 
 ```
 cd src/orm
 npx sequelize-cli db:seed --seed 20230703100607-create-ingre-categories.js
+```
+
+## 2.3. Seeding data from Role seeder
+
+```
+cd src/orm
+npx sequelize-cli db:seed --seed 20230711052934-create-roles.js
 ```
 
 # Issues may occur

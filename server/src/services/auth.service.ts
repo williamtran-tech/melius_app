@@ -11,6 +11,8 @@ import { Account } from "./../orm/models/account.model";
 import { User } from "./../orm/models/user.model";
 import LogInDTO from "../DTOs/Auth/Login.DTO";
 import InvalidCredentialsException from "../exceptions/InvalidCredentialsException";
+import { UserRole } from "../orm/models/user.role.model";
+import { Role } from "../orm/models/role.model";
 
 class AuthenticationService {
   public async generateVerifiedToken(user: RegisterUserDTO) {
@@ -122,8 +124,23 @@ class AuthenticationService {
         password: hashedPassword,
         type: "internal",
       });
+
+      const role = await Role.findOne({
+        where: {
+          name: user.role,
+        },
+        attributes: ["id"],
+      });
+      if (role) {
+        await UserRole.create({
+          userId: createdUser.id,
+          roleId: role.id,
+        });
+      }
+
       return createdUser;
     } catch (error) {
+      console.log(error);
       throw error;
     }
   }
