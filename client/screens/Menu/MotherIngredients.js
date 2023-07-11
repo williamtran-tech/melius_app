@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import {
   View,
   Text,
-  Button,
+  TextInput,
   StyleSheet,
   TouchableOpacity,
   Image,
@@ -13,39 +13,24 @@ import IngredientIcon from "../../assets/icon/IngredientsIcon/IngredientIcon";
 import HeaderText from "../../components/HeaderText";
 import NavigatorMenu from "../../components/NavigatorMenu";
 import SubText from "../../components/SubText";
-
-// const ItemList = ({ itemsList, moveItemToWishlist }) => {
-//   return (
-//     <View>
-//       <Text>Items List:</Text>
-//       {itemsList.map((item, index) => (
-//         <View key={index}>
-//           <Text>{item}</Text>
-//           <Button
-//             title="Move to Wishlist"
-//             onPress={() => moveItemToWishlist(item)}
-//           />
-//         </View>
-//       ))}
-//     </View>
-//   );
-// };
-
-// const Wishlist = ({ wishlist }) => {
-//   return (
-//     <View>
-//       <Text>Wishlist:</Text>
-//       {wishlist.map((item, index) => (
-//         <Text key={index}>{item}</Text>
-//       ))}
-//     </View>
-//   );
-// };
+import BottomSheet from "@gorhom/bottom-sheet";
+import Animated from "react-native-reanimated";
+import IngredientsList from "../../components/IngredientsList";
+import HandleApi from "../../Services/HandleApi";
 
 const MotherIngredients = ({ route }) => {
+  const bottomSheetRef = useRef(0);
+
+  const handleSearchPress = () => bottomSheetRef.current.expand();
+  const handleClosePress = () => bottomSheetRef.current.close();
+  const debounceTimeoutRef = useRef(null);
+
   const { navigation, selectedDate, setSelectedDate } = route.params;
   const [selectedItem, setSelectedItem] = useState([]);
   const [listItem, setListItem] = useState(IngredientIcon);
+  const [searchResults, setSearchResults] = useState([]);
+  const [searchText, setSearchText] = useState("");
+
   const moveItemToWishlist = (item) => {
     setSelectedItem((prevSelectedItem) => [...prevSelectedItem, item]);
     setListItem((prevList) =>
@@ -58,9 +43,33 @@ const MotherIngredients = ({ route }) => {
       prevList.filter((listItem) => listItem.name !== item.name)
     );
   };
+  const searchIngredient = (value) => {
+    HandleApi.serverGeneral
+      .get("v1/ingredients/search-list", {
+        params: {
+          ingredient: value,
+          pageSize: 3,
+        },
+      })
+      .then((response) => {
+        setSearchResults(response.data.ingredientsList);
+        // console.log(response.data.ingredientsList[1].category);
+      })
+      .catch((error) => console.log(error));
+  };
   useEffect(() => {
     console.log(selectedItem);
   }, [selectedItem]);
+  const handleInputChange = (text) => {
+    setSearchText(text);
+    // Perform search operation here based on the input text
+    if (debounceTimeoutRef.current) {
+      clearTimeout(debounceTimeoutRef.current);
+    }
+    debounceTimeoutRef.current = setTimeout(() => {
+      searchIngredient(text);
+    }, 500);
+  };
   return (
     <View style={{ flex: 1, backgroundColor: "#FDFDFD" }}>
       {selectedDate && (
@@ -75,68 +84,49 @@ const MotherIngredients = ({ route }) => {
         </View>
       )}
       <View style={{ flex: 1, marginVertical: 10, paddingHorizontal: 25 }}>
-        <View style={styles.selectedContainer}>
-          <SubText
-            style={{ color: "#8C8C8C", fontSize: 14, paddingVertical: 10 }}
-          >
-            Selected 7
-          </SubText>
-          <FlatList
-            data={selectedItem}
-            numColumns={5}
-            contentContainerStyle={styles.contentContainer}
-            renderItem={({ item }) => {
-              console.log(item, "hello");
-              return (
-                <View style={styles.itemContainer}>
-                  <TouchableOpacity
-                    style={styles.iconContainer}
-                    onPress={() => deleteItemfromWishlist(item)}
-                  >
-                    <Image
-                      source={item.source}
-                      style={styles.icon}
-                      resizeMode="contain"
-                    />
-                  </TouchableOpacity>
-                  <SubText style={styles.name}>{item.name}</SubText>
-                </View>
-              );
-            }}
-            keyExtractor={(item, index) => index.toString()}
-          />
-        </View>
-        <View style={styles.ingredientContainer}>
-          <HeaderText
-            style={{ color: "#518B1A", fontSize: 18, paddingVertical: 10 }}
-          >
-            All Ingredients
-          </HeaderText>
-          <FlatList
-            data={listItem}
-            numColumns={5}
-            contentContainerStyle={styles.contentContainer}
-            renderItem={({ item }) => {
-              return (
-                <View style={styles.itemContainer}>
-                  <TouchableOpacity
-                    style={styles.iconContainer}
-                    onPress={() => moveItemToWishlist(item)}
-                  >
-                    <Image
-                      source={item.source}
-                      style={styles.icon}
-                      resizeMode="contain"
-                    />
-                  </TouchableOpacity>
-                  <SubText style={styles.name}>{item.name}</SubText>
-                </View>
-              );
-            }}
-            keyExtractor={(item, index) => index.toString()}
-          />
-        </View>
+        <IngredientsList
+          selectedItem={selectedItem}
+          listItem={listItem}
+          deleteItemfromWishlist={deleteItemfromWishlist}
+          moveItemToWishlist={moveItemToWishlist}
+          handleSearchPress={handleSearchPress}
+        ></IngredientsList>
       </View>
+      <BottomSheet
+        ref={bottomSheetRef}
+        snapPoints={["70%"]}
+        enablePanDownToClose={true}
+        initialSnap={0}
+      >
+        <View style={styles.bottomSheetContent}>
+          <View style={styles.bottomSheetHeader}>
+            <TextInput
+              style={styles.searchInput}
+              placeholder="Enter search text"
+              value={searchText}
+              onChangeText={handleInputChange}
+            />
+            {/* <TouchableOpacity onPress={handleClosePress}>
+              <Text>Close</Text>
+            </TouchableOpacity> */}
+          </View>
+          <View>
+            {searchResults && (
+              <FlatList
+                data={searchResults}
+                renderItem={(item) => {
+                  return (
+                    <View>
+                      <SubText>{item.item.foods}</SubText>
+                    </View>
+                  );
+                }}
+                keyExtractor={(item) => item.fdcId}
+              />
+            )}
+          </View>
+        </View>
+      </BottomSheet>
     </View>
   );
 };
@@ -144,32 +134,20 @@ const MotherIngredients = ({ route }) => {
 export default MotherIngredients;
 
 const styles = StyleSheet.create({
-  ingredientContainer: {
-    flex: 1,
+  bottomSheetContent: {},
+  bottomSheetHeader: {
+    flexDirection: "row",
     justifyContent: "space-between",
-  },
-  contentContainer: {
-    flexGrow: 1,
-    marginLeft: "auto",
-    marginRight: "auto",
-  },
-  itemContainer: {
     alignItems: "center",
-    marginHorizontal: 10,
+    gap: 20,
+    paddingHorizontal: 25,
   },
-  iconContainer: {
-    width: 50,
-    height: 50,
-  },
-  icon: {
-    width: 50,
-    height: 50,
-  },
-  name: {
-    fontSize: 8,
-  },
-  selectedContainer: {
-    justifyContent: "space-between",
-    // backgroundColor: "#000",
+  searchInput: {
+    flex: 1,
+    backgroundColor: "#F9F9F9",
+    borderWidth: 1,
+    borderColor: "#8f8f8f",
+    padding: 5,
+    borderRadius: 20,
   },
 });

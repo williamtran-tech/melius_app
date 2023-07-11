@@ -65,6 +65,7 @@ const MealTime = () => {
             onChange={handleTimeChange}
             display="spinner"
             style={styles.dateTimePicker}
+            textColor="#000"
           />
           <Button title="Done" onPress={hideTimePicker} />
         </View>
@@ -90,9 +91,11 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
+    borderRadius: 8,
   },
   dateTimePicker: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#8CC840",
+    color: "#000",
     // Apply any other styles to customize the DateTimePicker
   },
   mealTimeConatiner: {
