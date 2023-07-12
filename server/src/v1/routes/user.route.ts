@@ -4,11 +4,17 @@ import validationMiddleware from "../../middlewares/validation.middleware";
 import CreateUserDTO from "../../DTOs/User/UserCreate.DTO";
 import authMiddleware from "../../middlewares/auth.middleware";
 import checkKidIDMiddleware from "../../middlewares/checkKidUser.middleware";
+import { authorize } from "../../middlewares/authorize.middleware";
 
 export const userRouter = Router();
 const userController = new UserController();
 
-userRouter.get("/profile", authMiddleware, userController.getUserProfile);
+userRouter.get(
+  "/profile",
+  authMiddleware,
+  authorize(["User"]),
+  userController.getUserProfile
+);
 userRouter.post("/create-child", authMiddleware, userController.createChild);
 userRouter.patch(
   "/child-health/:id",
@@ -39,6 +45,13 @@ userRouter.get(
   "/available-ingredients",
   authMiddleware,
   userController.getAvailableIngredientList
+);
+
+// Meal Planning
+userRouter.post(
+  "/meal-plan",
+  authMiddleware,
+  userController.createSuggestedMeals
 );
 
 // userRouter.post(

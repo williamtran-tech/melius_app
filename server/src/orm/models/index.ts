@@ -10,6 +10,8 @@ import { Allergy } from "./allergy.model";
 import { AvailableIngredient } from "./available.ingredient.model";
 import { Role } from "./role.model";
 import { UserRole } from "./user.role.model";
+import { MealPlan } from "./meal.plan.model";
+import { PlanDetail } from "./plan.detail.model";
 
 const env = process.env.NODE_ENV || "development";
 const config = require(path.resolve("dist/src/configs/database.config"))[env];
@@ -25,6 +27,8 @@ const sequelize = config.url
         User,
         Health,
         Recipe,
+        MealPlan,
+        PlanDetail,
         IngreCategory,
         Ingredient,
         AvailableIngredient,

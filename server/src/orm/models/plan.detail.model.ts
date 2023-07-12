@@ -7,16 +7,18 @@ import {
   AutoIncrement,
   ForeignKey,
   BelongsTo,
+  HasMany,
   BelongsToMany,
 } from "sequelize-typescript";
+import { User } from "./user.model";
 import { MealPlan } from "./meal.plan.model";
-import { PlanDetail } from "./plan.detail.model";
+import { Recipe } from "./recipe.model";
 
 @Table({
-  tableName: "recipes",
+  tableName: "plan_details",
   timestamps: true,
 })
-export class Recipe extends Model {
+export class PlanDetail extends Model {
   @PrimaryKey
   @AutoIncrement
   @Column({
@@ -27,47 +29,34 @@ export class Recipe extends Model {
   id!: number;
 
   @Column({
-    type: DataType.STRING,
+    type: DataType.DATE,
     allowNull: false,
   })
-  name!: string;
+  mealTime!: Date;
 
+  @Column({
+    type: DataType.ENUM("Morning", "Noon", "Evening"),
+    allowNull: false,
+  })
+  session!: string;
+
+  @ForeignKey(() => MealPlan)
   @Column({
     type: DataType.INTEGER,
     allowNull: false,
   })
-  cookTime!: number;
+  mealPlanId!: number;
 
+  @ForeignKey(() => Recipe)
   @Column({
     type: DataType.INTEGER,
     allowNull: false,
   })
-  nSteps!: number;
+  recipeId!: number;
 
-  @Column({
-    type: DataType.JSON,
-    allowNull: false,
-  })
-  steps!: string;
+  @BelongsTo(() => MealPlan)
+  mealPlans!: MealPlan[];
 
-  @Column({
-    type: DataType.INTEGER,
-    allowNull: false,
-  })
-  nIngredients!: number;
-
-  @Column({
-    type: DataType.JSON,
-    allowNull: false,
-  })
-  ingredients!: object;
-
-  @Column({
-    type: DataType.JSON,
-    allowNull: false,
-  })
-  nutrition!: number[];
-
-  @BelongsToMany(() => MealPlan, () => PlanDetail)
-  plans!: MealPlan[];
+  @BelongsTo(() => Recipe)
+  recipes!: Recipe[];
 }

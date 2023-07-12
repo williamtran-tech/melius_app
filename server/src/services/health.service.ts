@@ -68,6 +68,15 @@ export default class HealthService {
     }
   }
 
+  // Calculate Recommended Dietary Allowance
+  public rdaCalculator(weight: number) {
+    // RDA = Weight (kg) x 0.8 - For Adults (g/kg/day)
+    // Ref: National Academy of Medicine
+
+    const RDA = weight * 0.8;
+    return RDA;
+  }
+
   public ageCalculator(
     date: Date,
     measurement: moment.unitOfTime.Diff
@@ -90,6 +99,7 @@ export default class HealthService {
         PAL: kidData.PAL ? kidData.PAL : 1.2,
       };
       const tdee = this.calculateTDEE(tdeeParams);
+      const RDA = this.rdaCalculator(kidData.weight);
 
       if (age > 2) {
         BMI = this.calculateBMI(kidData);
@@ -101,6 +111,7 @@ export default class HealthService {
         bmi: BMI || null,
         tdee: tdee,
         kidId: kidData.kidId,
+        rda: RDA,
       });
 
       return healthRecord;
@@ -128,6 +139,7 @@ export default class HealthService {
       };
       const tdee = this.calculateTDEE(tdeeParams);
 
+      const RDA = this.rdaCalculator(kidData.weight);
       let healthRecord = {};
 
       if (age > 2) {
@@ -142,6 +154,7 @@ export default class HealthService {
           bmi: BMI || null,
           tdee: tdee,
           kidId: kidData.kidId,
+          rda: RDA,
         });
       } else {
         // update health record
@@ -151,6 +164,7 @@ export default class HealthService {
             height: kidData.height,
             bmi: BMI || null,
             tdee: tdee,
+            rda: RDA,
           },
           {
             where: {

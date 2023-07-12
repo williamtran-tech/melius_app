@@ -48,6 +48,12 @@ export class Health extends Model {
   })
   tdee!: number;
 
+  @Column({
+    type: DataType.FLOAT,
+    allowNull: false,
+  })
+  rda!: number;
+
   @ForeignKey(() => User)
   @Column({
     type: DataType.INTEGER,

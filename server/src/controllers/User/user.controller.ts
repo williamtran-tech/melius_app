@@ -7,6 +7,7 @@ import UserService from "../../services/user.service";
 import HealthService from "../../services/health.service";
 import KidHealthDTO from "../../DTOs/Kid/KidHealthData.DTO";
 import IngredientService from "../../services/ingredient.service";
+import MealPlanService from "../../services/meal.plan.service";
 export default class UserController extends BaseController {
   constructor() {
     super();
@@ -17,6 +18,8 @@ export default class UserController extends BaseController {
   public userService = new UserService();
 
   public ingredientService = new IngredientService();
+
+  public mealPlanService = new MealPlanService();
 
   public getUserProfile = async (
     req: express.Request,
@@ -215,6 +218,34 @@ export default class UserController extends BaseController {
     } catch (err) {
       console.log(err);
       next(err);
+    }
+  };
+
+  // MEAL PLAN FUNCTIONS
+  public createSuggestedMeals = async (
+    req: express.Request,
+    res: express.Response,
+    next: express.NextFunction
+  ) => {
+    try {
+      const kidId = Number(req.body.kidId);
+      // Refactor this DTO later
+      const mealPlanDTO = {
+        kidId: kidId,
+        nMeal: Number(req.body.nMeal),
+        duration: Number(req.body.duration),
+      };
+
+      const suggestedMeals = await this.mealPlanService.createSuggestedMeals(
+        mealPlanDTO
+      );
+
+      res.status(200).json({
+        msg: "Create suggested meals successfully",
+        suggestedMeals: suggestedMeals,
+      });
+    } catch (error) {
+      next(error);
     }
   };
 }
