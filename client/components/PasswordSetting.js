@@ -37,38 +37,44 @@ const PasswordSetting = ({ navigation, type, setStage }) => {
   );
   const setPassword = (values) => {
     setLoading(true);
-    setStage("stage5");
+    // setStage("stage5");
 
-    // HandleApi.serverGeneral
-    //   .post("v1/auth/password", QueryString.stringify(values))
-    //   .then((response) => {
-    //     console.log(response.data);
-    //     let receivedCookies = response.headers.get("set-cookie");
-    //     let cookieString = Array.isArray(receivedCookies)
-    //       ? receivedCookies.join("; ")
-    //       : receivedCookies;
-    //     let parsedCookies = cookie.parse(cookieString);
-    //     let authorizationCookie = parsedCookies["Authorization"];
-    //     console.log(authorizationCookie);
-    //     if (authorizationCookie) {
-    //       AsyncStorage.setItem("Authentication", authorizationCookie)
-    //         .then(() => {
-    //           setLoading(false);
-    //           // navigation.replace("BottomNavigation");
-    //           setStage("stage5");
-    //         })
-    //         .catch((error) => {
-    //           setLoading(false);
-    //           console.error(error);
-    //         });
-    //     } else {
-    //       setLoading(false);
-    //     }
-    //   })
-    //   .catch((error) => {
-    //     console.error(error);
-    //   });
-    // console.log(QueryString.stringify(values));
+    HandleApi.serverGeneral
+      .post("v1/auth/password", QueryString.stringify(values))
+      .then((response) => {
+        console.log(response.data);
+        let receivedCookies = response.headers.get("set-cookie");
+        let cookieString = Array.isArray(receivedCookies)
+          ? receivedCookies.join("; ")
+          : receivedCookies;
+        let parsedCookies = cookie.parse(cookieString);
+        let authorizationCookie = parsedCookies["Authorization"];
+        console.log(authorizationCookie);
+        if (authorizationCookie) {
+          AsyncStorage.setItem("Authentication", authorizationCookie)
+            .then(() => {
+              setLoading(false);
+              // navigation.replace("BottomNavigation");
+              setStage("stage5");
+            })
+            .catch((error) => {
+              setLoading(false);
+              console.error(error);
+            });
+          AsyncStorage.setItem(
+            "momInf",
+            JSON.stringify(response.data.user)
+          ).then(() => {
+            console.log(response.data.user);
+          });
+        } else {
+          setLoading(false);
+        }
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+    console.log(QueryString.stringify(values));
   };
   return (
     <View style={styles.container}>

@@ -1,22 +1,31 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { StyleSheet, Text, View, TouchableOpacity, Image } from "react-native";
 import SubText from "./SubText";
-const HealthIndex = () => {
+const HealthIndex = ({ healthRecord }) => {
+  useEffect(() => {
+    // console.log(healthRecord);
+  }, [healthRecord]);
   return (
     <View style={styles.inforItemContainer}>
       <SubText style={styles.lastupdatetext}>Last updated 15/04/2023</SubText>
       <View style={styles.informationContainer}>
         <View style={styles.inforItem}>
           <View style={{ flexDirection: "column", marginTop: "auto" }}>
-            <SubText style={styles.inforItemText}>90kg</SubText>
+            <SubText style={styles.inforItemText}>
+              {healthRecord && healthRecord.weight}kg
+            </SubText>
             <SubText style={styles.nameItemText}>Weight</SubText>
           </View>
           <View style={{ flexDirection: "column", marginTop: "auto" }}>
-            <SubText style={styles.inforItemText}>200cm</SubText>
+            <SubText style={styles.inforItemText}>
+              {healthRecord && healthRecord.height}cm
+            </SubText>
             <SubText style={styles.nameItemText}>Height</SubText>
           </View>
           <View style={{ flexDirection: "column", marginTop: "auto" }}>
-            <SubText style={styles.BMIItemText}>80</SubText>
+            <SubText style={styles.BMIItemText}>
+              {healthRecord && healthRecord.bmi.toFixed()}
+            </SubText>
             <SubText style={styles.nameItemText}>BMI</SubText>
           </View>
         </View>

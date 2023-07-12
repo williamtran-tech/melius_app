@@ -15,9 +15,25 @@ import SubText from "./SubText";
 import RadioGroup from "react-native-radio-buttons-group";
 import moment from "moment";
 import DateTimePicker from "@react-native-community/datetimepicker";
+import HandleApi from "../Services/HandleApi";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useNavigation } from "@react-navigation/native";
 const ProfileChildeFrom = () => {
+  const navigation = useNavigation();
   const handleSubmit = (values) => {
-    console.log(values);
+    HandleApi.serverGeneral
+      .post("v1/users/create-child", values)
+      .then((response) => {
+        AsyncStorage.setItem("childrenInf", JSON.stringify(response.data))
+          .then(() => {
+            navigation.replace("BottomNavigation");
+          })
+          .catch((error) => {
+            // setLoading(false);
+            console.error(error);
+          });
+        const test = JSON.stringify(response.data);
+      });
   };
   return (
     <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
@@ -98,31 +114,45 @@ const ProfileChildeFrom = () => {
                 {errors.dob && <Text>{errors.dob}</Text>}
               </View>
 
-              <View style={styles.SectionStyleRow}>
-                <View>
+              <View style={styles.SectionStyle}>
+                <View
+                  style={{
+                    flexDirection: "row",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    gap: 15,
+                  }}
+                >
                   <SubText style={{ color: "#8C8C8C", fontSize: 15 }}>
                     Weight
                   </SubText>
                   <TextInput
-                    style={styles.inputStyle}
+                    style={styles.inputNumberStyle}
                     onChangeText={handleChange("weight")}
                     onBlur={handleBlur("weight")}
                     value={values.weight}
-                    placeholder="Weight"
+                    placeholder="Kg"
                     keyboardType="numeric"
                   />
                   {errors.weight && <Text>{errors.weight}</Text>}
                 </View>
-                <View>
+                <View
+                  style={{
+                    flexDirection: "row",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    gap: 15,
+                  }}
+                >
                   <SubText style={{ color: "#8C8C8C", fontSize: 15 }}>
                     Height
                   </SubText>
                   <TextInput
-                    style={styles.inputStyle}
+                    style={styles.inputNumberStyle}
                     onChangeText={handleChange("height")}
                     onBlur={handleBlur("height")}
                     value={values.height}
-                    placeholder="Height"
+                    placeholder="Cm"
                     keyboardType="numeric"
                   />
                   {errors.height && <Text>{errors.height}</Text>}
@@ -171,7 +201,22 @@ const styles = StyleSheet.create({
   inputStyle: {
     color: "white",
     height: 35,
-    paddingLeft: 15,
+    paddingHorizontal: 10,
+    borderWidth: 1,
+    borderRadius: 10,
+    borderColor: "#dadae8",
+    color: "#000",
+    shadowOffset: { height: 0, width: -10 },
+    shadowRadius: 4,
+    elevation: 25,
+    shadowColor: "rgba(26, 26, 26, 0.2)",
+    backgroundColor: "rgba(249, 249, 249, 1)",
+  },
+  inputNumberStyle: {
+    color: "white",
+    height: 35,
+    width: 60,
+    paddingHorizontal: 10,
     borderWidth: 1,
     borderRadius: 10,
     borderColor: "#dadae8",

@@ -4,37 +4,50 @@ import HeaderText from "./HeaderText";
 import SubText from "./SubText";
 import IconWithText from "./IconWithText";
 import HealthIndex from "./HealthIndex";
+import moment from "moment";
 
-const ChildrenInf = () => {
+const ChildrenInf = ({ childInf }) => {
   return (
     <View style={{ flex: 1 }}>
-      <View style={styles.titleContainer}>
-        <HeaderText style={{ color: "#518B1A", fontSize: 18 }}>
-          Children's information
-        </HeaderText>
-        <TouchableOpacity style={styles.updatebtn}>
-          <SubText style={styles.updateText}>Edit</SubText>
-        </TouchableOpacity>
-      </View>
-      <View style={styles.infContainer}>
-        <View style={styles.row1}>
-          <IconWithText
-            iconName="Iconname"
-            title="Cristiano Ronaldo"
-          ></IconWithText>
-        </View>
-        <View style={styles.row1}>
-          <IconWithText iconName="Iconfemale" title="Felmale"></IconWithText>
-          <IconWithText
-            iconName="Iconbirthday"
-            title="29/08/2019"
-          ></IconWithText>
-          <IconWithText iconName="Iconyearold" title="3 YO"></IconWithText>
-        </View>
-        <View style={styles.row2}>
-          <HealthIndex></HealthIndex>
-        </View>
-      </View>
+      {childInf && (
+        <>
+          <View style={styles.titleContainer}>
+            <HeaderText style={{ color: "#518B1A", fontSize: 18 }}>
+              Children's information
+            </HeaderText>
+            <TouchableOpacity style={styles.updatebtn}>
+              <SubText style={styles.updateText}>Edit</SubText>
+            </TouchableOpacity>
+          </View>
+          <View style={styles.infContainer}>
+            <View style={styles.row1}>
+              <IconWithText
+                iconName="Iconname"
+                title={childInf.child.fullName}
+              ></IconWithText>
+            </View>
+            <View style={styles.row1}>
+              <IconWithText
+                iconName="Iconfemale"
+                title={childInf.child.gender}
+              ></IconWithText>
+              <IconWithText
+                iconName="Iconbirthday"
+                title={moment(childInf.child.dob).format("DD/MM/YYYY")}
+              ></IconWithText>
+              <IconWithText
+                iconName="Iconyearold"
+                title={
+                  moment().diff(moment(childInf.child.dob), "years") + " YO"
+                }
+              ></IconWithText>
+            </View>
+            <View style={styles.row2}>
+              <HealthIndex healthRecord={childInf.healthRecord}></HealthIndex>
+            </View>
+          </View>
+        </>
+      )}
     </View>
   );
 };
