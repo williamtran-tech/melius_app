@@ -5,16 +5,25 @@ import { StyleSheet, Text, View, TouchableOpacity } from "react-native";
 import React, { useEffect, useState } from "react";
 import { useNavigation } from "@react-navigation/native";
 import HeaderText from "../components/HeaderText";
+import ComChat247 from "../screens/Community/ComChat247";
 import ComHome from "../screens/Community/ComHome";
 
 const CommunityNavigation = () => {
   const navigation = useNavigation();
 
   return (
-    <Stack.Navigator initialRouteName="MenuScreen">
+    <Stack.Navigator initialRouteName="Home">
       <Stack.Screen
-        name="MenuScreen"
+        name="Home"
         component={ComHome}
+        initialParams={{}}
+        options={{
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen
+        name="Chat247"
+        component={ComChat247}
         initialParams={{}}
         options={{
           headerShown: false,
