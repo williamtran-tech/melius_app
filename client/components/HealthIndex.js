@@ -3,8 +3,8 @@ import { StyleSheet, Text, View, TouchableOpacity, Image } from "react-native";
 import SubText from "./SubText";
 const HealthIndex = ({ healthRecord }) => {
   useEffect(() => {
-    // console.log(healthRecord);
-  }, [healthRecord]);
+    console.log(healthRecord);
+  }, []);
   return (
     <View style={styles.inforItemContainer}>
       <SubText style={styles.lastupdatetext}>Last updated 15/04/2023</SubText>

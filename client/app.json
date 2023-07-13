@@ -3,6 +3,12 @@
     "name": "client",
     "slug": "client",
     "version": "1.0.0",
+    "icon": "./assets/images/Logo.png",
+    "splash": {
+      "image": "./assets/images/verticalLogo.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffff"
+    },
     "assetBundlePatterns": ["**/*"],
     "plugins": ["expo-localization"],
     "ios": {
