@@ -236,13 +236,13 @@ export default class UserController extends BaseController {
         duration: Number(req.body.duration),
       };
 
-      const suggestedMeals = await this.mealPlanService.createSuggestedMeals(
-        mealPlanDTO
-      );
+      const [suggestedMeals, mealTarget] =
+        await this.mealPlanService.createSuggestedMeals(mealPlanDTO);
 
       res.status(200).json({
         msg: "Create suggested meals successfully",
         suggestedMeals: suggestedMeals,
+        mealTarget: mealTarget,
       });
     } catch (error) {
       next(error);

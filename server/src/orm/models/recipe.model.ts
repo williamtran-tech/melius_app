@@ -60,7 +60,7 @@ export class Recipe extends Model {
     type: DataType.JSON,
     allowNull: false,
   })
-  ingredients!: object;
+  ingredients!: string;
 
   @Column({
     type: DataType.JSON,

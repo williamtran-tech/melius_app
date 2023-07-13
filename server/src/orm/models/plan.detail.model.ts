@@ -40,6 +40,12 @@ export class PlanDetail extends Model {
   })
   session!: string;
 
+  @Column({
+    type: DataType.ENUM("Main course", "Side dish", "Other"),
+    allowNull: false,
+  })
+  type!: string;
+
   @ForeignKey(() => MealPlan)
   @Column({
     type: DataType.INTEGER,
