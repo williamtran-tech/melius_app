@@ -7,11 +7,11 @@ import {
   Platform,
 } from "react-native";
 import React, { useEffect, useState } from "react";
-import ChatInput from "../components/ChatInput";
+import ChatInput from "../../components/ChatInput";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import HandleApi from "../Services/HandleApi";
-import MessageList from "../components/MessageList";
-const Community = () => {
+import HandleApi from "../../Services/HandleApi";
+import MessageList from "../../components/MessageList";
+const ComHome = () => {
   const [messages, setMessages] = useState();
   const [messages1, setMessages1] = useState();
   const existingMessages = async () => {
@@ -55,6 +55,6 @@ const Community = () => {
   );
 };
 
-export default Community;
+export default ComHome;
 
 const styles = StyleSheet.create({});

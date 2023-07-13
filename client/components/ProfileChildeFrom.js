@@ -26,13 +26,22 @@ const ProfileChildeFrom = () => {
       .then((response) => {
         AsyncStorage.setItem("childrenInf", JSON.stringify(response.data))
           .then(() => {
-            navigation.replace("BottomNavigation");
+            const storedData = AsyncStorage.getItem("childrenInf").then(
+              (value) => {
+                console.log(value);
+                console.log("Stored Data:", JSON.parse(value));
+                navigation.replace("BottomNavigation");
+              }
+            );
+
+            //
           })
           .catch((error) => {
             // setLoading(false);
             console.error(error);
           });
-        const test = JSON.stringify(response.data);
+        // const test = JSON.stringify(response.data);
+        // console.log(JSON.parse(test));
       });
   };
   return (
