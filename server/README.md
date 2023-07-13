@@ -47,8 +47,24 @@ cd src/orm
 npx sequelize-cli db:seed --seed 20230711052934-create-roles.js
 ```
 
-# Issues may occur
+# 3. Issues may occur
 
-## 1. Error: Fetch is not defined
+## 3.1. Error: Fetch is not defined
 
-    Solution: Update the Node version later than 18.0.0
+**Solution**: Update the Node version later than 18.0.0
+
+# 4. Lessons Learnt
+
+## 4.1. Using JSON parse and stringify
+
+The JSON.parse() method parses a JSON string, constructing the JavaScript value or object described by the string. **The important thing is** the string must be wrapped by double quotes. For example:
+
+```typescript
+const str = "['something', 'something']";
+const obj = JSON.parse(str); // This will throw an array of string
+```
+
+```typescript
+const str = '["something", "something"]';
+const obj = JSON.parse(str); // This will throw an error because of ' instead of "
+```

@@ -6,6 +6,8 @@ import { Account } from "./../orm/models/account.model";
 import { Health } from "./../orm/models/health.model";
 import moment from "moment";
 import KidHealthDTO from "../DTOs/Kid/KidHealthData.DTO";
+import { triggerAsyncId } from "async_hooks";
+import HttpException from "../exceptions/HttpException";
 
 export default class HealthService {
   public calculateBMI(kidData: any): number {
@@ -178,6 +180,29 @@ export default class HealthService {
       return healthRecord;
     } catch (err) {
       throw err;
+    }
+  }
+
+  public async getHealthRecord(kidId: number) {
+    try {
+      const heathRecord = await Health.findOne({
+        where: { kidId: kidId },
+        attributes: ["tdee", "bmi", "rda"],
+        order: [["createdAt", "DESC"]],
+      });
+
+      const responseData = {
+        energy: heathRecord?.tdee,
+        bmi: heathRecord?.bmi,
+        protein: heathRecord?.rda,
+      };
+
+      if (heathRecord === null) {
+        throw new HttpException(404, "Health record not found");
+      }
+      return responseData;
+    } catch (error) {
+      throw error;
     }
   }
 }

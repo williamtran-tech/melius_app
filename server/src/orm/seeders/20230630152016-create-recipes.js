@@ -1,8 +1,6 @@
 "use strict";
 const fs = require("fs");
 const csv = require("fast-csv");
-const transform = require("stream-transform");
-const { Transform } = require("stream");
 
 module.exports = {
   up: async (queryInterface, Sequelize) => {

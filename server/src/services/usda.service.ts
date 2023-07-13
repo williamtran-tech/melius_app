@@ -56,7 +56,6 @@ export default class USDAService {
         pageSize: ingredientDTO.pageSize,
       };
 
-      console.log("params: ", params);
       const url = `https://api.nal.usda.gov/fdc/v1/foods/search?api_key=${params.api_key}&foodCategory=${params.foodCategory}&query=${params.query}&dataType=${params.dataType}&pageSize=${params.pageSize}`;
 
       const response = await fetch(url);
