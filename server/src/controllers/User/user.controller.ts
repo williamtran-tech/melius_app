@@ -50,7 +50,6 @@ export default class UserController extends BaseController {
       const userId = req.userData.id;
       const userProfile = await this.userService.getUserProfile(userId);
       if (userProfile) {
-        console.log(userProfile);
         const childProfile = {
           fullName: req.body.fullName,
           gender: req.body.gender,
@@ -98,14 +97,14 @@ export default class UserController extends BaseController {
         weight: req.body.weight,
         height: req.body.height,
         DOB: kidInfo[0].dob,
-        PAL: req.body.PAL ? req.body.PAL : 1.4,
+        PAL: req.body.PAL ? req.body.PAL : 1.5,
         gender: kidInfo[0].gender,
       };
 
       const kidHealth = await this.healthService.updateHealthRecord(kidData);
 
       res.status(200).json({
-        msg: "Create kid health successfully",
+        msg: "Update kid health successfully",
         kidHealth: kidHealth,
       });
     } catch (error) {
@@ -222,6 +221,25 @@ export default class UserController extends BaseController {
   };
 
   // MEAL PLAN FUNCTIONS
+  public createMealPlan = async (req: express.Request, res: express.Response, next: express.NextFunction) => {
+    try {
+      const kidId = Number(req.body.kidId);
+      // Refactor this DTO later
+      const mealPlanDTO = {
+        kidId: kidId,
+      };
+
+      const mealPlan = await this.mealPlanService.createMealPlan(mealPlanDTO);
+
+      res.status(200).json({
+        msg: "Create meal plan successfully",
+        mealPlan: mealPlan
+      });
+    } catch (err) {
+      next(err);
+    }
+  };
+
   public createSuggestedMeals = async (
     req: express.Request,
     res: express.Response,

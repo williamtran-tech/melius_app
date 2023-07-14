@@ -6,7 +6,6 @@ import { Account } from "./../orm/models/account.model";
 import { Health } from "./../orm/models/health.model";
 import moment from "moment";
 import KidHealthDTO from "../DTOs/Kid/KidHealthData.DTO";
-import { triggerAsyncId } from "async_hooks";
 import HttpException from "../exceptions/HttpException";
 
 export default class HealthService {
@@ -36,34 +35,28 @@ export default class HealthService {
       // • 3–10 years → BEE (kcal/d) = (15.9 × W) + (210 × H) + 349 (R2 = 0.680)
 
       // Ref: https://www.cambridge.org/core/journals/public-health-nutrition/article/basal-metabolic-rate-studies-in-humans-measurement-and-development-of-new-equations/61A9EA486ABFA478FEF2FCE1E70D5BEE
+      
+
+      // Other formulas
+      // Ref: Mifflin, M. D., St Jeor, S. T., Hill, L. A., Scott, B. J., Daugherty, S. A., & Koh, Y. O. (1990). A new predictive equation for resting energy expenditure in healthy individuals. The American journal of clinical nutrition, 51(2), 241–247. https://doi.org/10.1093/ajcn/51.2.241
+      // Mifflin-St Jeor formula:
+      // * Men: (10 × weight in kg) + (6.25 × height in cm) - (5 × age in years) + 5
+      // * Women: (10 × weight in kg) + (6.25 × height in cm) - (5 × age in years) - 161
 
       let TDEE: number = 0;
-      let BEE: number;
+      let BMR: number;
 
       let age: number = kidData.age;
       const W = kidData.weight;
-      const H = kidData.height / 100;
+      const H = kidData.height;
 
-      console.log("weight: ", W);
-      console.log("height: ", H);
-
-      if (age < 3) {
-        if (kidData.gender === "male") {
-          BEE = 28.2 * W + 859 * H - 371;
-        } else {
-          // ages 1 to 3 years need 80 kcal/kg/day
-          BEE = 30.4 * W + 703 * H - 287;
-        }
+      if (kidData.gender === "male") {
+        BMR = (10 * W) + (6.25 * H) - (5 * age) + 5;
       } else {
-        // For boys > 3 yo
-        if (kidData.gender == "male") {
-          BEE = 15.1 * W + 74.2 * H + 306;
-        } else {
-          // For girls > 3yo
-          BEE = 15.9 * W + 210 * H + 349;
-        }
+        BMR = (10 * W) + (6.25 * H) - (5 * age) - 161;
       }
-      TDEE = BEE * kidData.PAL;
+
+      TDEE = BMR * kidData.PAL;
       return TDEE;
     } catch (err) {
       throw err;
@@ -147,6 +140,8 @@ export default class HealthService {
       if (age > 2) {
         BMI = this.calculateBMI(kidData);
       }
+
+      console.log("latestHealthRecord: ", latestHealthRecord);
 
       if (moment().diff(latestHealthRecord!.createdAt, "days") > 1) {
         // create new health record

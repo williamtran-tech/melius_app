@@ -17,7 +17,7 @@ userRouter.get(
 );
 userRouter.post("/create-child", authMiddleware, userController.createChild);
 userRouter.patch(
-  "/child-health/:id",
+  "/child-health",
   authMiddleware,
   userController.updateChildHealth
 );
@@ -48,9 +48,12 @@ userRouter.get(
 );
 
 // Meal Planning
+userRouter.post("/meal-plan", authMiddleware, authorize(["User"]),checkKidIDMiddleware,userController.createMealPlan);
+
 userRouter.post(
-  "/meal-plan",
+  "/suggested-meal-plan",
   authMiddleware,
+  authorize(["User"]),checkKidIDMiddleware,
   userController.createSuggestedMeals
 );
 

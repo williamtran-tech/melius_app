@@ -31,6 +31,30 @@ export class MealPlan extends Model {
   })
   id!: number;
 
+  @Column({
+    type: DataType.FLOAT,
+    allowNull: false,
+  })
+  energyTarget!: number;
+
+  @Column({
+    type: DataType.FLOAT,
+    allowNull: false,
+  })
+  proteinTarget!: number;
+
+  @Column({
+    type: DataType.FLOAT,
+    allowNull: false,
+  })
+  fatTarget!: number;
+
+  @Column({
+    type: DataType.FLOAT,
+    allowNull: false,
+  })
+  carbTarget!: number;
+
   @ForeignKey(() => User)
   @Column({
     type: DataType.INTEGER,

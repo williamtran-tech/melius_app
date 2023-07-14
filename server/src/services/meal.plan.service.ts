@@ -9,6 +9,7 @@ import { AvailableIngredient } from "../orm/models/available.ingredient.model";
 import { Recipe } from "../orm/models/recipe.model";
 import { Sequelize } from "sequelize-typescript";
 import { Health } from "../orm/models/health.model";
+import { MealPlan } from "../orm/models/meal.plan.model";
 import HealthService from "./health.service";
 // Recipes Describe Data of nutrition
 // 'calories','total fat (PDV)','sugar (PDV)','sodium (PDV)','protein (PDV)','saturated fat (PDV)','carbohydrates (PDV)']] = df[['calories','total fat (PDV)','sugar (PDV)','sodium (PDV)','protein (PDV)','saturated fat (PDV)','carbohydrates (PDV)'
@@ -16,6 +17,70 @@ import HealthService from "./health.service";
 export default class MealPlanService {
   public USDAService = new USDAService();
   public healthService = new HealthService();
+  private calculateNutrients(calories: number) {
+
+    // Nutrients Recommendation for 2,000 calories diet - Nutrient Label - FDA 
+    // Total Fat	< 78g - 702cal
+    // Saturated Fat	< 20g - 180cal
+    // Protein	< 50g - 200cal
+    // Carbohydrates	< 275g - 1,100cal
+    // Sugar	< 50g
+
+
+    // Calculate protein target
+    const proteinTarget = calories * 50 / 2000;
+
+    // Calculate fat target
+    const fatTarget = calories * 78 / 2000;
+
+    // Calculate carb target
+    const carbTarget = calories * 275 / 2000;
+
+    const nutrientsTarget = {
+      proteinTarget: proteinTarget,
+      fatTarget: fatTarget,
+      carbTarget: carbTarget,
+    }
+
+    return nutrientsTarget;
+
+  }
+
+  public async createMealPlan(MealPlanDTO: any) {
+    try {
+      // Get the kid data
+      // Get the TDEE and RDA of the kid 
+      const kidId = Number(MealPlanDTO.kidId);
+      const kidHealth = await this.healthService.getHealthRecord(kidId);
+      const energy = kidHealth.energy;
+      const protein = kidHealth.protein;
+
+      // Calculate the recommended nutrients intake of the kid
+      const nutrientsTarget = this.calculateNutrients(energy!);
+
+      // Create the meal plan
+      const mealPlan = await MealPlan.findOrCreate({
+        where: 
+        { kidId: kidId},
+        defaults: 
+        {
+        energyTarget: energy,
+        proteinTarget: nutrientsTarget.proteinTarget,
+        fatTarget: nutrientsTarget.fatTarget,
+        carbTarget: nutrientsTarget.carbTarget,
+        kidId: kidId,
+        }
+      });
+
+      if (mealPlan[1] === false) {
+        throw new HttpException(400, "Meal plan already exists");
+      }
+
+      return mealPlan[0];
+    } catch (err) {
+      throw err;
+    }
+  }
 
   public async createSuggestedMeals(MealPlanDTO: any) {
     try {
