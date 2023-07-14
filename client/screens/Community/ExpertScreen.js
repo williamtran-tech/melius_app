@@ -3,16 +3,19 @@ import React from "react";
 import HeaderText from "../../components/HeaderText";
 import SubText from "../../components/SubText";
 import { useNavigation } from "@react-navigation/native";
+import ListDoctor from "../../components/ListDoctor";
+import ListHospital from "../../components/ListHostpital";
 
 const ExpertScreen = () => {
   const navigation = useNavigation();
   return (
     <View style={{ flex: 1 }}>
-      <View style={{ flex: 3 }}>
+      <View style={{ flex: 2.3 }}>
         <View
           style={{
-            flex: 2,
-            padding: 25,
+            flex: 3,
+            paddingHorizontal: 25,
+            paddingVertical: 10,
           }}
         >
           <View style={styles.banner}>
@@ -46,7 +49,7 @@ const ExpertScreen = () => {
           </View>
         </View>
 
-        <View style={{ flex: 1, paddingHorizontal: 25 }}>
+        <View style={{ flex: 3, paddingHorizontal: 25 }}>
           <HeaderText style={{ fontSize: 18, color: "#518B1A" }}>
             Features
           </HeaderText>
@@ -100,7 +103,78 @@ const ExpertScreen = () => {
           </View>
         </View>
       </View>
-      <View style={{ flex: 4 }}></View>
+      <View style={{ flex: 4 }}>
+        <View style={{ flex: 1 }}>
+          <View
+            style={{
+              flexDirection: "row",
+              justifyContent: "space-between",
+              alignItems: "center",
+              paddingHorizontal: 25,
+            }}
+          >
+            <HeaderText
+              style={{
+                fontSize: 18,
+                color: "#518B1A",
+
+                //   marginTop: 10,
+              }}
+            >
+              Our Expert
+            </HeaderText>
+            <TouchableOpacity onPress={() => navigation.navigate("Doctor")}>
+              <SubText
+                style={{
+                  fontSize: 14,
+                  color: "#518B1A",
+                }}
+              >
+                See more
+              </SubText>
+            </TouchableOpacity>
+          </View>
+          <ListDoctor row={true}></ListDoctor>
+        </View>
+        <View
+          style={{
+            flex: 1,
+            //  backgroundColor: "#000"
+          }}
+        >
+          <View
+            style={{
+              flexDirection: "row",
+              justifyContent: "space-between",
+              alignItems: "center",
+              paddingHorizontal: 25,
+            }}
+          >
+            <HeaderText
+              style={{
+                fontSize: 18,
+                color: "#518B1A",
+
+                //   marginTop: 10,
+              }}
+            >
+              Hospital
+            </HeaderText>
+            <TouchableOpacity onPress={() => navigation.navigate("Hospital")}>
+              <SubText
+                style={{
+                  fontSize: 14,
+                  color: "#518B1A",
+                }}
+              >
+                See more
+              </SubText>
+            </TouchableOpacity>
+          </View>
+
+          <ListHospital row={true}></ListHospital>
+        </View>
+      </View>
     </View>
   );
 };

@@ -7,6 +7,8 @@ import { useNavigation } from "@react-navigation/native";
 import HeaderText from "../components/HeaderText";
 import ComChat247 from "../screens/Community/ComChat247";
 import ComHome from "../screens/Community/ComHome";
+import HospitalScreen from "../screens/Community/HospitalScreen";
+import DoctorScreen from "../screens/Community/DoctorScreen";
 
 const CommunityNavigation = () => {
   const navigation = useNavigation();
@@ -24,6 +26,22 @@ const CommunityNavigation = () => {
       <Stack.Screen
         name="Chat247"
         component={ComChat247}
+        initialParams={{}}
+        options={{
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen
+        name="Hospital"
+        component={HospitalScreen}
+        initialParams={{}}
+        options={{
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen
+        name="Doctor"
+        component={DoctorScreen}
         initialParams={{}}
         options={{
           headerShown: false,
