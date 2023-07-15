@@ -17,6 +17,15 @@ import HealthService from "./health.service";
 export default class MealPlanService {
   public USDAService = new USDAService();
   public healthService = new HealthService();
+
+  private CALORIES_BASE = 2000;
+  private TOTAL_FAT_BASE = 78;
+  private SUGAR_BASE = 50;
+  private SODIUM_BASE = 2.3;
+  private PROTEIN_BASE = 50;
+  private SATURATED_FAT_BASE = 20;
+  private CARBOHYDRATES_BASE = 275;
+
   private calculateNutrients(calories: number) {
 
     // Nutrients Recommendation for 2,000 calories diet - Nutrient Label - FDA 
@@ -47,17 +56,20 @@ export default class MealPlanService {
   }
 
   private convertPDVtoGram(mealNutrient: any) {
-    const mealNutrientGram = {
-      calories: mealNutrient.calories,
-      totalFat: mealNutrient.totalFat * 78/100,
-      sugar: mealNutrient.sugar * 50/100,
-      sodium: mealNutrient.sodium * 2.3/100,
-      protein: mealNutrient.protein * 50/100,
-      saturatedFat: mealNutrient.saturatedFat * 20/100,
-      carbohydrates: mealNutrient.carbohydrates * 275/100,
+    var mealNutrientsInGrams = {
+      calories: Number(mealNutrient.calories.toFixed(2)),
+      totalFat: Number((mealNutrient.totalFat * this.TOTAL_FAT_BASE / 100).toFixed(2)),
+      sugar: Number((mealNutrient.sugar * this.SUGAR_BASE / 100).toFixed(2)),
+      sodium: Number((mealNutrient.sodium * this.SODIUM_BASE / 100).toFixed(2)),
+      protein: Number((mealNutrient.protein * this.PROTEIN_BASE / 100).toFixed(2)),
+      saturatedFat: Number((mealNutrient.saturatedFat * this.SATURATED_FAT_BASE / 100).toFixed(2)),
+      carbohydrates: Number((mealNutrient.carbohydrates * this.CARBOHYDRATES_BASE / 100).toFixed(2)),
     };
-
-    return mealNutrientGram;
+    
+    let servingSize = mealNutrientsInGrams.totalFat + mealNutrientsInGrams.sugar + mealNutrientsInGrams.sodium + mealNutrientsInGrams.protein + mealNutrientsInGrams.carbohydrates;
+    servingSize = Math.round(servingSize);
+    
+    return {mealNutrientsInGrams, servingSize};
   }
 
   public async createMealPlan(MealPlanDTO: any) {
@@ -98,12 +110,41 @@ export default class MealPlanService {
 
   public async createSuggestedMeals(MealPlanDTO: any) {
     try {
-      // Get random meals based on quantity of user input to the form
       const { kidId, nMeal, duration } = MealPlanDTO;
+      
+      // Gather constraints of the meal plan
+      // Validation: 
+      // 1. The meal should match with the kid's available ingredients
+      // 2. The meal should match with the kid's TDEE and protein, fat, carb target
+      // 3. The meal should match with the kid's allergies
+
+
+      // Get the TDEE and RDA of the kid
+      const mealTarget = await this.healthService.getHealthRecord(
+        Number(kidId)
+      );
+
+      // Get the allergies of the kid
+      const kidAllergies = await Allergy.findAll({
+        where: { kidId: kidId },
+        attributes: ["ingredientId"],
+        include: [Ingredient],
+      });
+
+      // Get random meals based on quantity of user input to the form 
+      var TOTAL_CALORIES: number = 0,
+      TOTAL_FAT: number = 0,
+      TOTAL_SUGAR: number = 0,
+      TOTAL_CARBS: number = 0,
+      TOTAL_PROTEIN: number = 0,
+      TOTAL_SATURATED_FAT: number = 0,
+      TOTAL_SODIUM: number = 0;
+
       const suggestedMeals = await Recipe.findAll({
         limit: nMeal,
         order: Sequelize.literal("rand()"),
       });
+    
       const responseMeals = suggestedMeals.map((meal: any) => {
         const ingredientData = meal.ingredients.replace(/'/g, '"');
         let ingredientsArray: string[] = [];
@@ -128,7 +169,16 @@ export default class MealPlanService {
         };
 
         // Convert the nutrition from PDV to gram - Recipe Dataset contains nutrition in PDV
-        const mealNutrients = this.convertPDVtoGram(mealNutrition);
+        const {mealNutrientsInGrams, servingSize} = this.convertPDVtoGram(mealNutrition);
+
+        // Calculate the total nutrition of the meals
+        TOTAL_CALORIES += mealNutrientsInGrams.calories;
+        TOTAL_FAT += mealNutrientsInGrams.totalFat;
+        TOTAL_SUGAR += mealNutrientsInGrams.sugar;
+        TOTAL_CARBS += mealNutrientsInGrams.carbohydrates;
+        TOTAL_PROTEIN += mealNutrientsInGrams.protein;
+        TOTAL_SATURATED_FAT += mealNutrientsInGrams.saturatedFat;
+        TOTAL_SODIUM += mealNutrientsInGrams.sodium;
 
         return {
           name: meal.name,
@@ -136,32 +186,31 @@ export default class MealPlanService {
           nIngredients: meal.nIngredients,
           ingredients: ingredientsArray,
           steps: stepsArray,
-          nutrition: mealNutrients,
+          nutrition: mealNutrientsInGrams,
           portion: {
+            servingSize: servingSize,
             unit: "G",
-          }
+          },
         };
       });
 
-      // Get the TDEE and RDA of the kid
-      const mealTarget = await this.healthService.getHealthRecord(
-        Number(kidId)
-      );
-
-      // Get the allergies of the kid
-      const kidAllergies = await Allergy.findAll({
-        where: { kidId: kidId },
-        attributes: ["ingredientId"],
-        include: [Ingredient],
-      });
-
+      // Calculate the estimated nutrition of the meals
+      const estimatedNutrition = {
+        calories: Math.round(TOTAL_CALORIES),
+        totalFat: Math.round(TOTAL_FAT),
+        sugar: Math.round(TOTAL_SUGAR),
+        sodium: Math.round(TOTAL_SODIUM),
+        protein: Math.round(TOTAL_PROTEIN),
+        saturatedFat: Math.round(TOTAL_SATURATED_FAT),
+        carbohydrates: Math.round(TOTAL_CARBS),
+      };
       // Compare the nutrition of the meals and the kid's TDEE and RDA
 
       // If the nutrition of the meals is not enough, get another random meals
 
       // If the nutrition of the meals is enough, return the meals
 
-      return [responseMeals, mealTarget];
+      return [responseMeals, mealTarget, estimatedNutrition];
     } catch (err) {
       throw err;
     }
