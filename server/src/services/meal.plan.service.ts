@@ -46,6 +46,20 @@ export default class MealPlanService {
 
   }
 
+  private convertPDVtoGram(mealNutrient: any) {
+    const mealNutrientGram = {
+      calories: mealNutrient.calories,
+      totalFat: mealNutrient.totalFat * 78/100,
+      sugar: mealNutrient.sugar * 50/100,
+      sodium: mealNutrient.sodium * 2.3/100,
+      protein: mealNutrient.protein * 50/100,
+      saturatedFat: mealNutrient.saturatedFat * 20/100,
+      carbohydrates: mealNutrient.carbohydrates * 275/100,
+    };
+
+    return mealNutrientGram;
+  }
+
   public async createMealPlan(MealPlanDTO: any) {
     try {
       // Get the kid data
@@ -53,12 +67,12 @@ export default class MealPlanService {
       const kidId = Number(MealPlanDTO.kidId);
       const kidHealth = await this.healthService.getHealthRecord(kidId);
       const energy = kidHealth.energy;
-      const protein = kidHealth.protein;
 
       // Calculate the recommended nutrients intake of the kid
       const nutrientsTarget = this.calculateNutrients(energy!);
 
       // Create the meal plan
+      // The mealPlan will return 2 values, the first value is the mealPlan object, the second value is the boolean value of whether the mealPlan is created or not
       const mealPlan = await MealPlan.findOrCreate({
         where: 
         { kidId: kidId},
@@ -84,6 +98,7 @@ export default class MealPlanService {
 
   public async createSuggestedMeals(MealPlanDTO: any) {
     try {
+      // Get random meals based on quantity of user input to the form
       const { kidId, nMeal, duration } = MealPlanDTO;
       const suggestedMeals = await Recipe.findAll({
         limit: nMeal,
@@ -112,17 +127,21 @@ export default class MealPlanService {
           carbohydrates: nutritionArray[6],
         };
 
+        // Convert the nutrition from PDV to gram - Recipe Dataset contains nutrition in PDV
+        const mealNutrients = this.convertPDVtoGram(mealNutrition);
+
         return {
           name: meal.name,
           nSteps: meal.nSteps,
           nIngredients: meal.nIngredients,
           ingredients: ingredientsArray,
           steps: stepsArray,
-          nutrition: mealNutrition,
+          nutrition: mealNutrients,
+          portion: {
+            unit: "G",
+          }
         };
       });
-
-      // Get random meals based on quantity of user input to the form
 
       // Get the TDEE and RDA of the kid
       const mealTarget = await this.healthService.getHealthRecord(
@@ -145,6 +164,48 @@ export default class MealPlanService {
       return [responseMeals, mealTarget];
     } catch (err) {
       throw err;
+    }
+  }
+
+  public async getMealPlan(kidId: number) {
+    try {
+      const mealPlan = await MealPlan.findOne({
+        where: { kidId: kidId },
+        attributes: ["id", "energyTarget", "proteinTarget", "fatTarget", "carbTarget", "updatedAt"],
+      });
+
+      if (mealPlan === null) {
+        throw new HttpException(404, "Meal plan not found - Create one if you haven't");
+      }
+
+      return mealPlan;
+    } catch (error) {
+      throw error;
+    } 
+  }
+
+  public async updateMealPlan(kidId: number) {
+    try {
+      // Get updated health record 
+      const kidHealth = await this.healthService.getHealthRecord(kidId);
+      const energy = kidHealth.energy;
+
+      // Calculate the recommended nutrients intake of the kid
+      const nutrientsTarget = this.calculateNutrients(energy!);
+
+      // Update will contain 2 values, the first value is the number of rows updated, the second value is the updated mealPlan object
+      const mealPlan = await MealPlan.update({
+        energyTarget: energy,
+        proteinTarget: nutrientsTarget.proteinTarget,
+        fatTarget: nutrientsTarget.fatTarget,
+        carbTarget: nutrientsTarget.carbTarget,
+      }, {
+        where: { kidId: kidId },
+      });
+
+      return mealPlan;
+    } catch (error) {
+      throw error;
     }
   }
 }

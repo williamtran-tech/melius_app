@@ -48,6 +48,8 @@ userRouter.get(
 );
 
 // Meal Planning
+userRouter.get("/meal-plan", authMiddleware, authorize(["User"]),checkKidIDMiddleware,userController.getMealPlan);
+
 userRouter.post("/meal-plan", authMiddleware, authorize(["User"]),checkKidIDMiddleware,userController.createMealPlan);
 
 userRouter.post(

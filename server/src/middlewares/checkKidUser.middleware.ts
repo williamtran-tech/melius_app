@@ -20,6 +20,8 @@ async function checkKidIDMiddleware(
   for (const id in kidId) {
     if (Number(request.body.kidId) === kidId[id].id) {
       flag = true;
+    } else if (Number(request.query.kidId) === kidId[id].id) {
+      flag = true;
     }
   }
   if (flag) {
