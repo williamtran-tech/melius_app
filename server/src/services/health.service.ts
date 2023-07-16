@@ -7,6 +7,7 @@ import { Health } from "./../orm/models/health.model";
 import moment from "moment";
 import KidHealthDTO from "../DTOs/Kid/KidHealthData.DTO";
 import HttpException from "../exceptions/HttpException";
+import MealPlanService from "./meal.plan.service";
 
 export default class HealthService {
   public calculateBMI(kidData: any): number {
@@ -141,8 +142,6 @@ export default class HealthService {
         BMI = this.calculateBMI(kidData);
       }
 
-      console.log("latestHealthRecord: ", latestHealthRecord);
-
       if (moment().diff(latestHealthRecord!.createdAt, "days") > 1) {
         // create new health record
         healthRecord = await Health.create({
@@ -154,8 +153,9 @@ export default class HealthService {
           rda: RDA,
         });
       } else {
-        // update health record
-        healthRecord = await Health.update(
+        // update health record 
+        // update return the number of rows affected
+        let [rowAffected] = await Health.update(
           {
             weight: kidData.weight,
             height: kidData.height,
@@ -170,6 +170,8 @@ export default class HealthService {
             },
           }
         );
+
+        healthRecord = rowAffected;
       }
 
       return healthRecord;
@@ -189,7 +191,7 @@ export default class HealthService {
       const responseData = {
         energy: heathRecord?.tdee,
         bmi: heathRecord?.bmi,
-        protein: heathRecord?.rda,
+        rda: heathRecord?.rda,
       };
 
       if (heathRecord === null) {

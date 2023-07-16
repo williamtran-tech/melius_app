@@ -103,9 +103,15 @@ export default class UserController extends BaseController {
 
       const kidHealth = await this.healthService.updateHealthRecord(kidData);
 
+      let updatedMealPlan;
+      if (kidHealth) {
+        // Update the Meal Plan of the kid
+        [updatedMealPlan] = await this.mealPlanService.updateMealPlan(kidData.kidId);
+      }
       res.status(200).json({
         msg: "Update kid health successfully",
         kidHealth: kidHealth,
+        updatedMealPlan: updatedMealPlan,
       });
     } catch (error) {
       next(error);
@@ -254,16 +260,31 @@ export default class UserController extends BaseController {
         duration: Number(req.body.duration),
       };
 
-      const [suggestedMeals, mealTarget] =
+      const [suggestedMeals, mealTarget, estimatedNutrition] =
         await this.mealPlanService.createSuggestedMeals(mealPlanDTO);
 
       res.status(200).json({
         msg: "Create suggested meals successfully",
         suggestedMeals: suggestedMeals,
         mealTarget: mealTarget,
+        estimatedNutrition: estimatedNutrition,
       });
     } catch (error) {
       next(error);
     }
   };
+
+  public getMealPlan = async (req: express.Request, res: express.Response, next: express.NextFunction) => {
+    try {
+      const kidId = Number(req.query.kidId);
+      const mealPlan = await this.mealPlanService.getMealPlan(kidId);
+
+      res.status(200).json({
+        msg: "Get meal plan successfully",
+        mealPlan: mealPlan
+      });
+    } catch (err) {
+      next(err);
+    }
+  }
 }
