@@ -8,10 +8,7 @@ import {
 } from "react-native";
 import React, { useEffect } from "react";
 
-const MessageList = ({ messages }) => {
-  useEffect(() => {
-    console.log(messages);
-  }, [messages]);
+const MessageList = ({ messages, type }) => {
   return (
     <FlatList
       data={messages}
@@ -32,8 +29,12 @@ const MessageList = ({ messages }) => {
                 : require("../assets/images/Avatar.png")
             }
           />
-          <View style={styles[item.role]}>
-            <Text>{item.content}</Text>
+          <View
+            style={
+              type === "expert" ? stylesExpert[item.role] : styles[item.role]
+            }
+          >
+            <Text>{item.message}</Text>
           </View>
         </View>
       )}
@@ -86,6 +87,37 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     flexShrink: 1,
     backgroundColor: "#FF9600",
+    borderRadius: 10,
+    shadowOffset: {
+      width: -1,
+      height: -1,
+    },
+    shadowColor: "#000",
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
+    padding: 15,
+  },
+});
+const stylesExpert = StyleSheet.create({
+  system: {
+    backgroundColor: "#FFF",
+    shadowOffset: {
+      width: 1,
+      height: -1,
+    },
+    shadowColor: "#000",
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
+    padding: 15,
+    borderRadius: 10,
+    flexWrap: "wrap",
+    flexDirection: "row",
+    flexShrink: 1,
+  },
+  user: {
+    flexDirection: "row",
+    flexShrink: 1,
+    backgroundColor: "#8CC840",
     borderRadius: 10,
     shadowOffset: {
       width: -1,

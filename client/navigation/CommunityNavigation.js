@@ -9,6 +9,7 @@ import ComChat247 from "../screens/Community/ComChat247";
 import ComHome from "../screens/Community/ComHome";
 import HospitalScreen from "../screens/Community/HospitalScreen";
 import DoctorScreen from "../screens/Community/DoctorScreen";
+import ComChatWithExpert from "../screens/Community/ComChatWithExpert";
 
 const CommunityNavigation = () => {
   const navigation = useNavigation();
@@ -42,6 +43,14 @@ const CommunityNavigation = () => {
       <Stack.Screen
         name="Doctor"
         component={DoctorScreen}
+        initialParams={{}}
+        options={{
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen
+        name="ChatWithExpert"
+        component={ComChatWithExpert}
         initialParams={{}}
         options={{
           headerShown: false,

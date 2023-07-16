@@ -52,6 +52,7 @@ const MotherIngredients = ({ route }) => {
         },
       })
       .then((response) => {
+        console.log(response.data);
         setSearchResults(response.data.ingredientsList);
         // console.log(response.data.ingredientsList[1].category);
       })

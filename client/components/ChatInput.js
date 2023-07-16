@@ -8,22 +8,27 @@ import {
 } from "react-native";
 import React, { useState } from "react";
 import HandleApi from "../Services/HandleApi";
-const ChatInput = ({messages, sendMessage}) => {
-    const [mesage, setMessage]= useState()
+const ChatInput = ({ messages, sendMessage }) => {
+  const [message, setMessage] = useState();
   return (
     <View style={styles.container}>
       <TextInput
         style={styles.TextInput}
         multiline={true}
         fontSize={16}
-        value={mesage}
+        value={message}
         onChangeText={(text) => setMessage(text)}
       ></TextInput>
       <TouchableOpacity
-        onPress={() => {sendMessage(mesage)
-            setMessage("")}}
+        onPress={() => {
+          sendMessage(message);
+          setMessage("");
+        }}
       >
-        <Image source={require("../assets/icon/IconSend.png")} style={styles.sendIcon}></Image>
+        <Image
+          source={require("../assets/icon/IconSend.png")}
+          style={styles.sendIcon}
+        ></Image>
       </TouchableOpacity>
     </View>
   );
@@ -33,10 +38,10 @@ export default ChatInput;
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor:"#FDFDFD",
+    backgroundColor: "#FDFDFD",
     flexDirection: "row",
-    alignItems:"center",
-    marginTop: 1,   
+    alignItems: "center",
+    marginTop: 1,
     paddingHorizontal: 25,
     paddingBottom: 17,
     paddingTop: 7,
@@ -52,16 +57,16 @@ const styles = StyleSheet.create({
   TextInput: {
     flex: 1,
     backgroundColor: "#F9F9F9",
-    paddingBottom:5,
-    paddingTop:5,
-    paddingHorizontal:10,
+    paddingBottom: 5,
+    paddingTop: 5,
+    paddingHorizontal: 10,
     borderRadius: 10,
-    borderColor:"rgba(26, 26, 26, 0.20)",
-    borderWidth:1
+    borderColor: "rgba(26, 26, 26, 0.20)",
+    borderWidth: 1,
   },
-  sendIcon:{
-      width:25,
-      height:25,
-      marginLeft:10
-  }
+  sendIcon: {
+    width: 25,
+    height: 25,
+    marginLeft: 10,
+  },
 });
