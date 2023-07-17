@@ -79,13 +79,13 @@ export default class USDAService {
           fdcId: data.foods[i].fdcId,
           foodCode: data.foods[i].foodCode,
           foods: data.foods[i].description,
+          description: data.foods[i].additionalDescriptions,
           category: category!.name,
           foodPortions: {
             unitName: "G",
             value: 100,
           },
           foodNutrients: data.foods[i].foodNutrients,
-          foodInput: data.foods[i].finalFoodInputFoods,
         };
         ingredientList.push(ingredient);
       }
