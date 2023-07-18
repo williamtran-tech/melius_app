@@ -100,7 +100,9 @@ export default class MealPlanService {
         throw new HttpException(400, "Meal plan already exists");
       }
 
-      return mealPlan[0];
+      const mealPlanTemplate = await this.generateDailyMealPlanTemplate(3, energy);
+
+      return [mealPlan, mealPlanTemplate];
     } catch (err) {
       throw err;
     }
@@ -127,10 +129,9 @@ export default class MealPlanService {
         },
       });
 
-      // Get the TDEE and RDA of the kid
-      const mealTarget = await this.healthService.getHealthRecord(
-        Number(kidId)
-      );
+
+      // Get nutrients target of the kid
+      const nutrientsTarget = await this.getMealPlan(kidId);
 
       // Get the available ingredients of the kid
       const availableIngredients = await AvailableIngredient.findAll({
@@ -146,16 +147,15 @@ export default class MealPlanService {
   
         // 1. The meal should match with the kid's allergies
         // A function to check the meal is match the constraints or not - Allergies, Nutrients Target, Available Ingredients
-        const [flag, message] = this.checkMealConstraints(suggestedMeals, kidAllergies, mealTarget, availableIngredients);
+        const [flag, message] = this.checkMealConstraints(suggestedMeals, kidAllergies, nutrientsTarget, availableIngredients);
         next = flag;
         count++;
         console.log("Next: ", next);
         console.log("Count: ", count);
       } while (!next) 
 
-      return [suggestedMeals, mealTarget, estimatedNutrition];
-      
-
+      return [suggestedMeals, nutrientsTarget, estimatedNutrition];
+    
       // Compare the nutrition of the meals and the kid's TDEE and RDA
 
       // If the nutrition of the meals is not enough, get another random meals
@@ -174,6 +174,7 @@ export default class MealPlanService {
         where: { kidId: kidId },
         attributes: ["id", "energyTarget", "proteinTarget", "fatTarget", "carbTarget", "updatedAt"],
       });
+      // This function should include the number of meals per day, the duration of the meal plan
 
       if (mealPlan === null) {
         throw new HttpException(404, "Meal plan not found - Create one if you haven't");
@@ -304,36 +305,88 @@ export default class MealPlanService {
         const containsAllergies = meal.ingredients.some((ingredient: string) => 
           allergiesArray.some((allergy: string) => ingredient.toLowerCase().includes(allergy))
         );
-
         if (containsAllergies) {
           flag = false;
           msg = "Meals contain ingredients that the kid is allergic to";
         }
 
-        // for (let element in allergies) {
-        //   console.log("Allergy", allergies[element].ingredient.name.split(",")[0].toLowerCase());
-        //   console.log("Meal", meal.ingredients);
-        //   console.log("Res", meal.ingredients.some((ingredient: any) => {
-        //     ingredient.includes(allergies[element].ingredient.name.split(",")[0].toLowerCase())
-        //   }));
-          
-        //   if (meal.ingredients.some((ingredient: any) => {
-        //     ingredient.includes(allergies[element].ingredient.name.split(",")[0].toLowerCase())
-        //   })) {
-        //     flag = false;
-        //     msg = "Meals contain ingredients that the kid is allergic to";
-        //   }
-        // }
+        // Check the meals nutrients target
 
-        // Check if the meal contains enough nutrients for the kid
-        // Check if the meal contains available ingredients
-        // if (meal.ingredients.some((ingredient: any) => availableIngredients.includes(ingredient))) {
-        //   flag = true;
-        // }
         });
       return [flag, msg];
     } catch (error) {
       throw error;
+    }
+  }
+
+  // Template of Daily Meal Plan
+  // 3 Main Meals per day
+  // Breakfast: 
+  // - 1 group of (Milk, yogurts): Milk and Milk Products - Sugars, Sweets, and Beverages (Corresponding to the USDA Food Patterns Subgroups 1, 9)
+  // - 1 group of (Grains, Carbs): Eggs, Dry beans, Nuts, Seeds - Grain Products (Corresponding to the USDA Food Patterns Subgroups 3, 4, 5)
+  // - 1 group of (Fruits): Fruits (Corresponding to the USDA Food Patterns Subgroups 6)
+
+  // Lunch:
+  // - 1 group of Proteins: Meat, Poultry, Fish and Mixtures - Eggs (Corresponding to the USDA Food Patterns Subgroups 2, 3)
+  // - 1 group of (Grains, Carbs): Eggs - Grain Products (Corresponding to the USDA Food Patterns Subgroups 5)
+  // - 1 group of (Vegetables): Vegetables (Corresponding to the USDA Food Patterns Subgroups 7, 8)
+  // - 1 group of Fruits: Fruits (Corresponding to the USDA Food Patterns Subgroups 6)
+
+  // Dinner:
+  // - 1 group of Proteins: Meat, Poultry, Fish and Mixtures - Eggs (Corresponding to the USDA Food Patterns Subgroups 2, 3)
+  // - 1 group of (Grains, Carbs): Grain Products (Corresponding to the USDA Food Patterns Subgroups 5)
+  // - 1 group of (Vegetables): Vegetables (Corresponding to the USDA Food Patterns Subgroups 7, 8)
+  // - 1 group of Fruits: Fruits (Corresponding to the USDA Food Patterns Subgroups 6)
+
+
+  // MEAL PLAN TEMPLATE
+  // 3 Meals per day
+  // - Breakfast: 30 - 35% of daily calories
+  // - Lunch: 35 - 40% of daily calories
+  // - Dinner: 25 - 35% of daily calories
+
+  // 4 Meals per day
+  // - 25-30% of daily calories for breakfast
+  // - 5-10% of daily calories for morning snack
+  // - 35-40% of daily calories for lunch
+  // - 25-30% of daily calories for dinner
+
+  // 5 Meals per day
+  // - 25-30% of daily calories for breakfast
+  // - 5-10% of daily calories for morning snack
+  // - 35-40% of daily calories for lunch
+  // - 5-10% of daily calories for an afternoon snack
+  // - 15-20% of daily calories for dinner  
+  
+  private async generateDailyMealPlanTemplate(numberOfMeals: number, calories: any) {
+    try {
+      let mealPlanTemplate = {};
+      switch(numberOfMeals) {
+        case 3:
+          {
+            const sBreakfast = Math.round(calories * 0.3);
+            const eBreakfast = Math.round(calories * 0.35);
+            const sLunch = Math.round(calories * 0.35);
+            const eLunch = Math.round(calories * 0.4);
+            const sDinner = Math.round(calories * 0.25);
+            const eDinner = Math.round(calories * 0.35);
+
+            mealPlanTemplate = {
+              breakfastRange: [sBreakfast, eBreakfast],
+              lunchRange: [sLunch, eLunch],
+              dinnerRange: [sDinner, eDinner],
+            }
+            break;
+          }
+        case 4:
+          {
+            break;
+          }
+        case 5:
+      }
+      return mealPlanTemplate;
+    } catch (err) {
+      throw err;
     }
   }
 }

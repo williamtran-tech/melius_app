@@ -235,11 +235,12 @@ export default class UserController extends BaseController {
         kidId: kidId,
       };
 
-      const mealPlan = await this.mealPlanService.createMealPlan(mealPlanDTO);
+      const [mealPlan, mealPlanTemplate] = await this.mealPlanService.createMealPlan(mealPlanDTO);
 
       res.status(200).json({
         msg: "Create meal plan successfully",
-        mealPlan: mealPlan
+        mealPlan: mealPlan,
+        mealPlanTemplate: mealPlanTemplate,
       });
     } catch (err) {
       next(err);
@@ -260,13 +261,12 @@ export default class UserController extends BaseController {
         duration: Number(req.body.duration),
       };
 
-      const [suggestedMeals, mealTarget, estimatedNutrition] =
-        await this.mealPlanService.createSuggestedMeals(mealPlanDTO);
+      const [suggestedMeals, nutrientsTarget, estimatedNutrition] = await this.mealPlanService.createSuggestedMeals(mealPlanDTO);
 
       res.status(200).json({
         msg: "Create suggested meals successfully",
         suggestedMeals: suggestedMeals,
-        mealTarget: mealTarget,
+        nutrientsTarget: nutrientsTarget,
         estimatedNutrition: estimatedNutrition,
       });
     } catch (error) {
