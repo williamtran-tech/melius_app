@@ -47,8 +47,6 @@ export default class IngredientController extends BaseController {
         pageSize: req.query.pageSize ? req.query.pageSize : 10,
       };
 
-      console.log(ingredientData);
-
       const ingredientsList = await this.ingredientService.getIngredientList(
         ingredientData
       );
