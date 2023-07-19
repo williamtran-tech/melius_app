@@ -9,15 +9,27 @@
       "resizeMode": "contain",
       "backgroundColor": "#ffff"
     },
-    "assetBundlePatterns": ["**/*"],
-    "plugins": ["expo-localization"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "plugins": [
+      "expo-localization"
+    ],
     "ios": {
       "infoPlist": {
         "NSFaceIDUsageDescription": "Authenticate with Face ID"
-      }
+      },
+      "supportsTablet": true
     },
     "android": {
-      "permissions": ["USE_BIOMETRIC"]
+      "permissions": [
+        "USE_BIOMETRIC"
+      ]
+    },
+    "extra": {
+      "eas": {
+        "projectId": "7ebea6ba-b750-400f-a2ea-7fe8dfd9b576"
+      }
     }
   },
   "name": "client"
