@@ -4,7 +4,9 @@ import HeaderText from "./HeaderText";
 import SubText from "./SubText";
 import { ScrollView } from "react-native-gesture-handler";
 
-const Menu = ({ navigation, selectedDate, setSelectedDate }) => {
+const Menu = ({ navigation, selectedDate, setSelectedDate, mealPlan }) => {
+  const { suggestedMeals } = mealPlan;
+  console.log(suggestedMeals);
   return (
     <View style={{ flex: 1 }}>
       <View style={{ flex: 3 }}>
@@ -33,33 +35,7 @@ const Menu = ({ navigation, selectedDate, setSelectedDate }) => {
           <View>
             <View style={styles.ItemContainer}>
               <SubText>7:30</SubText>
-              <SubText style={{ flex: 1 }}>
-                Noodles with tomato sauce with bruised meat
-              </SubText>
-              <TouchableOpacity style={styles.reciprebtn}>
-                <Image
-                  source={require("../assets/icon/Iconrecipe.png")}
-                  style={{ width: 15, height: 15 }}
-                ></Image>
-              </TouchableOpacity>
-            </View>
-            <View style={styles.ItemContainerActive}>
-              <SubText>7:30</SubText>
-              <SubText style={{ flex: 1 }}>
-                Noodles with tomato sauce with bruised meat
-              </SubText>
-              <TouchableOpacity style={styles.reciprebtn}>
-                <Image
-                  source={require("../assets/icon/Iconrecipe.png")}
-                  style={{ width: 15, height: 15 }}
-                ></Image>
-              </TouchableOpacity>
-            </View>
-            <View style={styles.ItemContainer}>
-              <SubText>7:30</SubText>
-              <SubText style={{ flex: 1 }}>
-                Noodles with tomato sauce with bruised meat
-              </SubText>
+              <SubText style={{ flex: 1 }}>{suggestedMeals[0].name}</SubText>
               <TouchableOpacity style={styles.reciprebtn}>
                 <Image
                   source={require("../assets/icon/Iconrecipe.png")}
@@ -81,33 +57,7 @@ const Menu = ({ navigation, selectedDate, setSelectedDate }) => {
           <View>
             <View style={styles.ItemContainer}>
               <SubText>7:30</SubText>
-              <SubText style={{ flex: 1 }}>
-                Noodles with tomato sauce with bruised meat
-              </SubText>
-              <TouchableOpacity style={styles.reciprebtn}>
-                <Image
-                  source={require("../assets/icon/Iconrecipe.png")}
-                  style={{ width: 15, height: 15 }}
-                ></Image>
-              </TouchableOpacity>
-            </View>
-            <View style={styles.ItemContainerActive}>
-              <SubText>7:30</SubText>
-              <SubText style={{ flex: 1 }}>
-                Noodles with tomato sauce with bruised meat
-              </SubText>
-              <TouchableOpacity style={styles.reciprebtn}>
-                <Image
-                  source={require("../assets/icon/Iconrecipe.png")}
-                  style={{ width: 15, height: 15 }}
-                ></Image>
-              </TouchableOpacity>
-            </View>
-            <View style={styles.ItemContainer}>
-              <SubText>7:30</SubText>
-              <SubText style={{ flex: 1 }}>
-                Noodles with tomato sauce with bruised meat
-              </SubText>
+              <SubText style={{ flex: 1 }}>{suggestedMeals[1].name}</SubText>
               <TouchableOpacity style={styles.reciprebtn}>
                 <Image
                   source={require("../assets/icon/Iconrecipe.png")}
@@ -129,33 +79,7 @@ const Menu = ({ navigation, selectedDate, setSelectedDate }) => {
           <View>
             <View style={styles.ItemContainer}>
               <SubText>7:30</SubText>
-              <SubText style={{ flex: 1 }}>
-                Noodles with tomato sauce with bruised meat
-              </SubText>
-              <TouchableOpacity style={styles.reciprebtn}>
-                <Image
-                  source={require("../assets/icon/Iconrecipe.png")}
-                  style={{ width: 15, height: 15 }}
-                ></Image>
-              </TouchableOpacity>
-            </View>
-            <View style={styles.ItemContainerActive}>
-              <SubText>7:30</SubText>
-              <SubText style={{ flex: 1 }}>
-                Noodles with tomato sauce with bruised meat
-              </SubText>
-              <TouchableOpacity style={styles.reciprebtn}>
-                <Image
-                  source={require("../assets/icon/Iconrecipe.png")}
-                  style={{ width: 15, height: 15 }}
-                ></Image>
-              </TouchableOpacity>
-            </View>
-            <View style={styles.ItemContainer}>
-              <SubText>7:30</SubText>
-              <SubText style={{ flex: 1 }}>
-                Noodles with tomato sauce with bruised meat
-              </SubText>
+              <SubText style={{ flex: 1 }}>{suggestedMeals[2].name}</SubText>
               <TouchableOpacity style={styles.reciprebtn}>
                 <Image
                   source={require("../assets/icon/Iconrecipe.png")}

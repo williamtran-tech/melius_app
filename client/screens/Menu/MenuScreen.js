@@ -1,5 +1,5 @@
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import React from "react";
+import React, { useEffect } from "react";
 import HeaderText from "../../components/HeaderText";
 import { useState } from "react";
 import MonthCalendar from "../../components/MonthCalendar";
@@ -7,14 +7,30 @@ import WeekCalendar from "../../components/WeekCalendar";
 import moment from "moment";
 import ProjectNutrition from "../../components/ProjectNutrition";
 import Menu from "../../components/Menu";
+import {
+  suggestMealPlan,
+  updateMealPlan,
+} from "../../Services/SuggestMealPlan";
 const MenuScreen = ({ route }) => {
   const [activeTab, setActiveTab] = useState("daily");
-  console.log(route.params);
+  // console.log(route.params);
   const { navigation, selectedDate, setSelectedDate } = route.params;
   console.log(selectedDate);
   const handleTabPress = (tab) => {
     setActiveTab(tab);
   };
+  const [mealPlan, setMealPlan] = useState();
+  useEffect(() => {
+    const fetchMealPlan = async () => {
+      try {
+        const mealPlanData = await updateMealPlan();
+        setMealPlan(mealPlanData);
+      } catch (error) {
+        console.error("Error fetching meal plan:", error);
+      }
+    };
+    fetchMealPlan();
+  }, []);
   const currentDate = moment().format("dddd, MMMM D");
   const renderCalendar = () => {
     switch (activeTab) {
@@ -115,6 +131,7 @@ const MenuScreen = ({ route }) => {
           navigation={navigation}
           selectedDate={selectedDate}
           setSelectedDate={setSelectedDate}
+          mealPlan={mealPlan}
         ></Menu>
       </View>
     </View>

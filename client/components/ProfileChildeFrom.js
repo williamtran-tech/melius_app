@@ -30,7 +30,6 @@ const ProfileChildeFrom = () => {
               (value) => {
                 console.log(value);
                 console.log("Stored Data:", JSON.parse(value));
-                navigation.replace("BottomNavigation");
               }
             );
 
@@ -39,6 +38,26 @@ const ProfileChildeFrom = () => {
           .catch((error) => {
             // setLoading(false);
             console.error(error);
+          });
+        HandleApi.serverGeneral
+          .post("v1/users/meal-plan", {
+            kidId: response.data.child.id,
+          })
+          .then((response) => {
+            AsyncStorage.setItem("mealPlan", JSON.stringify(response.data))
+              .then(() => {
+                const storedData = AsyncStorage.getItem("mealPlan").then(
+                  (value) => {
+                    console.log(value);
+                    console.log("Stored Data:", JSON.parse(value));
+                    navigation.replace("BottomNavigation");
+                  }
+                );
+              })
+              .catch((error) => {
+                // setLoading(false);
+                console.error(error);
+              });
           });
         // const test = JSON.stringify(response.data);
         // console.log(JSON.parse(test));
