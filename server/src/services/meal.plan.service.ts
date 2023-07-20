@@ -10,13 +10,18 @@ import { Recipe } from "../orm/models/recipe.model";
 import { Sequelize } from "sequelize-typescript";
 import { Health } from "../orm/models/health.model";
 import { MealPlan } from "../orm/models/meal.plan.model";
+import { PlanDetail } from "../orm/models/plan.detail.model";
 import HealthService from "./health.service";
+import PlanDetailService from "./plan.detail.service";
+import moment from "moment";
+
 // Recipes Describe Data of nutrition
 // 'calories','total fat (PDV)','sugar (PDV)','sodium (PDV)','protein (PDV)','saturated fat (PDV)','carbohydrates (PDV)']] = df[['calories','total fat (PDV)','sugar (PDV)','sodium (PDV)','protein (PDV)','saturated fat (PDV)','carbohydrates (PDV)'
 
 export default class MealPlanService {
   public USDAService = new USDAService();
   public healthService = new HealthService();
+  private planDetailService = new PlanDetailService();
 
   private CALORIES_BASE = 2000;
   private TOTAL_FAT_BASE = 78;
@@ -76,7 +81,8 @@ export default class MealPlanService {
       // Get the TDEE and RDA of the kid 
       const kidId = Number(MealPlanDTO.kidId);
       const kidHealth = await this.healthService.getHealthRecord(kidId);
-      const energy = kidHealth.energy;
+      const energy = Number(kidHealth.energy);
+      const numberOfMeals = MealPlanDTO.nMeal ? MealPlanDTO.nMeal : 3;
 
       // Calculate the recommended nutrients intake of the kid
       const nutrientsTarget = this.calculateNutrients(energy!);
@@ -100,9 +106,10 @@ export default class MealPlanService {
         throw new HttpException(400, "Meal plan already exists");
       }
 
-      const mealPlanTemplate = await this.generateDailyMealPlanTemplate(3, energy);
+      // Create the Meal Plan Details
+      const sessionNutrientRange = await this.planDetailService.generateMealPlanTemplate(numberOfMeals, energy, mealPlan[0].id, true);
 
-      return [mealPlan, mealPlanTemplate];
+      return [mealPlan, sessionNutrientRange];
     } catch (err) {
       throw err;
     }
@@ -173,6 +180,7 @@ export default class MealPlanService {
       const mealPlan = await MealPlan.findOne({
         where: { kidId: kidId },
         attributes: ["id", "energyTarget", "proteinTarget", "fatTarget", "carbTarget", "updatedAt"],
+        order: [["updatedAt", "DESC"]],
       });
       // This function should include the number of meals per day, the duration of the meal plan
 
@@ -180,32 +188,98 @@ export default class MealPlanService {
         throw new HttpException(404, "Meal plan not found - Create one if you haven't");
       }
 
-      return mealPlan;
+      const planDetails = await this.planDetailService.getPlanDetails(mealPlan.id);
+
+      return [mealPlan, planDetails];
     } catch (error) {
       throw error;
     } 
+  }
+
+  public async checkMealPlanExist(kidId: number) {
+    try {
+      const mealPlan = await MealPlan.findOne({
+        where: { kidId: kidId },
+        attributes: ["id"],
+        order: [["updatedAt", "DESC"]],
+      });
+
+      return mealPlan;
+    } catch (err) {
+      throw err;
+    }
   }
 
   public async updateMealPlan(kidId: number) {
     try {
       // Get updated health record 
       const kidHealth = await this.healthService.getHealthRecord(kidId);
-      const energy = kidHealth.energy;
+      const kidMealPlan = await MealPlan.findOne({
+        where: { kidId: kidId },
+        order: [["updatedAt", "DESC"]],
+        attributes: ["id"]
+      });
+      const planDetails = await this.planDetailService.getPlanDetails(kidMealPlan!.id);
+      const numberOfMealPlanDetails = planDetails.length;
+      const energy = Number(kidHealth.energy);
 
       // Calculate the recommended nutrients intake of the kid
       const nutrientsTarget = this.calculateNutrients(energy!);
-
-      // Update will contain 2 values, the first value is the number of rows updated, the second value is the updated mealPlan object
-      const mealPlan = await MealPlan.update({
-        energyTarget: energy,
-        proteinTarget: nutrientsTarget.proteinTarget,
-        fatTarget: nutrientsTarget.fatTarget,
-        carbTarget: nutrientsTarget.carbTarget,
-      }, {
-        where: { kidId: kidId },
-      });
+      let mealPlan: any;
+      if (moment().diff(kidHealth.updatedAt, "days") < 1) {
+        // Update the Meal Plan
+        // Update will contain 2 values, the first value is the number of rows updated, the second value is the updated mealPlan object
+        mealPlan = await MealPlan.update({
+          energyTarget: energy,
+          proteinTarget: nutrientsTarget.proteinTarget,
+          fatTarget: nutrientsTarget.fatTarget,
+          carbTarget: nutrientsTarget.carbTarget,
+        }, {
+          where: { kidId: kidId },
+        });
+        if (kidMealPlan !== null) {
+          // Update the meal plan details
+          const updatedMealPlanDetails = await this.planDetailService.generateMealPlanTemplate(numberOfMealPlanDetails, energy, kidMealPlan.id, false);
+        }
+      } else {
+        if (kidMealPlan) {
+          // Create new Meal Plan
+          mealPlan = await MealPlan.create({
+            energyTarget: energy,
+            proteinTarget: nutrientsTarget.proteinTarget,
+            fatTarget: nutrientsTarget.fatTarget,
+            carbTarget: nutrientsTarget.carbTarget,
+            kidId: kidId,
+          });
+          // Get the latest meal plan details
+          // Take the number of meal plan details
+  
+          // Create new meal plan details
+          const newMealPlanDetails = await this.planDetailService.generateMealPlanTemplate(numberOfMealPlanDetails, energy, mealPlan.id, true);
+        }
+      }
 
       return mealPlan;
+    } catch (error) {
+      console.log(error);
+      throw error;
+    }
+  }
+
+  public async deleteMealPlan(kidId: number) {
+    try {
+      // Delete the latest meal plan of the kid
+      const deletedMealPlan = await MealPlan.findOne({
+        where: { kidId: kidId},
+        order: [["updatedAt", "DESC"]],
+      })
+
+      let res;
+      if (deletedMealPlan) {
+        res = await deletedMealPlan.destroy();
+      }
+
+      return res;
     } catch (error) {
       throw error;
     }
@@ -316,77 +390,6 @@ export default class MealPlanService {
       return [flag, msg];
     } catch (error) {
       throw error;
-    }
-  }
-
-  // Template of Daily Meal Plan
-  // 3 Main Meals per day
-  // Breakfast: 
-  // - 1 group of (Milk, yogurts): Milk and Milk Products - Sugars, Sweets, and Beverages (Corresponding to the USDA Food Patterns Subgroups 1, 9)
-  // - 1 group of (Grains, Carbs): Eggs, Dry beans, Nuts, Seeds - Grain Products (Corresponding to the USDA Food Patterns Subgroups 3, 4, 5)
-  // - 1 group of (Fruits): Fruits (Corresponding to the USDA Food Patterns Subgroups 6)
-
-  // Lunch:
-  // - 1 group of Proteins: Meat, Poultry, Fish and Mixtures - Eggs (Corresponding to the USDA Food Patterns Subgroups 2, 3)
-  // - 1 group of (Grains, Carbs): Eggs - Grain Products (Corresponding to the USDA Food Patterns Subgroups 5)
-  // - 1 group of (Vegetables): Vegetables (Corresponding to the USDA Food Patterns Subgroups 7, 8)
-  // - 1 group of Fruits: Fruits (Corresponding to the USDA Food Patterns Subgroups 6)
-
-  // Dinner:
-  // - 1 group of Proteins: Meat, Poultry, Fish and Mixtures - Eggs (Corresponding to the USDA Food Patterns Subgroups 2, 3)
-  // - 1 group of (Grains, Carbs): Grain Products (Corresponding to the USDA Food Patterns Subgroups 5)
-  // - 1 group of (Vegetables): Vegetables (Corresponding to the USDA Food Patterns Subgroups 7, 8)
-  // - 1 group of Fruits: Fruits (Corresponding to the USDA Food Patterns Subgroups 6)
-
-
-  // MEAL PLAN TEMPLATE
-  // 3 Meals per day
-  // - Breakfast: 30 - 35% of daily calories
-  // - Lunch: 35 - 40% of daily calories
-  // - Dinner: 25 - 35% of daily calories
-
-  // 4 Meals per day
-  // - 25-30% of daily calories for breakfast
-  // - 5-10% of daily calories for morning snack
-  // - 35-40% of daily calories for lunch
-  // - 25-30% of daily calories for dinner
-
-  // 5 Meals per day
-  // - 25-30% of daily calories for breakfast
-  // - 5-10% of daily calories for morning snack
-  // - 35-40% of daily calories for lunch
-  // - 5-10% of daily calories for an afternoon snack
-  // - 15-20% of daily calories for dinner  
-  
-  private async generateDailyMealPlanTemplate(numberOfMeals: number, calories: any) {
-    try {
-      let mealPlanTemplate = {};
-      switch(numberOfMeals) {
-        case 3:
-          {
-            const sBreakfast = Math.round(calories * 0.3);
-            const eBreakfast = Math.round(calories * 0.35);
-            const sLunch = Math.round(calories * 0.35);
-            const eLunch = Math.round(calories * 0.4);
-            const sDinner = Math.round(calories * 0.25);
-            const eDinner = Math.round(calories * 0.35);
-
-            mealPlanTemplate = {
-              breakfastRange: [sBreakfast, eBreakfast],
-              lunchRange: [sLunch, eLunch],
-              dinnerRange: [sDinner, eDinner],
-            }
-            break;
-          }
-        case 4:
-          {
-            break;
-          }
-        case 5:
-      }
-      return mealPlanTemplate;
-    } catch (err) {
-      throw err;
     }
   }
 }

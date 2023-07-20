@@ -32,10 +32,30 @@ export default class UserService {
     }
   }
 
-  public async getKidProfiles(parentId: string) {
+  // Get All kids of parent
+  public async getKidProfiles(id: number) {
     try {
       const kidProfiles = await User.findAll({
-        where: { parentId: parentId },
+        where: { parentId: id},
+        attributes: ["id", "fullName", "dob", "gender", "updatedAt"],
+        include: {
+          model: Health,
+          limit: 1,
+          attributes: ["id", "weight", "height", "bmi", "tdee", "updatedAt"],
+          order: [["createdAt", "DESC"]],
+        },
+      });
+      return kidProfiles;
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  // Get ONE kid profile
+  public async getKidProfile(kidId: number) {
+    try {
+      const kidProfiles = await User.findAll({
+        where: { id: kidId},
         attributes: ["id", "fullName", "dob", "gender", "updatedAt"],
         include: {
           model: Health,

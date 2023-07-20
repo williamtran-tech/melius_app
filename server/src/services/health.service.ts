@@ -98,9 +98,7 @@ export default class HealthService {
       const tdee = this.calculateTDEE(tdeeParams);
       const RDA = this.rdaCalculator(kidData.weight);
 
-      if (age > 2) {
-        BMI = this.calculateBMI(kidData);
-      }
+      BMI = age > 2 ? this.calculateBMI(kidData) : null;
 
       const healthRecord = await Health.create({
         weight: kidData.weight,
@@ -139,12 +137,10 @@ export default class HealthService {
       const RDA = this.rdaCalculator(kidData.weight);
       let healthRecord = {};
 
-      if (age > 2) {
-        BMI = this.calculateBMI(kidData);
-      }
+      BMI = age > 2 ? this.calculateBMI(kidData) : null;
 
       if (moment().diff(latestHealthRecord!.createdAt, "days") > 1) {
-        // create new health record
+        // Create new health record
         healthRecord = await Health.create({
           weight: kidData.weight,
           height: kidData.height,
@@ -154,8 +150,8 @@ export default class HealthService {
           rda: RDA,
         });
       } else {
-        // update health record 
-        // update return the number of rows affected
+        // Update health record 
+        // Update return the number of rows affected
         let [rowAffected] = await Health.update(
           {
             weight: kidData.weight,
@@ -171,7 +167,6 @@ export default class HealthService {
             },
           }
         );
-
         healthRecord = rowAffected;
       }
 
@@ -185,7 +180,7 @@ export default class HealthService {
     try {
       const heathRecord = await Health.findOne({
         where: { kidId: kidId },
-        attributes: ["tdee", "bmi", "rda"],
+        attributes: ["tdee", "bmi", "rda", "updatedAt"],
         order: [["createdAt", "DESC"]],
       });
 
@@ -193,6 +188,7 @@ export default class HealthService {
         energy: heathRecord?.tdee,
         bmi: heathRecord?.bmi,
         rda: heathRecord?.rda,
+        updatedAt: heathRecord?.updatedAt,
       };
 
       if (heathRecord === null) {

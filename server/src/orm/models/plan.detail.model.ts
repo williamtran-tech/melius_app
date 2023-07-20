@@ -46,6 +46,12 @@ export class PlanDetail extends Model {
   })
   type!: string;
 
+  @Column({
+    type: DataType.JSON,
+    allowNull: true,
+  })
+  nutritionRange!: number[];
+
   @ForeignKey(() => MealPlan)
   @Column({
     type: DataType.INTEGER,
@@ -56,7 +62,7 @@ export class PlanDetail extends Model {
   @ForeignKey(() => Recipe)
   @Column({
     type: DataType.INTEGER,
-    allowNull: false,
+    allowNull: true,
   })
   recipeId!: number;
 

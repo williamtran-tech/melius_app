@@ -68,3 +68,19 @@ const obj = JSON.parse(str); // This will throw an array of string
 const str = '["something", "something"]';
 const obj = JSON.parse(str); // This will throw an error because of ' instead of "
 ```
+
+## 4.2. Using Array in Sequelize MySQL
+The Array data type docs says this is limited to Postgres only
+ 
+**Solution**: Using JSON DataType for this specific field
+
+## 4.3. The DELETE method of HTTP protocol - Data Passing
+Several answers question describes bizarre behaviour when providing a body for a HTTP DELETE request
+
+Evidence: 
+- unable to send a DELETE with a body in Android
+- Tomcat, Weblogic denies Delete requests that has a payload
+
+Due to the above I decided not to use a body for my DELETE request, this seemed like the safest choice.
+
+*Ref: https://stackoverflow.com/questions/299628/is-an-entity-body-allowed-for-an-http-delete-request*
