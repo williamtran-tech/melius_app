@@ -22,6 +22,7 @@ export const suggestMealPlan = async () => {
         console.log("store suggest meal successfully");
       });
       console.log(response.data.nutrientsTarget.updatedAt);
+      console.log(response.data);
       return response.data;
     }
   } catch (error) {
@@ -36,9 +37,9 @@ export const updateMealPlan = async () => {
     );
     const hoursRange = duration.asHours();
     console.log(hoursRange);
-    if (hoursRange > 24) {
+    if (hoursRange < 24) {
       const mealPlanData = await suggestMealPlan();
-      //   console.log("New Meal Plan:", mealPlanData);
+      console.log("New Meal Plan:", mealPlanData);
       return mealPlanData;
     } else {
       const mealPlanData = JSON.parse(value);

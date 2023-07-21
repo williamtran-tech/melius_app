@@ -11,24 +11,32 @@ import {
   suggestMealPlan,
   updateMealPlan,
 } from "../../Services/SuggestMealPlan";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 const MenuScreen = ({ route }) => {
   const [activeTab, setActiveTab] = useState("daily");
+  const [targetPlan, setTargetPlan] = useState();
   // console.log(route.params);
   const { navigation, selectedDate, setSelectedDate } = route.params;
   console.log(selectedDate);
   const handleTabPress = (tab) => {
     setActiveTab(tab);
   };
+
   const [mealPlan, setMealPlan] = useState();
+  const fetchMealPlan = async () => {
+    try {
+      const mealPlanData = await updateMealPlan();
+
+      setMealPlan(mealPlanData);
+    } catch (error) {
+      console.error("Error fetching meal plan:", error);
+    }
+  };
   useEffect(() => {
-    const fetchMealPlan = async () => {
-      try {
-        const mealPlanData = await updateMealPlan();
-        setMealPlan(mealPlanData);
-      } catch (error) {
-        console.error("Error fetching meal plan:", error);
-      }
-    };
+    AsyncStorage.getItem("mealPlan").then((value) => {
+      console.log("targettt:", JSON.parse(value));
+      setTargetPlan(JSON.parse(value).mealPlan);
+    });
     fetchMealPlan();
   }, []);
   const currentDate = moment().format("dddd, MMMM D");
@@ -48,6 +56,7 @@ const MenuScreen = ({ route }) => {
           <WeekCalendar
             selectedDate={selectedDate}
             setSelectedDate={setSelectedDate}
+            fetchMealPlan={fetchMealPlan}
           ></WeekCalendar>
         );
       case "month":
@@ -124,15 +133,17 @@ const MenuScreen = ({ route }) => {
         <View style={{ paddingHorizontal: 25 }}>{renderCalendar()}</View>
       </View>
       <View style={{ paddingHorizontal: 25, marginTop: 10 }}>
-        <ProjectNutrition></ProjectNutrition>
+        <ProjectNutrition targetPlan={targetPlan}></ProjectNutrition>
       </View>
       <View style={{ marginTop: 20, flex: 1 }}>
-        <Menu
-          navigation={navigation}
-          selectedDate={selectedDate}
-          setSelectedDate={setSelectedDate}
-          mealPlan={mealPlan}
-        ></Menu>
+        {mealPlan && (
+          <Menu
+            navigation={navigation}
+            selectedDate={selectedDate}
+            setSelectedDate={setSelectedDate}
+            mealPlan={mealPlan}
+          ></Menu>
+        )}
       </View>
     </View>
   );

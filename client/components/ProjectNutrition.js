@@ -2,7 +2,8 @@ import { StyleSheet, Text, View } from "react-native";
 import React from "react";
 import SubText from "./SubText";
 
-const ProjectNutrition = () => {
+const ProjectNutrition = ({ targetPlan }) => {
+  console.log("target:", targetPlan);
   return (
     <View style={styles.container}>
       <SubText style={{ color: "#FF9600", fontSize: 12 }}>
@@ -10,7 +11,9 @@ const ProjectNutrition = () => {
       </SubText>
       <View style={styles.infContainer}>
         <View>
-          <SubText style={styles.inf}>16,4g</SubText>
+          <SubText style={styles.inf}>
+            {targetPlan && targetPlan.carbTarget}g
+          </SubText>
           <SubText style={styles.title}>Carbs</SubText>
         </View>
         <View>

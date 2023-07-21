@@ -4,7 +4,7 @@ import * as Font from "expo-font";
 import CalendarStrip from "react-native-calendar-strip";
 import moment from "moment";
 
-const WeekCalendar = ({ selectedDate, setSelectedDate }) => {
+const WeekCalendar = ({ selectedDate, setSelectedDate, fetchMealPlan }) => {
   const [fontLoaded, setFontLoaded] = useState(false);
   const formatDate = moment(selectedDate, "DD-MM-YYYY");
   useEffect(() => {
@@ -53,6 +53,7 @@ const WeekCalendar = ({ selectedDate, setSelectedDate }) => {
       onDateSelected={(value) => {
         console.log(moment(value).format("DD-MM-YYYY"));
         setSelectedDate(moment(value).format("DD-MM-YYYY"));
+        fetchMealPlan();
       }}
     />
   );
