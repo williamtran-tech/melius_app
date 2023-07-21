@@ -8,6 +8,8 @@ import HealthService from "../../services/health.service";
 import KidHealthDTO from "../../DTOs/Kid/KidHealthData.DTO";
 import IngredientService from "../../services/ingredient.service";
 import MealPlanService from "../../services/meal.plan.service";
+import PlanDetailService from "../../services/plan.detail.service";
+import MealPlanDTO from "../../DTOs/MealPlan/MealPlan.DTO";
 export default class UserController extends BaseController {
   constructor() {
     super();
@@ -20,6 +22,8 @@ export default class UserController extends BaseController {
   public ingredientService = new IngredientService();
 
   public mealPlanService = new MealPlanService();
+
+  public planDetailService = new PlanDetailService();
 
   public getUserProfile = async (
     req: express.Request,
@@ -85,13 +89,15 @@ export default class UserController extends BaseController {
     }
   };
 
+  // Update Kid Profile - Health Status
   public updateChildHealth = async (
     req: express.Request,
     res: express.Response,
     next: NextFunction
   ) => {
     try {
-      const kidInfo = await this.userService.getKidProfiles(req.userData.id);
+      const kidId = Number(req.body.kidId);
+      const kidInfo = await this.userService.getKidProfile(kidId);
       const kidData: KidHealthDTO = {
         kidId: kidInfo[0].id,
         weight: req.body.weight,
@@ -101,10 +107,12 @@ export default class UserController extends BaseController {
         gender: kidInfo[0].gender,
       };
 
+      // Update Health Record
       const kidHealth = await this.healthService.updateHealthRecord(kidData);
 
       let updatedMealPlan;
-      if (kidHealth) {
+      // Check if the kid has a meal plan
+      if (await this.mealPlanService.checkMealPlanExist(kidId)) {
         // Update the Meal Plan of the kid
         [updatedMealPlan] = await this.mealPlanService.updateMealPlan(kidData.kidId);
       }
@@ -124,9 +132,10 @@ export default class UserController extends BaseController {
     next: NextFunction
   ) => {
     try {
-      const userId = req.userData.id;
+      const kidId = Number(req.query.kidId);
+      console.log("Kid ID: ", kidId);
 
-      const kidProfiles = await this.userService.getKidProfiles(userId);
+      const kidProfiles = await this.userService.getKidProfile(kidId);
       res.status(200).json({
         msg: "Get child profile successfully",
         kidProfiles: kidProfiles,
@@ -230,9 +239,11 @@ export default class UserController extends BaseController {
   public createMealPlan = async (req: express.Request, res: express.Response, next: express.NextFunction) => {
     try {
       const kidId = Number(req.body.kidId);
-      // Refactor this DTO later
-      const mealPlanDTO = {
+      const numberOfMeals = Number(req.body.nMeal);
+      
+      const mealPlanDTO: MealPlanDTO = {
         kidId: kidId,
+        nMeal: numberOfMeals,
       };
 
       const [mealPlan, mealPlanTemplate] = await this.mealPlanService.createMealPlan(mealPlanDTO);
@@ -277,11 +288,31 @@ export default class UserController extends BaseController {
   public getMealPlan = async (req: express.Request, res: express.Response, next: express.NextFunction) => {
     try {
       const kidId = Number(req.query.kidId);
-      const mealPlan = await this.mealPlanService.getMealPlan(kidId);
+      const [mealPlan, planDetails] = await this.mealPlanService.getMealPlan(kidId);
 
       res.status(200).json({
         msg: "Get meal plan successfully",
-        mealPlan: mealPlan
+        mealPlan: mealPlan,
+        planDetails: planDetails,
+      });
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  public deleteMealPlan = async (req: express.Request, res: express.Response, next: express.NextFunction) => {
+    try {
+      const kidId = Number(req.query.kidId);
+
+      const deletedMealPlan = await this.mealPlanService.deleteMealPlan(kidId);
+      console.log(deletedMealPlan);
+      if (deletedMealPlan === undefined) {
+        throw new HttpException(404, "Meal plan not found");
+      }
+
+      res.status(200).json({
+        msg: "Delete meal plan successfully",
+        deletedMealPlan: deletedMealPlan,
       });
     } catch (err) {
       next(err);

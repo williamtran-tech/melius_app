@@ -5,6 +5,7 @@ import CreateUserDTO from "../../DTOs/User/UserCreate.DTO";
 import authMiddleware from "../../middlewares/auth.middleware";
 import checkKidIDMiddleware from "../../middlewares/checkKidUser.middleware";
 import { authorize } from "../../middlewares/authorize.middleware";
+import MealPlanDTO from "../../DTOs/MealPlan/MealPlan.DTO";
 
 export const userRouter = Router();
 const userController = new UserController();
@@ -15,6 +16,7 @@ userRouter.get(
   authorize(["User"]),
   userController.getUserProfile
 );
+userRouter.get("/profile/kid", authMiddleware,authorize(["User"]),checkKidIDMiddleware, userController.getKidProfile);
 userRouter.post("/create-child", authMiddleware, userController.createChild);
 userRouter.patch(
   "/child-health",
@@ -58,6 +60,8 @@ userRouter.post(
   authorize(["User"]),checkKidIDMiddleware,
   userController.createSuggestedMeals
 );
+
+userRouter.delete("/meal-plan", authMiddleware, authorize(["User"]),checkKidIDMiddleware,userController.deleteMealPlan);
 
 // userRouter.post(
 //   "/",
