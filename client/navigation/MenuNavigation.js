@@ -10,6 +10,7 @@ import HeaderText from "../components/HeaderText";
 import NewMenuScreen from "../screens/Menu/NewMenuScreen";
 import moment from "moment";
 import MotherIngredients from "../screens/Menu/MotherIngredients";
+import ARScan from "../screens/Menu/ARScan";
 const MenuNavigation = () => {
   const navigation = useNavigation();
   const [selectedDate, setSelectedDate] = useState(
@@ -60,6 +61,18 @@ const MenuNavigation = () => {
       <Stack.Screen
         name="MotherIngredients"
         component={MotherIngredients}
+        initialParams={{
+          navigation: navigation,
+          selectedDate: selectedDate,
+          setSelectedDate: setSelectedDate,
+        }}
+        options={{
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen
+        name="ARScan"
+        component={ARScan}
         initialParams={{
           navigation: navigation,
           selectedDate: selectedDate,

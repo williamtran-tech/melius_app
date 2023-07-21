@@ -37,7 +37,7 @@ export const updateMealPlan = async () => {
     );
     const hoursRange = duration.asHours();
     console.log(hoursRange);
-    if (hoursRange < 24) {
+    if (hoursRange > 24) {
       const mealPlanData = await suggestMealPlan();
       console.log("New Meal Plan:", mealPlanData);
       return mealPlanData;

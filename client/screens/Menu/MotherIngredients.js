@@ -80,7 +80,20 @@ const MotherIngredients = ({ route }) => {
             ScreenName="Mother's Ingredients"
             navigationName="MenuScreen"
             navigation={navigation}
-            action={<View style={styles.container}></View>}
+            action={
+              <TouchableOpacity
+                style={styles.container}
+                onPress={() => navigation.navigate("ARScan")}
+              >
+                <SubText style={{ fontSize: 14, color: "#FDFDFD" }}>
+                  AR Scan
+                </SubText>
+                <Image
+                  source={require("../../assets/icon/IconCamera.png")}
+                  style={{ height: 20, width: 20 }}
+                ></Image>
+              </TouchableOpacity>
+            }
           ></NavigatorMenu>
         </View>
       )}
@@ -135,6 +148,16 @@ const MotherIngredients = ({ route }) => {
 export default MotherIngredients;
 
 const styles = StyleSheet.create({
+  container: {
+    backgroundColor: "#518B1A",
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    gap: 10,
+    borderRadius: 16,
+  },
   bottomSheetContent: {},
   bottomSheetHeader: {
     flexDirection: "row",
