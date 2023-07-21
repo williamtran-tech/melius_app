@@ -239,6 +239,7 @@ export default class PlanDetailService {
     // - 15-20% of daily calories for dinner  
     public async generateMealPlanTemplate(numberOfMeals: number, calories: number, mealPlanId: number, isNew: boolean) {
         try {
+            console.log("Generate Meal Plan Template");
             let sessionNutrientRange = {};
             let mealPlanDetails = [];
             switch(numberOfMeals) {
@@ -391,6 +392,7 @@ export default class PlanDetailService {
                 }
             }
             if (isNew) {
+                console.log("Meal Plan Details: ", mealPlanDetails);
                 await this.createPlanDetails(mealPlanDetails);
             } else {
                 await this.updatePlanDetails(mealPlanId, mealPlanDetails);
