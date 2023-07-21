@@ -1,12 +1,17 @@
 import { StyleSheet, Text, View, TouchableOpacity, Image } from "react-native";
-import React from "react";
+import React, { useState } from "react";
 import HeaderText from "./HeaderText";
 import SubText from "./SubText";
 import IconWithText from "./IconWithText";
 import HealthIndex from "./HealthIndex";
 import moment from "moment";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
-const ChildrenInf = ({ childInf }) => {
+const ChildrenInf = () => {
+  const [childInf, setChildInf] = useState();
+  AsyncStorage.getItem("childrenInf").then((value) => {
+    setChildInf(JSON.parse(value));
+  });
   return (
     <View style={{ flex: 1 }}>
       {childInf && (
@@ -43,7 +48,7 @@ const ChildrenInf = ({ childInf }) => {
               ></IconWithText>
             </View>
             <View style={styles.row2}>
-              <HealthIndex healthRecord={childInf.healthRecord}></HealthIndex>
+              <HealthIndex></HealthIndex>
             </View>
           </View>
         </>

@@ -1,10 +1,15 @@
-import React, { useEffect } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import React, { useEffect, useState } from "react";
 import { StyleSheet, Text, View, TouchableOpacity, Image } from "react-native";
 import SubText from "./SubText";
-const HealthIndex = ({ healthRecord }) => {
+const HealthIndex = () => {
+  const [healthRecord, setHealthRecord] = useState();
   useEffect(() => {
-    console.log(healthRecord);
+    AsyncStorage.getItem("childrenInf").then((value) => {
+      setHealthRecord(JSON.parse(value).healthRecord);
+    });
   }, []);
+
   return (
     <View style={styles.inforItemContainer}>
       <SubText style={styles.lastupdatetext}>Last updated 15/04/2023</SubText>

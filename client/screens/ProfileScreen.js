@@ -8,10 +8,10 @@ import Setting from "../components/Setting";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const ProfileScreen = ({ navigation }) => {
-  const [childInf, setChildInf] = useState();
-  AsyncStorage.getItem("childrenInf").then((value) => {
-    setChildInf(JSON.parse(value));
-  });
+  // const [childInf, setChildInf] = useState();
+  // AsyncStorage.getItem("childrenInf").then((value) => {
+  //   setChildInf(JSON.parse(value));
+  // });
   return (
     <View style={{ flex: 1, backgroundColor: "#FDFDFD" }}>
       <View style={{ flex: 2 }}>
@@ -19,7 +19,7 @@ const ProfileScreen = ({ navigation }) => {
       </View>
       <View style={{ flex: 4, paddingHorizontal: 25 }}>
         <PersonalInf></PersonalInf>
-        <ChildrenInf childInf={childInf}></ChildrenInf>
+        <ChildrenInf></ChildrenInf>
       </View>
       <View style={{ flex: 2 }}>
         <Setting></Setting>

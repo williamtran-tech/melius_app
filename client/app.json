@@ -9,22 +9,17 @@
       "resizeMode": "contain",
       "backgroundColor": "#ffff"
     },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
-    "plugins": [
-      "expo-localization"
-    ],
+    "assetBundlePatterns": ["**/*"],
+    "plugins": ["expo-localization", "expo-camera"],
     "ios": {
       "infoPlist": {
-        "NSFaceIDUsageDescription": "Authenticate with Face ID"
+        "NSFaceIDUsageDescription": "Authenticate with Face ID",
+        "NSCameraUsageDescription": "Allow MeliusChat to access your camera."
       },
       "supportsTablet": true
     },
     "android": {
-      "permissions": [
-        "USE_BIOMETRIC"
-      ]
+      "permissions": ["USE_BIOMETRIC", "CAMERA"]
     },
     "extra": {
       "eas": {
