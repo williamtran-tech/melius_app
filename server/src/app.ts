@@ -4,7 +4,6 @@ import * as cors from "cors";
 import helmet from "helmet";
 import session from "express-session";
 import { routes } from "./v1/routes/index";
-import { connectDB } from "./../src/configs/db.config";
 import passport from "passport";
 import errorMiddleware from "./middlewares/error.middleware";
 import * as cookieParser from "cookie-parser";
@@ -20,7 +19,6 @@ class App {
     this.app = express();
     this.port = port;
 
-    this.connectMongoDB();
     this.initializeMiddlewares();
     this.initializeRoutes();
     this.initializeErrorHandling();
@@ -52,10 +50,6 @@ class App {
 
   private initializeErrorHandling() {
     this.app.use(errorMiddleware);
-  }
-
-  private connectMongoDB() {
-    connectDB();
   }
 
   private connectMySQL() {

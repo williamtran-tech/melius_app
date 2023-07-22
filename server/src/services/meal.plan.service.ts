@@ -1,19 +1,13 @@
-import KidHealthDTO from "../DTOs/Kid/KidHealthData.DTO";
 import HttpException from "../exceptions/HttpException";
 import { Ingredient } from "../orm/models/ingredient.model";
-import { IngreCategory } from "../orm/models/ingre.category.model";
 import USDAService from "./usda.service";
 import { Allergy } from "../orm/models/allergy.model";
-import { User } from "../orm/models/user.model";
 import { AvailableIngredient } from "../orm/models/available.ingredient.model";
 import { Recipe } from "../orm/models/recipe.model";
 import { Sequelize } from "sequelize-typescript";
-import { Health } from "../orm/models/health.model";
 import { MealPlan } from "../orm/models/meal.plan.model";
-import { PlanDetail } from "../orm/models/plan.detail.model";
 import HealthService from "./health.service";
 import PlanDetailService from "./plan.detail.service";
-import moment from "moment";
 
 // Recipes Describe Data of nutrition
 // 'calories','total fat (PDV)','sugar (PDV)','sodium (PDV)','protein (PDV)','saturated fat (PDV)','carbohydrates (PDV)']] = df[['calories','total fat (PDV)','sugar (PDV)','sodium (PDV)','protein (PDV)','saturated fat (PDV)','carbohydrates (PDV)'
@@ -109,7 +103,7 @@ export default class MealPlanService {
       // Create the Meal Plan Details
       const sessionNutrientRange = await this.planDetailService.generateMealPlanTemplate(numberOfMeals, energy, mealPlan[0].id, true);
 
-      return [mealPlan, sessionNutrientRange];
+      return [mealPlan[0], sessionNutrientRange];
     } catch (err) {
       throw err;
     }
@@ -210,25 +204,38 @@ export default class MealPlanService {
     }
   }
 
-  public async updateMealPlan(kidId: number) {
+  public async updateMealPlan(kidId: number, isNew: boolean) {
     try {
-      // Get updated health record 
+      // Get updated [latest] health record 
       const kidHealth = await this.healthService.getHealthRecord(kidId);
-      const kidMealPlan = await MealPlan.findOne({
+      console.log("Is new", isNew)
+
+      // Kid Meal plan ID has 2 cases occur: 
+      // 1. The Kid Health is updated in the same day as the latest meal plan -> Update the meal plan
+      // 2. The Kid Health is created in the day as the latest meal plan -> Create new meal plan -> Create new meal plan details
+
+      // 1. Controller run update health first -> update meal Plan
+      // 2. if Health updated Date is not the same as the latest meal plan -> create new meal plan -> create new meal plan details
+      let currMealPlan = await MealPlan.findOne({
         where: { kidId: kidId },
         order: [["updatedAt", "DESC"]],
-        attributes: ["id"]
+        attributes: ["id"],
       });
-      const planDetails = await this.planDetailService.getPlanDetails(kidMealPlan!.id);
-      const numberOfMealPlanDetails = planDetails.length;
+      let mealPlanId = currMealPlan!.id;
+
+      // Get the meals number per day of the old meal plan
+      const planDetails = await this.planDetailService.getPlanDetails(mealPlanId);
+      const nMeals = planDetails.length;
       const energy = Number(kidHealth.energy);
 
       // Calculate the recommended nutrients intake of the kid
       const nutrientsTarget = this.calculateNutrients(energy!);
       let mealPlan: any;
-      if (moment().diff(kidHealth.updatedAt, "days") < 1) {
+     
+      if (!isNew) {
         // Update the Meal Plan
         // Update will contain 2 values, the first value is the number of rows updated, the second value is the updated mealPlan object
+        console.log("[MealPlan] Update Meal Plan");
         mealPlan = await MealPlan.update({
           energyTarget: energy,
           proteinTarget: nutrientsTarget.proteinTarget,
@@ -237,12 +244,11 @@ export default class MealPlanService {
         }, {
           where: { kidId: kidId },
         });
-        if (kidMealPlan !== null) {
+        if (mealPlanId !== null) {
           // Update the meal plan details
-          const updatedMealPlanDetails = await this.planDetailService.generateMealPlanTemplate(numberOfMealPlanDetails, energy, kidMealPlan.id, false);
+          const updatedMealPlanDetails = await this.planDetailService.generateMealPlanTemplate(nMeals, energy, mealPlanId, false);
         }
       } else {
-        if (kidMealPlan) {
           // Create new Meal Plan
           mealPlan = await MealPlan.create({
             energyTarget: energy,
@@ -253,15 +259,14 @@ export default class MealPlanService {
           });
           // Get the latest meal plan details
           // Take the number of meal plan details
-  
-          // Create new meal plan details
-          const newMealPlanDetails = await this.planDetailService.generateMealPlanTemplate(numberOfMealPlanDetails, energy, mealPlan.id, true);
-        }
-      }
 
+          console.log("New Meal Plan: ", mealPlan.id)
+          // Create new meal plan details
+          // Create the Meal Plan Details
+          const sessionNutrientRange = await this.planDetailService.generateMealPlanTemplate(nMeals, energy, mealPlan.id, true);
+      }
       return mealPlan;
     } catch (error) {
-      console.log(error);
       throw error;
     }
   }

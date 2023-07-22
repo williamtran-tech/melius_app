@@ -115,11 +115,12 @@ export default class HealthService {
     }
   }
 
-  public async updateHealthRecord(kidData: KidHealthDTO) {
+  public async updateHealthRecord(kidData: KidHealthDTO): Promise<any> {
     try {
       const ageInMonth = this.ageCalculator(kidData.DOB, "months");
       const age = this.ageCalculator(kidData.DOB, "years");
       let BMI;
+      let isNew = false;
       const latestHealthRecord = await Health.findOne({
         where: { kidId: kidData.kidId },
         order: [["createdAt", "DESC"]],
@@ -139,7 +140,8 @@ export default class HealthService {
 
       BMI = age > 2 ? this.calculateBMI(kidData) : null;
 
-      if (moment().diff(latestHealthRecord!.createdAt, "days") > 1) {
+      let updatedDate = latestHealthRecord!.createdAt.toJSON().slice(0, 10);
+      if (moment().diff(updatedDate, "days") >= 1) {
         // Create new health record
         healthRecord = await Health.create({
           weight: kidData.weight,
@@ -149,6 +151,8 @@ export default class HealthService {
           kidId: kidData.kidId,
           rda: RDA,
         });
+
+        isNew = true;
       } else {
         // Update health record 
         // Update return the number of rows affected
@@ -170,7 +174,7 @@ export default class HealthService {
         healthRecord = rowAffected;
       }
 
-      return healthRecord;
+      return [healthRecord, isNew];
     } catch (err) {
       throw err;
     }
@@ -181,7 +185,7 @@ export default class HealthService {
       const heathRecord = await Health.findOne({
         where: { kidId: kidId },
         attributes: ["tdee", "bmi", "rda", "updatedAt"],
-        order: [["createdAt", "DESC"]],
+        order: [["updatedAt", "DESC"]],
       });
 
       const responseData = {

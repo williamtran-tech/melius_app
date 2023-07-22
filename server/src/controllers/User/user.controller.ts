@@ -108,13 +108,13 @@ export default class UserController extends BaseController {
       };
 
       // Update Health Record
-      const kidHealth = await this.healthService.updateHealthRecord(kidData);
+      const [kidHealth, isNew] = await this.healthService.updateHealthRecord(kidData);
 
       let updatedMealPlan;
       // Check if the kid has a meal plan
       if (await this.mealPlanService.checkMealPlanExist(kidId)) {
         // Update the Meal Plan of the kid
-        [updatedMealPlan] = await this.mealPlanService.updateMealPlan(kidData.kidId);
+        updatedMealPlan = await this.mealPlanService.updateMealPlan(kidData.kidId, isNew);
       }
       res.status(200).json({
         msg: "Update kid health successfully",
@@ -133,7 +133,6 @@ export default class UserController extends BaseController {
   ) => {
     try {
       const kidId = Number(req.query.kidId);
-      console.log("Kid ID: ", kidId);
 
       const kidProfiles = await this.userService.getKidProfile(kidId);
       res.status(200).json({
