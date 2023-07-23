@@ -266,6 +266,7 @@ export default class UserController extends BaseController {
       const kidId = Number(req.body.kidId);
       // Refactor this DTO later
       const mealPlanDTO = {
+        userId: Number(req.userData.id),
         kidId: kidId,
         nMeal: Number(req.body.nMeal),
         duration: Number(req.body.duration),
@@ -276,7 +277,10 @@ export default class UserController extends BaseController {
       res.status(200).json({
         msg: "Create suggested meals successfully",
         suggestedMeals: suggestedMeals,
-        nutrientsTarget: nutrientsTarget,
+        nutrientsTarget: {
+          totalNutrition: nutrientsTarget[0],
+          sessionNutrition: nutrientsTarget[1],
+        },
         estimatedNutrition: estimatedNutrition,
       });
     } catch (error) {

@@ -10,6 +10,7 @@ import MealPlanDTO from "../../DTOs/MealPlan/MealPlan.DTO";
 export const userRouter = Router();
 const userController = new UserController();
 
+// Profile User
 userRouter.get(
   "/profile",
   authMiddleware,

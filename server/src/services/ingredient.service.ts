@@ -14,6 +14,7 @@ export default class IngredientService {
     try {
       const ingredient = await Ingredient.findOne({
         attributes: [
+          "id",
           "fdcId",
           "category.name" as "category",
           "name",
@@ -38,6 +39,7 @@ export default class IngredientService {
             name: ingredientNutrition.foods,
           },
           attributes: [
+            "id",
             "fdcId",
             "category.name" as "category",
             "name",
@@ -71,6 +73,7 @@ export default class IngredientService {
           };
         } else {
           responseData = {
+            id: ingredient?.id,
             fdcId: ingredientNutrition.fdcId,
             name: ingredientNutrition.foods,
             category: ingredientNutrition.category,
@@ -85,6 +88,7 @@ export default class IngredientService {
         return responseData;
       } else {
         const responseData = {
+          id: ingredient.id,
           fdcId: ingredient.fdcId,
           name: ingredient.name,
           category: ingredient!.name,
