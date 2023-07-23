@@ -277,11 +277,11 @@ export default class UserController extends BaseController {
       res.status(200).json({
         msg: "Create suggested meals successfully",
         suggestedMeals: suggestedMeals,
-        nutrientsTarget: {
-          totalNutrition: nutrientsTarget[0],
-          sessionNutrition: nutrientsTarget[1],
+        nutrientsTarget: nutrientsTarget[0],
+        suggestedNutrition: {
+          totalNutrition: estimatedNutrition,
+          sessionNutrition: nutrientsTarget[1]
         },
-        estimatedNutrition: estimatedNutrition,
       });
     } catch (error) {
       next(error);
