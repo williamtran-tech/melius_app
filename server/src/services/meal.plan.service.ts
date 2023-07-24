@@ -8,6 +8,7 @@ import { Sequelize } from "sequelize-typescript";
 import { MealPlan } from "../orm/models/meal.plan.model";
 import HealthService from "./health.service";
 import PlanDetailService from "./plan.detail.service";
+import { Op, literal } from "sequelize";
 
 // Recipes Describe Data of nutrition
 // 'calories','total fat (PDV)','sugar (PDV)','sodium (PDV)','protein (PDV)','saturated fat (PDV)','carbohydrates (PDV)']] = df[['calories','total fat (PDV)','sugar (PDV)','sodium (PDV)','protein (PDV)','saturated fat (PDV)','carbohydrates (PDV)'
@@ -134,17 +135,23 @@ export default class MealPlanService {
       // Get nutrients target of the kid
       const nutrientsTarget = await this.getMealPlan(kidId);
 
-      // Get the available ingredients of the kid
+      // Get the available ingredients of the mother
       const availableIngredients = await AvailableIngredient.findAll({
-        where: { userId: kidId },
+        where: { userId: MealPlanDTO.userId },
+        attributes: ["id", "updatedAt"],
+        include: {
+          model: Ingredient,
+          attributes: ["name", "nutrients", "portionValue", "portionUnit"],
+        },
       });
 
       let suggestedMeals: any;
       let estimatedNutrition: any;
       let next = false;
       let count = 0;
+      let limit = 10;
       do {
-        [suggestedMeals, estimatedNutrition] = await this.generateSuggestedMeal(nMeal);
+        [suggestedMeals, estimatedNutrition] = await this.generateSuggestedMeal(nMeal, availableIngredients);
   
         // 1. The meal should match with the kid's allergies
         // A function to check the meal is match the constraints or not - Allergies, Nutrients Target, Available Ingredients
@@ -153,7 +160,7 @@ export default class MealPlanService {
         count++;
         console.log("Next: ", next);
         console.log("Count: ", count);
-      } while (!next) 
+      } while (!next || count >= limit) 
 
       return [suggestedMeals, nutrientsTarget, estimatedNutrition];
     
@@ -165,6 +172,7 @@ export default class MealPlanService {
 
       
     } catch (err) {
+      console.log(err);
       throw err;
     }
   }
@@ -290,7 +298,7 @@ export default class MealPlanService {
     }
   }
 
-  private async generateSuggestedMeal(nMeal: number) {
+  private async generateSuggestedMeal(nMeal: number, availableIngredients?: any) {
     // Get random meals based on quantity of user input to the form 
     var TOTAL_CALORIES: number = 0,
     TOTAL_FAT: number = 0,
@@ -300,10 +308,50 @@ export default class MealPlanService {
     TOTAL_SATURATED_FAT: number = 0,
     TOTAL_SODIUM: number = 0;
 
-    let suggestedMeals = await Recipe.findAll({
-      limit: nMeal,
+    let numberOfMeals = (availableIngredients.length === 0) ? nMeal : nMeal-1 ;
+
+    // Available Array for checking
+    const availableArray = availableIngredients.map((availableIngredient: any) => {
+      // Get the first word of the ingredient name
+      return availableIngredient.ingredient.name.split(",")[0].toLowerCase();
+    });
+    console.log("Available Array: ", availableArray);
+    
+    let suggestedMeals: any = [];
+    let suggestedMeal = await Recipe.findAll({
+      limit: numberOfMeals,
       order: Sequelize.literal("rand()"),
     });
+    // push the suggested meals to the array
+    for (let i = 0; i < suggestedMeal.length; i++) {
+      suggestedMeals.push(suggestedMeal[i]);
+    }
+
+    if (numberOfMeals < nMeal) {
+      // const randomMeal = await Recipe.findOne({
+      //   limit: nMeal - numberOfMeals,
+      //   where: literal(`JSON_SEARCH(ingredients, 'one', '${availableArray[0]}', null, '$[*]')`)
+      // });
+      let randomMeal = await Recipe.findOne({
+        limit: nMeal - numberOfMeals,
+        where: {
+          ingredients: {
+            [Op.like]: `%${availableArray[0]}%`
+          },
+        },
+        order: Sequelize.literal("rand()"),
+      });
+      
+      if (randomMeal) {
+        suggestedMeals.push(randomMeal);
+      } else {
+        throw new HttpException(400, "No meals matched with the available ingredients");
+      }
+
+      for (let i = 0; i < suggestedMeals.length; i++) {
+        console.log(`Meal ${i}: `, suggestedMeals[i].name);
+      }
+    }
 
     const responseMeals = suggestedMeals.map((meal: any) => {
       const ingredientData = meal.ingredients.replace(/'/g, '"');
@@ -372,21 +420,23 @@ export default class MealPlanService {
     try {
       let flag = true;
       let msg = "Meals Matched";
+      // Allergies Array for checking
       const allergiesArray = allergies.map((allergy: any) => {
           return allergy.ingredient.name.split(",")[0].toLowerCase();
-        });
+      });
+
       const responseMeals = meals.map((meal: any, index: number) => {
-        // Check if the meal contains any ingredients that the kid is allergic to
-        
         console.log("Allergies Array: ", allergiesArray);
         console.log("Meal Ingredients: ", meal.ingredients);
-
+        
+        // Check if the meal contains any ingredients that the kid is allergic to
         const containsAllergies = meal.ingredients.some((ingredient: string) => 
           allergiesArray.some((allergy: string) => ingredient.toLowerCase().includes(allergy))
         );
+  
         if (containsAllergies) {
           flag = false;
-          msg = "Meals contain ingredients that the kid is allergic to";
+          msg = "Meals contain allergic ingredients";
         }
 
         // Check the meals nutrients target

@@ -14,6 +14,7 @@ export default class IngredientService {
     try {
       const ingredient = await Ingredient.findOne({
         attributes: [
+          "id",
           "fdcId",
           "category.name" as "category",
           "name",
@@ -38,6 +39,7 @@ export default class IngredientService {
             name: ingredientNutrition.foods,
           },
           attributes: [
+            "id",
             "fdcId",
             "category.name" as "category",
             "name",
@@ -71,6 +73,7 @@ export default class IngredientService {
           };
         } else {
           responseData = {
+            id: ingredient?.id,
             fdcId: ingredientNutrition.fdcId,
             name: ingredientNutrition.foods,
             category: ingredientNutrition.category,
@@ -85,6 +88,7 @@ export default class IngredientService {
         return responseData;
       } else {
         const responseData = {
+          id: ingredient.id,
           fdcId: ingredient.fdcId,
           name: ingredient.name,
           category: ingredient!.name,
@@ -111,84 +115,6 @@ export default class IngredientService {
     } catch (err) {
       console.log(err);
       throw new HttpException(404, "Cannot get ingredient list");
-    }
-  }
-
-  public async addIngredientToAllergy(allergiesData: any) {
-    try {
-      const ingredient = await Ingredient.findOne({
-        where: {
-          fdcId: allergiesData.fdcId,
-        },
-      });
-      console.log(ingredient);
-
-      const [addedIngredient, result] = await Allergy.findOrCreate({
-        where: {
-          kidId: allergiesData.kidId,
-          ingredientId: ingredient?.id,
-        },
-        defaults: {
-          kidId: allergiesData.kidId,
-          ingredientId: ingredient?.id,
-        },
-      });
-
-      const kid = await User.findOne({
-        where: {
-          id: allergiesData.kidId,
-        },
-      });
-
-      const responseData = {
-        id: addedIngredient.id,
-        kidId: kid?.id,
-        kidName: kid?.fullName,
-        ingredientId: ingredient?.id,
-        ingredientName: ingredient?.name,
-      };
-      return [responseData, result];
-    } catch (err) {
-      console.log(err);
-      throw new HttpException(401, "Cannot add ingredient to allergy");
-    }
-  }
-
-  public async addIngredientToAvailableList(available_ingredientDTO: any) {
-    try {
-      const [addedIngredient, result] = await AvailableIngredient.findOrCreate({
-        where: {
-          userId: available_ingredientDTO.userId,
-          ingredientId: available_ingredientDTO.ingredientId,
-        },
-        defaults: {
-          userId: available_ingredientDTO.userId,
-          ingredientId: available_ingredientDTO.ingredientId,
-          dueTime: available_ingredientDTO.dueTime,
-        },
-      });
-      if (result === false) {
-        throw new HttpException(
-          401,
-          "Ingredient already added to available list"
-        );
-      }
-
-      const ingredient = await Ingredient.findOne({
-        where: {
-          id: available_ingredientDTO.ingredientId,
-        },
-      });
-
-      const responseData = {
-        id: addedIngredient.id,
-        ingredientId: ingredient?.id,
-        ingredientName: ingredient?.name,
-        dueTime: addedIngredient.dueTime,
-      };
-      return [responseData, result];
-    } catch (err) {
-      throw err;
     }
   }
 }
