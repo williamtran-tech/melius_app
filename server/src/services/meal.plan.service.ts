@@ -339,6 +339,7 @@ export default class MealPlanService {
             [Op.like]: `%${availableArray[0]}%`
           },
         },
+        order: Sequelize.literal("rand()"),
       });
       
       if (randomMeal) {

@@ -11,58 +11,32 @@ export const userRouter = Router();
 const userController = new UserController();
 
 // Profile User
-userRouter.get(
-  "/profile",
-  authMiddleware,
-  authorize(["User"]),
-  userController.getUserProfile
-);
-userRouter.get("/profile/kid", authMiddleware,authorize(["User"]),checkKidIDMiddleware, userController.getKidProfile);
-userRouter.post("/create-child", authMiddleware, userController.createChild);
-userRouter.patch(
-  "/child-health",
-  authMiddleware,
-  userController.updateChildHealth
-);
+userRouter.get("/profile", authMiddleware, authorize(["User"]), userController.getUserProfile);
+
+// Kid Preferences
+userRouter.get("/profile/kid", authMiddleware,authorize(["User"]),checkKidIDMiddleware, userController.getKidProfile)
+          .post("/create-child", authMiddleware, userController.createChild)
+          .patch("/child-health", authMiddleware, userController.updateChildHealth);
 
 // ALLERGIES
 // Add ingredient to allergy list of kid
-userRouter.post(
-  "/allergy",
-  authMiddleware,
-  checkKidIDMiddleware,
-  userController.addIngredientToAllergyList
-);
-
-// Read allergy list of kid
-userRouter.get("/allergy", authMiddleware, userController.getAllergyList);
+userRouter.post("/allergy", authMiddleware, checkKidIDMiddleware, userController.addIngredientToAllergyList)
+          .get("/allergy", authMiddleware, authorize(["User"]), checkKidIDMiddleware, userController.getAllergyList)
+          .delete("/allergy", authMiddleware, authorize(["User"]), userController.deleteAllergy);
 
 // AVAILABLE INGREDIENTS
 // Add ingredient to available list of mother
-userRouter.post(
-  "/available-ingredients",
-  authMiddleware,
-  userController.addIngredientToAvailableList
-);
-userRouter.get(
-  "/available-ingredients",
-  authMiddleware,
-  userController.getAvailableIngredientList
-);
+userRouter.post("/available-ingredients", authMiddleware, userController.addIngredientToAvailableList)
+          .get("/available-ingredients", authMiddleware, userController.getAvailableIngredientList)
+          .delete("/available-ingredients", authMiddleware, authorize(["User"]), userController.deleteAvailableIngredient);
 
 // Meal Planning
-userRouter.get("/meal-plan", authMiddleware, authorize(["User"]),checkKidIDMiddleware,userController.getMealPlan);
+userRouter.get("/meal-plan", authMiddleware, authorize(["User"]),checkKidIDMiddleware,userController.getMealPlan)
+          .post("/meal-plan", authMiddleware, authorize(["User"]),checkKidIDMiddleware,userController.createMealPlan)
+          .delete("/meal-plan", authMiddleware, authorize(["User"]),checkKidIDMiddleware,userController.deleteMealPlan);
 
-userRouter.post("/meal-plan", authMiddleware, authorize(["User"]),checkKidIDMiddleware,userController.createMealPlan);
+userRouter.post("/suggested-meal-plan", authMiddleware, authorize(["User"]),checkKidIDMiddleware, userController.createSuggestedMeals);
 
-userRouter.post(
-  "/suggested-meal-plan",
-  authMiddleware,
-  authorize(["User"]),checkKidIDMiddleware,
-  userController.createSuggestedMeals
-);
-
-userRouter.delete("/meal-plan", authMiddleware, authorize(["User"]),checkKidIDMiddleware,userController.deleteMealPlan);
 
 // userRouter.post(
 //   "/",

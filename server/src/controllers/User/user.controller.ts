@@ -10,6 +10,8 @@ import IngredientService from "../../services/ingredient.service";
 import MealPlanService from "../../services/meal.plan.service";
 import PlanDetailService from "../../services/plan.detail.service";
 import MealPlanDTO from "../../DTOs/MealPlan/MealPlan.DTO";
+import AllergyService from "../../services/allergy.service";
+import AvailableIngredientService from "../../services/available.ingredient.service";
 export default class UserController extends BaseController {
   constructor() {
     super();
@@ -24,6 +26,10 @@ export default class UserController extends BaseController {
   public mealPlanService = new MealPlanService();
 
   public planDetailService = new PlanDetailService();
+
+  public allergyService = new AllergyService();
+  
+  public availableIngredientService = new AvailableIngredientService();
 
   public getUserProfile = async (
     req: express.Request,
@@ -157,7 +163,7 @@ export default class UserController extends BaseController {
       };
 
       const [ingredient, result] =
-        await this.ingredientService.addIngredientToAllergy(ingredientData);
+        await this.allergyService.addIngredientToAllergy(ingredientData);
       if (!result) {
         console.log("Ingredient already exists");
         throw new HttpException(400, "Ingredient already exists");
@@ -170,13 +176,14 @@ export default class UserController extends BaseController {
       next(err);
     }
   };
+
   public getAllergyList = async (
     req: express.Request,
     res: express.Response,
     next: express.NextFunction
   ) => {
     try {
-      const allergyList = await this.userService.getAllergyList(
+      const allergyList = await this.allergyService.getAllergyList(
         Number(req.query.kidId)
       );
 
@@ -190,6 +197,19 @@ export default class UserController extends BaseController {
     }
   };
 
+  public deleteAllergy = async (req: express.Request, res: express.Response, next: express.NextFunction) => {
+    try {
+      const allergyId = Number(req.query.id);
+
+      const deletedAllergy = await this.allergyService.deleteAllergy(allergyId);
+      res.status(200).json({
+        msg: "Delete allergy successfully",
+        ingredient: deletedAllergy, 
+      })
+    } catch (error) {
+      next(error);
+    }
+  };
   // AVAILABLE INGREDIENTS FUNCTIONS
   public addIngredientToAvailableList = async (
     req: express.Request,
@@ -203,7 +223,7 @@ export default class UserController extends BaseController {
         dueTime: Number(req.body.dueTime) ? Number(req.body.dueTime) : 1,
       };
       const [ingredient, result] =
-        await this.ingredientService.addIngredientToAvailableList(
+        await this.availableIngredientService.addIngredientToAvailableList(
           ingredientData
         );
       res.status(200).json({
@@ -222,7 +242,7 @@ export default class UserController extends BaseController {
   ) => {
     try {
       const availableIngredientList =
-        await this.userService.getAvailableIngredientList(req.userData.id);
+        await this.availableIngredientService.getAvailableIngredientList(req.userData.id);
 
       res.status(200).json({
         msg: "Get available ingredient list successfully",
@@ -233,6 +253,21 @@ export default class UserController extends BaseController {
       next(err);
     }
   };
+
+  public deleteAvailableIngredient = async (req: express.Request, res: express.Response, next: express.NextFunction) => {
+    try {
+      const availableIngredientId = Number(req.query.id);
+
+      const deletedAvailableIngredient = await this.availableIngredientService.deleteAvailableIngredient(availableIngredientId);
+      
+      res.status(200).json({
+        msg: "Delete available ingredient successfully",
+        ingredient: deletedAvailableIngredient, 
+      })
+    } catch (err) {
+      next(err);
+    }
+  }
 
   // MEAL PLAN FUNCTIONS
   public createMealPlan = async (req: express.Request, res: express.Response, next: express.NextFunction) => {
