@@ -1,8 +1,16 @@
-import { View, Text, TouchableOpacity, StyleSheet, Image } from "react-native";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  Image,
+  Linking,
+} from "react-native";
 import googleIcon from "../assets/images/google.png";
 import facebookIcon from "../assets/images/facebook.png";
 import twitterIcon from "../assets/images/twitter.png";
 import VerticalLogo from "../assets/images/verticalLogo.png";
+import { handleGoogleLogin } from "../Services/GoogleSingIn";
 const StartScreen = ({ navigation }) => {
   return (
     <View style={styles.Container}>
@@ -22,10 +30,13 @@ const StartScreen = ({ navigation }) => {
         </TouchableOpacity>
         <Text style={{ marginTop: 40 }}>Hoặc đăng nhập bằng</Text>
         <View style={styles.IconContainer}>
-          <Image
-            style={[styles.icon, { marginRight: 10 }]}
-            source={googleIcon}
-          />
+          <TouchableOpacity onPress={() => handleGoogleLogin()}>
+            <Image
+              style={[styles.icon, { marginRight: 10 }]}
+              source={googleIcon}
+            />
+          </TouchableOpacity>
+
           <Image
             style={[styles.icon, { marginRight: 10 }]}
             source={facebookIcon}

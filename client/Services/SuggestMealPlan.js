@@ -5,7 +5,8 @@ import HandleApi from "./HandleApi";
 export const suggestMealPlan = async () => {
   try {
     const value = await AsyncStorage.getItem("mealPlan");
-    const kidId = JSON.parse(value)?.mealPlan[0]?.kidId;
+    const kidId = JSON.parse(value)?.mealPlan.kidId;
+    console.log("OK", JSON.parse(value)?.mealPlan);
     if (kidId) {
       const response = await HandleApi.serverGeneral.post(
         "v1/users/suggested-meal-plan",
@@ -21,8 +22,8 @@ export const suggestMealPlan = async () => {
       ).then(() => {
         console.log("store suggest meal successfully");
       });
-      console.log(response.data.nutrientsTarget.updatedAt);
-      console.log(response.data);
+      //   console.log(response.data.nutrientsTarget.updatedAt);
+      //   console.log(response.data);
       return response.data;
     }
   } catch (error) {
@@ -39,11 +40,11 @@ export const updateMealPlan = async () => {
     console.log(hoursRange);
     if (hoursRange < 24) {
       const mealPlanData = await suggestMealPlan();
-      console.log("New Meal Plan:", mealPlanData);
+      //   console.log("New Meal Plan:", mealPlanData);
       return mealPlanData;
     } else {
       const mealPlanData = JSON.parse(value);
-      console.log("Cached Meal Plan:", mealPlanData);
+      //   console.log("Cached Meal Plan:", mealPlanData);
       return mealPlanData;
     }
   } catch (error) {
