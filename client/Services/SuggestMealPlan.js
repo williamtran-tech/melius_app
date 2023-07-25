@@ -6,7 +6,7 @@ export const suggestMealPlan = async () => {
   try {
     const value = await AsyncStorage.getItem("mealPlan");
     const kidId = JSON.parse(value)?.mealPlan.kidId;
-    console.log("OK", JSON.parse(value)?.mealPlan);
+    // console.log("OK", JSON.parse(value)?.mealPlan);
     if (kidId) {
       const response = await HandleApi.serverGeneral.post(
         "v1/users/suggested-meal-plan",
@@ -33,12 +33,20 @@ export const suggestMealPlan = async () => {
 export const updateMealPlan = async () => {
   try {
     const value = await AsyncStorage.getItem("sugsestMealPlan");
-    const duration = moment.duration(
-      moment().diff(JSON.parse(value).nutrientsTarget.updatedAt)
+    const mealPlanDate = moment(JSON.parse(value).nutrientsTarget.updatedAt);
+    const updatedMealPlanDate = mealPlanDate.add(7, "hours");
+    console.log(JSON.parse(value).nutrientsTarget);
+    console.log("mealPlanDate1:", mealPlanDate.format("DD-MM-YYYY, HH:mm:ss"));
+    console.log(
+      "kid",
+      moment("2023-07-25T11:09:51.040Z").format("DD-MM-YYYY HH:mm:ss")
     );
-    const hoursRange = duration.asHours();
-    console.log(hoursRange);
-    if (hoursRange < 24) {
+    console.log(
+      "mealPlan",
+      moment("2023-07-24T16:44:06.000Z").format("DD-MM-YYYY HH:mm:ss")
+    );
+    const currentDate = moment().startOf("day");
+    if (!mealPlanDate.isSame(currentDate, "day")) {
       const mealPlanData = await suggestMealPlan();
       //   console.log("New Meal Plan:", mealPlanData);
       return mealPlanData;
