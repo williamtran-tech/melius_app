@@ -72,7 +72,11 @@ function BottomNavigation() {
         listeners={{
           focus: () => setSelectedTab("Home"), // Set the selected tab as "Home" when it is focused
         }}
-        options={{ tabBarActiveTintColor: "black", tabBarLabel: () => null }} // Set active tint color for the tab
+        options={{
+          tabBarActiveTintColor: "black",
+          unmountOnBlur: true,
+          tabBarLabel: () => null,
+        }} // Set active tint color for the tab
       />
       <Tab.Screen
         name="Community"
@@ -88,7 +92,10 @@ function BottomNavigation() {
         listeners={{
           focus: () => setSelectedTab("Menu"), // Set the selected tab as "Setting" when it is focused
         }}
-        options={{ tabBarActiveTintColor: "black", tabBarLabel: () => null }} // Set active tint color for the tab
+        options={{
+          tabBarActiveTintColor: "black",
+          tabBarLabel: () => null,
+        }} // Set active tint color for the tab
       />
       <Tab.Screen
         name="Diary"

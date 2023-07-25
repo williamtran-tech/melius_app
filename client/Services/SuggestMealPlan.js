@@ -6,7 +6,7 @@ export const suggestMealPlan = async () => {
   try {
     const value = await AsyncStorage.getItem("mealPlan");
     const kidId = JSON.parse(value)?.mealPlan.kidId;
-    // console.log("OK", JSON.parse(value)?.mealPlan);
+    console.log("OK", JSON.parse(value)?.mealPlan);
     if (kidId) {
       const response = await HandleApi.serverGeneral.post(
         "v1/users/suggested-meal-plan",
@@ -24,7 +24,7 @@ export const suggestMealPlan = async () => {
         console.log("store suggest meal successfully");
       });
       //   console.log(response.data.nutrientsTarget.updatedAt);
-      //   console.log(response.data);
+
       return response.data;
     }
   } catch (error) {

@@ -1,5 +1,5 @@
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import OverallProfile from "../components/OverallProfile";
 import PersonalInf from "../components/PersonalInf";
@@ -8,10 +8,27 @@ import Setting from "../components/Setting";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const ProfileScreen = ({ navigation }) => {
-  // const [childInf, setChildInf] = useState();
+  const [childInf, setChildInf] = useState();
   // AsyncStorage.getItem("childrenInf").then((value) => {
   //   setChildInf(JSON.parse(value));
   // });
+  // const showAllItems = async () => {
+  //   try {
+  //     const keys = await AsyncStorage.getAllKeys();
+
+  //     const items = await AsyncStorage.multiGet(keys);
+
+  //     console.log("All items in AsyncStorage:");
+  //     items.forEach(([key, value]) => {
+  //       console.log(key, value);
+  //     });
+  //   } catch (error) {
+  //     console.error("Error retrieving items from AsyncStorasge:", error);
+  //   }
+  // };
+  useEffect(() => {
+    // showAllItems();
+  }, []);
   return (
     <View style={{ flex: 1, backgroundColor: "#FDFDFD" }}>
       <View style={{ flex: 2 }}>

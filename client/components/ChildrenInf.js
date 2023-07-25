@@ -9,8 +9,8 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const ChildrenInf = () => {
   const [childInf, setChildInf] = useState();
-  AsyncStorage.getItem("childrenInf").then((value) => {
-    setChildInf(JSON.parse(value));
+  AsyncStorage.getItem("userProfile").then((value) => {
+    setChildInf(JSON.parse(value).kidProfile[0]);
   });
   return (
     <View style={{ flex: 1 }}>
@@ -28,23 +28,21 @@ const ChildrenInf = () => {
             <View style={styles.row1}>
               <IconWithText
                 iconName="Iconname"
-                title={childInf.child.fullName}
+                title={childInf.fullName}
               ></IconWithText>
             </View>
             <View style={styles.row1}>
               <IconWithText
                 iconName="Iconfemale"
-                title={childInf.child.gender}
+                title={childInf.gender}
               ></IconWithText>
               <IconWithText
                 iconName="Iconbirthday"
-                title={moment(childInf.child.dob).format("DD/MM/YYYY")}
+                title={moment(childInf.dob).format("DD/MM/YYYY")}
               ></IconWithText>
               <IconWithText
                 iconName="Iconyearold"
-                title={
-                  moment().diff(moment(childInf.child.dob), "years") + " YO"
-                }
+                title={moment().diff(moment(childInf.dob), "years") + " YO"}
               ></IconWithText>
             </View>
             <View style={styles.row2}>

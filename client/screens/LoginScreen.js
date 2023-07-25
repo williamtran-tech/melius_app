@@ -26,6 +26,7 @@ import qs from "qs";
 import HandleApi from "../Services/HandleApi";
 
 import { API_URL, API_KEY } from "@env";
+import { getUserProfile } from "../Services/RetrieveNutritionProfile";
 
 const LoginScreen = ({ navigation }) => {
   const [userEmail, setUserEmail] = useState("");
@@ -35,72 +36,55 @@ const LoginScreen = ({ navigation }) => {
   const cookie = require("cookie");
 
   const passwordInputRef = createRef();
-
+  // HandleApi.serverGeneral
+  //   .get("/v1/auth/logout")
+  //   .then((response) => {
+  //     console.log(response.data);
+  //     navigation.replace("Auth");
+  //   })
+  //   .catch((error) => {
+  //     console.error(error.data);
+  //   });
   console.log(API_URL); // Output: The API URL based on the current environment
-  const handleSubmitPress = (values) => {
+  const handleSubmitPress = async (values) => {
     console.log(qs.stringify(values));
     setLoading(true);
-    // navigation.replace("BottomNavigation");
-    HandleApi.serverGeneral
-      .post("/v1/auth/login", qs.stringify(values))
-      .then((response) => {
-        let receivedCookies = response.headers.get("set-cookie");
-        let cookieString = Array.isArray(receivedCookies)
-          ? receivedCookies.join("; ")
-          : receivedCookies;
-        let parsedCookies = cookie.parse(cookieString);
-        let authorizationCookie = parsedCookies["Authorization"];
-        console.log(authorizationCookie);
-        if (authorizationCookie) {
-          AsyncStorage.setItem("Authentication", authorizationCookie)
-            .then(() => {
-              setLoading(false);
-              navigation.replace("BottomNavigation");
-            })
-            .catch((error) => {
-              setLoading(false);
-              console.error(error.message);
-            });
-        } else {
-          setLoading(false);
-        }
-      })
-      .catch((error) => {
-        setLoading(false);
-        console.error(error);
-        Alert.alert(
-          "Invalid Credentials",
-          "The email or password you entered is incorrect.",
-          [
-            {
-              text: "OK",
-              onPress: () => console.log("OK Pressed"),
-            },
-          ],
-          { cancelable: false }
-        );
-      });
 
-    // fetch("http://192.168.102.100:5050/api/v1/auth/login", {
-    //   method: "POST",
-    //   body: qs.stringify(values),
-    //   headers: {
-    //     //Header Defination
-    //     "Content-Type": "application/x-www-form-urlencoded",
-    //     credentials: "include",
-    //   },
-    // })
-    //   .then((response) => {})
-    //   .then((responseJson) => {
-    //     setLoading(false);
-    //     console.log(responseJson);
-    //     navigation.replace("BottomNavigation");
-    //   })
-    //   .catch((error) => {
-    //     //Hide Loader
-    //     setLoading(false);
-    //     console.error(error);
-    //   });
+    try {
+      const response = await HandleApi.serverGeneral.post(
+        "/v1/auth/login",
+        qs.stringify(values)
+      );
+      let receivedCookies = response.headers.get("set-cookie");
+      let cookieString = Array.isArray(receivedCookies)
+        ? receivedCookies.join("; ")
+        : receivedCookies;
+      let parsedCookies = cookie.parse(cookieString);
+      let authorizationCookie = parsedCookies["Authorization"];
+      console.log(authorizationCookie);
+      const userProfile = await getUserProfile();
+      if (authorizationCookie) {
+        await AsyncStorage.setItem("Authentication", authorizationCookie);
+        setLoading(false);
+        navigation.replace("BottomNavigation");
+      } else {
+        setLoading(false);
+      }
+    } catch (error) {
+      setLoading(false);
+      console.error(error);
+      Alert.alert(
+        "Invalid Credentials",
+        "The email or password you entered is incorrect.",
+        [
+          {
+            text: "OK",
+            onPress: () => console.log("OK Pressed"),
+          },
+        ],
+        { cancelable: false }
+      );
+    }
   };
 
   return (

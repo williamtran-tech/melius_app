@@ -1,13 +1,23 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import React, { useEffect, useState } from "react";
 import { StyleSheet, Text, View, TouchableOpacity, Image } from "react-native";
+import Loader from "./Loader";
 import SubText from "./SubText";
 const HealthIndex = () => {
   const [healthRecord, setHealthRecord] = useState();
+  const fetchData = async () => {
+    try {
+      const value = await AsyncStorage.getItem("userProfile");
+      const userProfile = JSON.parse(value);
+      console.log("userProfileeeeee:", userProfile);
+      // Check if the required data is available before setting the state
+      setHealthRecord(userProfile.kidProfile[0].healthRecord[0]);
+    } catch (error) {
+      console.error("Error fetching userProfile from AsyncStorage:", error);
+    }
+  };
   useEffect(() => {
-    AsyncStorage.getItem("childrenInf").then((value) => {
-      setHealthRecord(JSON.parse(value).healthRecord);
-    });
+    fetchData();
   }, []);
 
   return (

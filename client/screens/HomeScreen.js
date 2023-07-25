@@ -10,13 +10,39 @@ import WelcomHeader from "../components/WelcomHeader";
 import DailyInfo from "../components/DailyInfo";
 import Remind from "../components/Remind";
 import MenuSuggest from "../components/MenuSuggest";
+import { HandleExpireToken } from "../Services/ExpireToken";
+import { useNavigation } from "@react-navigation/native";
+import HandleApi from "../Services/HandleApi";
+import { getUserProfile } from "../Services/RetrieveNutritionProfile";
+import Loader from "../components/Loader";
 const HomeScreen = () => {
-  const [test, setTest] = useState("");
+  const navigation = useNavigation();
+  const [loading, setLoading] = useState(false);
 
+  const CheckTokenExpired = async () => {
+    const isTokenExpired = await HandleExpireToken();
+    // console.log(isTokenExpired);
+
+    if (isTokenExpired) {
+      AsyncStorage.removeItem("Authentication", (error) => {
+        if (error) {
+          console.error(error);
+        } else {
+          HandleApi.serverGeneral
+            .get("/v1/auth/logout")
+            .then((response) => {
+              console.log(response.data);
+              navigation.replace("Auth");
+            })
+            .catch((error) => {
+              console.error(error.data);
+            });
+        }
+      });
+    }
+  };
   useEffect(() => {
-    AsyncStorage.getItem("user_id").then((result) => {
-      setTest(result);
-    });
+    CheckTokenExpired();
   }, []);
   return (
     <View style={{ flex: 1 }}>
