@@ -292,10 +292,15 @@ export default class AuthController extends BaseController {
 
   public googleCallback = (req: express.Request, res: express.Response) => {
     try {
+      let callbackURL = `${process.env.CALLBACK_URL}/${process.env.CALLBACK_URI}`
+      if (process.env.STATUS !== 'production') {
+        callbackURL = `${process.env.CALLBACK_DEV_URL}:${process.env.DEV_PORT}/${process.env.CALLBACK_URI}`
+      }
+
       // Handle the callback logic after Google authentication
       passport.authenticate("google", {
-        successRedirect: `${process.env.CALLBACK_URL}:${process.env.PORT}/${process.env.CALLBACK_URI}/success`, // Redirect to the success page ${process.env.CALLBACK_URI}/success
-        failureRedirect: `${process.env.CALLBACK_URL}:${process.env.PORT}/${process.env.CALLBACK_URI}/error`, // Redirect to the failure page
+        successRedirect: `${callbackURL}/success`, // Redirect to the success page ${process.env.CALLBACK_URI}/success
+        failureRedirect: `${callbackURL}/error`, // Redirect to the failure page
       })(req, res);
     } catch (error) {
       console.log(error);
