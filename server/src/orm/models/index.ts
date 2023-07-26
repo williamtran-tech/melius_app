@@ -15,10 +15,9 @@ import { PlanDetail } from "./plan.detail.model";
 
 const env = process.env.NODE_ENV || "development";
 const config = require(path.resolve("dist/src/configs/database.config"))[env];
+console.log("Config: ", config);
 
-const sequelize = config.url
-  ? new Sequelize(config.url, config)
-  : new Sequelize(config.database, config.username, config.password, {
+const sequelize = new Sequelize(config.database, config.username, config.password, {
       ...config,
       models: [
         Account,
@@ -37,7 +36,8 @@ const sequelize = config.url
       pool: {
         max: 20,
         // 1 hour
-        acquireTimeout: 30000,
+        // @note https://github.com/sequelize/sequelize/issues/8133#issuecomment-359993057
+        acquireTimeout: 1000000,
       },
     });
 

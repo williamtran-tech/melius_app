@@ -12,6 +12,11 @@ const envPath = path.resolve(
 dotenv.config({
   path: envPath,
 });
+console.log("ENV PATH: ", envPath);
+
+if (envPath === undefined) {
+  dotenv.config();
+}
 
 let userProfile: any;
 // This function is called when passport needs to save the user data into the session

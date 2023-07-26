@@ -1,11 +1,9 @@
 import { Router } from "express";
 import UserController from "../../controllers/User/user.controller";
 import validationMiddleware from "../../middlewares/validation.middleware";
-import CreateUserDTO from "../../DTOs/User/UserCreate.DTO";
 import authMiddleware from "../../middlewares/auth.middleware";
 import checkKidIDMiddleware from "../../middlewares/checkKidUser.middleware";
 import { authorize } from "../../middlewares/authorize.middleware";
-import MealPlanDTO from "../../DTOs/MealPlan/MealPlan.DTO";
 
 export const userRouter = Router();
 const userController = new UserController();

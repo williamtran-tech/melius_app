@@ -1,9 +1,13 @@
 import App from "./src/app";
 import dotenv from "dotenv";
 
-dotenv.config();
+dotenv.config({
+    path: "environments/.env.development"
+});
 
-console.log("Development mode: ", process.env.ENV);
-const PORT = process.env.PORT || 5050;
-const app = new App(PORT);
+console.log("Development mode: ", process.env.STATUS);
+let PORT;
+process.env.STATUS === 'production' ? (PORT = process.env.PROD_PORT) : (PORT = process.env.DEV_PORT);
+console.log("Port ", PORT);
+const app = new App(PORT || 5050);
 app.listen();
