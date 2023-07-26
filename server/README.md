@@ -53,6 +53,12 @@ npx sequelize-cli db:seed --seed 20230711052934-create-roles.js
 
 **Solution**: Update the Node version later than 18.0.0
 
+## 3.2. Error: Max_allowed_packet AWS RDS
+
+**Solution**: Change the Group Parameter in MySQL database on AWS
+
+*Ref: https://stackoverflow.com/questions/51395925/mysql-error-max-allowed-packet-bytes-during-import-sql-script-on-database-host*
+
 # 4. Lessons Learnt
 
 ## 4.1. Using JSON parse and stringify
@@ -84,3 +90,11 @@ Evidence:
 Due to the above I decided not to use a body for my DELETE request, this seemed like the safest choice.
 
 *Ref: https://stackoverflow.com/questions/299628/is-an-entity-body-allowed-for-an-http-delete-request*
+
+## 4.4. Import/Export Data if the seeding file is too large 
+
+Even batching file throw connection timeout in AWS 
+
+**Solution:** Using MySQL Workbench to Export data from local database => Import .sql file to AWS RDS database
+
+*Ref: https://stackoverflow.com/questions/22381577/mysql-workbench-how-to-export-mysql-database-to-sql-file*

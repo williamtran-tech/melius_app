@@ -25,13 +25,18 @@ passport.deserializeUser(function (user: any, done) {
 });
 
 // Google OAuth
+let callbackURL = `${process.env.CALLBACK_URL}/${process.env.CALLBACK_URI}`
+if (process.env.STATUS !== 'production') {
+  callbackURL = `${process.env.CALLBACK_DEV_URL}:${process.env.DEV_PORT}/${process.env.CALLBACK_URI}`
+}
+
 const { GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET } = process.env;
 passport.use(
   new GoogleStrategy(
     {
       clientID: GOOGLE_CLIENT_ID as string,
       clientSecret: GOOGLE_CLIENT_SECRET as string,
-      callbackURL: `${process.env.CALLBACK_URL}:${process.env.PORT}/api/v1/auth/google/callback`,
+      callbackURL: `${callbackURL}`,
     },
     (accessToken, refreshToken, profile, done) => {
       // Callback function after successful authentication
