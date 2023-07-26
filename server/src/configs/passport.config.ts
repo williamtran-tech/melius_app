@@ -4,19 +4,19 @@ import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import path from "path";
 
 let envPath;
-envPath = path.resolve(
-  __dirname,
-  "../../..",
-  "environments",
-  ".env.development"
-);
-dotenv.config({
-  path: envPath,
-});
-console.log("ENV PATH 1: ", envPath);
+// envPath = path.resolve(
+//   __dirname,
+//   "../../..",
+//   "environments",
+//   ".env.development"
+// );
+// dotenv.config({
+//   path: envPath,
+// });
+// console.log("ENV PATH 1: ", envPath);
 
 envPath = path.resolve(
-  "environments",
+  __dirname,
   ".env.development"
 );
 dotenv.config({
