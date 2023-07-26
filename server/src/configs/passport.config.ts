@@ -3,58 +3,19 @@ import passport from "passport";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import path from "path";
 
-let envPath;
-// envPath = path.resolve(
-//   __dirname,
-//   "../../..",
-//   "environments",
-//   ".env.development"
-// );
-// dotenv.config({
-//   path: envPath,
-// });
-// console.log("ENV PATH 1: ", envPath);
-
-envPath = path.resolve(
+const envPath = path.resolve(
   __dirname,
+  "../../..",
+  "environments",
   ".env.development"
 );
 dotenv.config({
   path: envPath,
 });
-console.log("ENV PATH 2: ", envPath);
+console.log("ENV PATH: ", envPath);
 
-if (process.env.STATUS === "production") {
-  require("dotenv").config({
-    path: path.resolve(
-      __dirname,
-      ".env.development"
-    ),
-  });
-
-  console.log("Passport ENV Production: ", process.env.STATUS);
-} else if (process.env.STATUS === "development") {
-  // This for migration
-  envPath = path.resolve(
-    __dirname,
-    "../../..",
-    "environments",
-    ".env.development"
-  );
-  require("dotenv").config({
-    path: envPath,
-  });
-
-  // This for server - dist
-  envPath = path.resolve(
-    "environments",
-    ".env.development"
-  );
-  require("dotenv").config({
-    path: envPath,
-  });
-
-  console.log("Passport ENV Development: ", process.env.STATUS);
+if (envPath === undefined) {
+  dotenv.config();
 }
 
 let userProfile: any;

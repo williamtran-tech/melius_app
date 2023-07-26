@@ -15,7 +15,6 @@ import { PlanDetail } from "./plan.detail.model";
 
 const env = process.env.NODE_ENV || "development";
 const config = require(path.resolve("dist/src/configs/database.config"))[env];
-console.log("Config: ", config);
 
 const sequelize = new Sequelize(config.database, config.username, config.password, {
       ...config,
