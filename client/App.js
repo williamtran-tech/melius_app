@@ -15,11 +15,13 @@ import * as Localization from "expo-localization";
 import en from "./Services/translation/en.json";
 import vi from "./Services/translation/vi.json";
 import AuthenticationNavigation from "./navigation/AuthenticationNavigation";
-import { StatusBar } from "react-native";
+import { Linking, StatusBar } from "react-native";
+import { navigationRef } from "./Services/GoogleSingIn";
 const App = () => {
   useEffect(() => {
     StatusBar.setBarStyle("dark-content");
   }, []);
+
   i18next.use(initReactI18next).init({
     compatibilityJSON: "v3",
     resources: {

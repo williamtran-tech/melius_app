@@ -9,7 +9,7 @@ const HealthIndex = () => {
     try {
       const value = await AsyncStorage.getItem("userProfile");
       const userProfile = JSON.parse(value);
-      console.log("userProfileeeeee:", userProfile);
+      // console.log("userProfileeeeee:", userProfile);
       // Check if the required data is available before setting the state
       setHealthRecord(userProfile.kidProfile[0].healthRecord[0]);
     } catch (error) {
@@ -17,7 +17,16 @@ const HealthIndex = () => {
     }
   };
   useEffect(() => {
-    fetchData();
+    console.log("Mount");
+
+    // Add a delay of 2 seconds before calling fetchData()
+    const delay = 2000; // 2 seconds in milliseconds
+    const timer = setTimeout(() => {
+      fetchData();
+    }, delay);
+
+    // Clean up the timer when the component unmounts
+    return () => clearTimeout(timer);
   }, []);
 
   return (

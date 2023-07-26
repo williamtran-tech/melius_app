@@ -1,11 +1,25 @@
 import KidHealthDTO from "../DTOs/Kid/KidHealthData.DTO";
 import HttpException from "../exceptions/HttpException";
-import { IngreCategory } from "../orm/models/ingre.category.model";
+import { ingreCategory } from "../orm/models/ingre.category.model";
 export default class USDAService {
   public async getFoodNutritionData(ingredientDTO: any) {
     try {
+      console.log("ingredientDTO: ", ingredientDTO);
+      // const params = {
+      //   api_key: process.env.USDA_API,
+      //   query: ingredientDTO.ingredient,
+      //   dataType: ["Survey (FNDDS)"],
+      //   foodCategory: ingredientDTO.foodCategory
+      //     ? ingredientDTO.foodCategory
+      //     : "",
+      //   pagesize: ingredientDTO.pagesize ? ingredientDTO.pagesize : 10,
+      // };
+      const params = {
+        api_key: process.env.USDA_API,
+      };
+
       // const url = `https://api.nal.usda.gov/fdc/v1/foods/search?api_key=${params.api_key}&foodCategory=${params.foodCategory}&query=${params.query}&dataType=${params.dataType}&pageSize=${params.pagesize}`;
-      const url = `https://api.nal.usda.gov/fdc/v1/food/${ingredientDTO.fdcId}?api_key=${process.env.USDA_API}`;
+      const url = `https://api.nal.usda.gov/fdc/v1/food/${ingredientDTO.fdcId}?api_key=${params.api_key}`;
       const response = await fetch(url);
       const data = await response.json();
 
@@ -15,7 +29,7 @@ export default class USDAService {
         console.log(data);
       }
       const categoryId = Number(data.foodCode.toString()[0]);
-      const category = await IngreCategory.findOne({
+      const category = await ingreCategory.findOne({
         where: {
           id: categoryId,
         },
@@ -56,6 +70,7 @@ export default class USDAService {
         pageSize: ingredientDTO.pageSize,
       };
 
+      console.log("params: ", params);
       const url = `https://api.nal.usda.gov/fdc/v1/foods/search?api_key=${params.api_key}&foodCategory=${params.foodCategory}&query=${params.query}&dataType=${params.dataType}&pageSize=${params.pageSize}`;
 
       const response = await fetch(url);
@@ -69,7 +84,7 @@ export default class USDAService {
       const ingredientList = [];
       for (let i = 0; i < data.foods.length; i++) {
         const categoryId = Number(data.foods[i].foodCode.toString()[0]);
-        const category = await IngreCategory.findOne({
+        const category = await ingreCategory.findOne({
           where: {
             id: categoryId,
           },
@@ -79,19 +94,19 @@ export default class USDAService {
           fdcId: data.foods[i].fdcId,
           foodCode: data.foods[i].foodCode,
           foods: data.foods[i].description,
-          description: data.foods[i].additionalDescriptions,
           category: category!.name,
           foodPortions: {
             unitName: "G",
             value: 100,
           },
           foodNutrients: data.foods[i].foodNutrients,
+          foodInput: data.foods[i].finalFoodInputFoods,
         };
         ingredientList.push(ingredient);
       }
       return ingredientList;
     } catch (error) {
-      throw error;
+      throw new HttpException(404, "Ingredient not found");
     }
   }
 }

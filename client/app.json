@@ -1,6 +1,7 @@
 {
   "expo": {
     "name": "client",
+    "scheme": "meliusapp",
     "slug": "client",
     "version": "1.0.0",
     "icon": "./assets/images/Logo.png",

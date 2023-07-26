@@ -11,7 +11,6 @@ export const HandleExpireToken = async () => {
       const isTokenExpired = expirationTime.isBefore(moment());
       return isTokenExpired;
     }
-    // If no token is found, consider it as expired
     return false;
   } catch (error) {
     console.error("Error fetching authentication token:", error);

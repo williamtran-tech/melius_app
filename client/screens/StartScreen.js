@@ -11,7 +11,42 @@ import facebookIcon from "../assets/images/facebook.png";
 import twitterIcon from "../assets/images/twitter.png";
 import VerticalLogo from "../assets/images/verticalLogo.png";
 import { handleGoogleLogin } from "../Services/GoogleSingIn";
+import { useEffect } from "react";
+import * as WebBrowser from "expo-web-browser";
+
 const StartScreen = ({ navigation }) => {
+  const handleDeepLink = async (event) => {
+    const { url } = event;
+    console.log(url);
+    if (
+      url.startsWith(
+        "https://melius-service.onrender.com/api/v1/auth/google/callback/success#"
+      )
+    ) {
+      console.log("cc");
+      // Handle the deep link here, for example, navigate to the desired screen in your app.
+      await WebBrowser.dismissBrowser();
+      // navigation.replace("BottomNavigation"); // Replace with the screen name you want to navigate to.
+    }
+  };
+
+  useEffect(() => {
+    const addDeepLinkListener = () => {
+      Linking.addEventListener("url", handleDeepLink);
+    };
+
+    const removeDeepLinkListener = () => {
+      Linking.removeEventListener("url", handleDeepLink);
+    };
+
+    // Add event listener for deep linking when the component mounts.
+    addDeepLinkListener();
+
+    // Clean up event listener when the component unmounts.
+    return () => {
+      removeDeepLinkListener();
+    };
+  }, []);
   return (
     <View style={styles.Container}>
       <View style={styles.Btn}>
