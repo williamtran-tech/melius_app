@@ -28,12 +28,10 @@ export const handleGoogleLogin = async () => {
   const googleLoginURL =
     "https://melius-service.onrender.com/api/v1/auth/google";
   try {
-    // Open the login URL in the web browser
-    let result = await WebBrowser.openAuthSessionAsync(googleLoginURL);
-
-    // If the browser was dismissed without success, try handling the URL manually
-    if (Platform.OS === "ios" && result.type === "cancel") {
-      Linking.addEventListener("url", handleRedirect);
+    const login = await WebBrowser.openAuthSessionAsync(googleLoginURL);
+    if (login.type === "success") {
+      const token = login.url.split("token=")[1];
+      console.log("Authorization Token: ", token);
     }
   } catch (error) {
     console.error("Error opening Google login URL:", error);

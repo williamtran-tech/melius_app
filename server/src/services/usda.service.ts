@@ -1,6 +1,6 @@
 import KidHealthDTO from "../DTOs/Kid/KidHealthData.DTO";
 import HttpException from "../exceptions/HttpException";
-import { ingreCategory } from "../orm/models/ingre.category.model";
+import { IngreCategory } from "../orm/models/ingre.category.model";
 export default class USDAService {
   public async getFoodNutritionData(ingredientDTO: any) {
     try {
@@ -29,7 +29,7 @@ export default class USDAService {
         console.log(data);
       }
       const categoryId = Number(data.foodCode.toString()[0]);
-      const category = await ingreCategory.findOne({
+      const category = await IngreCategory.findOne({
         where: {
           id: categoryId,
         },
@@ -84,7 +84,7 @@ export default class USDAService {
       const ingredientList = [];
       for (let i = 0; i < data.foods.length; i++) {
         const categoryId = Number(data.foods[i].foodCode.toString()[0]);
-        const category = await ingreCategory.findOne({
+        const category = await IngreCategory.findOne({
           where: {
             id: categoryId,
           },

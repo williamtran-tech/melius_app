@@ -20,24 +20,14 @@ const handleRedirect = (event) => {
 };
 
 const StartScreen = ({ navigation }) => {
-  const handleRedirect = (event) => {
-    const url = event.url;
-    const data = Linking.parse(event.url);
-    console.log(data);
-    if (url && url.includes("YOUR_SUCCESS_REDIRECT_URL")) {
+  const handleDeepLink = (event) => {
+    const { url } = event;
+    console.log(url);
+    if (url.startsWith("exp://192.168.31.40:19000/success")) {
+      console.log("cc");
+      // Handle the deep link here, for example, navigate to the desired screen in your app.
       WebBrowser.dismissBrowser();
-      // navigation.navigate("Home"); // Replace 'Home' with the name of the screen you want to navigate to
-    }
-  };
-
-  const handleGoogleLogin = async () => {
-    const googleLoginURL =
-      "https://melius-service.onrender.com/api/v1/auth/google";
-
-    try {
-      let result = await WebBrowser.openAuthSessionAsync(googleLoginURL);
-    } catch (error) {
-      console.error("Error opening Google login URL:", error);
+      // navigation.replace("BottomNavigation"); // Replace with the screen name you want to navigate to.
     }
   };
 
