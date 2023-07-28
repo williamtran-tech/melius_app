@@ -8,10 +8,13 @@ const HealthIndex = () => {
   const fetchData = async () => {
     try {
       const value = await AsyncStorage.getItem("userProfile");
-      const userProfile = JSON.parse(value);
-      // console.log("userProfileeeeee:", userProfile);
-      // Check if the required data is available before setting the state
-      setHealthRecord(userProfile.kidProfile[0].healthRecord[0]);
+      console.log({ value });
+      if (value) {
+        const userProfile = JSON.parse(value);
+        console.log("userProfileeeeee:", userProfile);
+        // Check if the required data is available before setting the state
+        setHealthRecord(userProfile.kidProfile[0].healthRecord[0]);
+      }
     } catch (error) {
       console.error("Error fetching userProfile from AsyncStorage:", error);
     }
@@ -48,7 +51,9 @@ const HealthIndex = () => {
           </View>
           <View style={{ flexDirection: "column", marginTop: "auto" }}>
             <SubText style={styles.BMIItemText}>
-              {healthRecord && healthRecord.bmi.toFixed()}
+              {healthRecord && healthRecord.bmi
+                ? healthRecord.bmi.toFixed()
+                : "N/A"}
             </SubText>
             <SubText style={styles.nameItemText}>BMI</SubText>
           </View>

@@ -10,14 +10,11 @@
   },
   "dependencies": {
     "@gorhom/bottom-sheet": "^4.4.7",
-    "@react-native-async-storage/async-storage": "1.17.11",
+    "@react-native-async-storage/async-storage": "^1.19.1",
     "@react-native-community/checkbox": "^0.5.15",
     "@react-native-community/clipboard": "^1.5.1",
     "@react-native-community/datetimepicker": "^7.3.0",
     "@react-native-community/masked-view": "^0.1.11",
-    "@react-native-firebase/app": "^18.2.0",
-    "@react-native-firebase/database": "^18.2.0",
-    "@react-native-firebase/firestore": "^18.2.0",
     "@react-navigation/bottom-tabs": "^6.5.7",
     "@react-navigation/drawer": "^6.6.2",
     "@react-navigation/native": "^6.1.6",
@@ -31,6 +28,7 @@
     "expo-firebase": "^0.0.0-alpha.0",
     "expo-font": "~11.1.1",
     "expo-linear-gradient": "~12.1.2",
+    "expo-linking": "~4.0.1",
     "expo-local-authentication": "~13.3.0",
     "expo-localization": "~14.1.1",
     "expo-splash-screen": "~0.18.2",
@@ -71,8 +69,7 @@
     "react-native-svg-uri": "^1.2.3",
     "react-native-swipe-list-view": "^3.2.9",
     "react-native-switch-selector": "^2.3.0",
-    "yup": "^1.2.0",
-    "expo-linking": "~4.0.1"
+    "yup": "^1.2.0"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",

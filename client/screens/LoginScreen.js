@@ -45,6 +45,7 @@ const LoginScreen = ({ navigation }) => {
   //   .catch((error) => {
   //     console.error(error.data);
   //   });
+  // AsyncStorage.clear().then(console.log("cc"));
   console.log(API_URL); // Output: The API URL based on the current environment
   const handleSubmitPress = async (values) => {
     console.log(qs.stringify(values));
@@ -63,6 +64,13 @@ const LoginScreen = ({ navigation }) => {
       let authorizationCookie = parsedCookies["Authorization"];
       console.log(authorizationCookie);
       const userProfile = await getUserProfile();
+      console.log("id", userProfile.kidProfile[0].id);
+      const mealplan = await HandleApi.serverGeneral.get(
+        `/v1/users/meal-plan?kidId=${userProfile.kidProfile[0].id}`
+      );
+      console.log("ccccc", mealplan.data);
+      await AsyncStorage.setItem("mealPlan", JSON.stringify(mealplan.data));
+      console.log("oke nha:", userProfile.kidProfile[0].id);
       if (authorizationCookie) {
         await AsyncStorage.setItem("Authentication", authorizationCookie);
         setLoading(false);

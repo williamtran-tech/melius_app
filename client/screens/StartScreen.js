@@ -3,7 +3,7 @@ import googleIcon from "../assets/images/google.png";
 import facebookIcon from "../assets/images/facebook.png";
 import twitterIcon from "../assets/images/twitter.png";
 import VerticalLogo from "../assets/images/verticalLogo.png";
-// import { handleGoogleLogin } from "../Services/GoogleSingIn";
+import { handleGoogleLogin } from "../Services/GoogleSingIn";
 import { useEffect, useState } from "react";
 import { Linking, Platform } from "react-native";
 import * as WebBrowser from "expo-web-browser";

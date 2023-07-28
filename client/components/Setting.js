@@ -51,6 +51,7 @@ const Setting = () => {
           });
       }
     });
+    // AsyncStorage.clear().then(console.log("cc"));
   };
   const { t, i18n } = useTranslation();
   const changeLanguage = (language) => {

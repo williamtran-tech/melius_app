@@ -4,9 +4,10 @@ import HandleApi from "./HandleApi";
 
 export const suggestMealPlan = async () => {
   try {
-    const value = await AsyncStorage.getItem("mealPlan");
-    const kidId = JSON.parse(value)?.mealPlan.kidId;
-    console.log("OK", JSON.parse(value)?.mealPlan);
+    const value = await AsyncStorage.getItem("userProfile");
+    console.log(JSON.parse(value)?.mealPlan);
+    const kidId = JSON.parse(value)?.kidProfile[0].id;
+    console.log("OK", JSON.parse(value)?.kidProfile[0].id);
     if (kidId) {
       const response = await HandleApi.serverGeneral.post(
         "v1/users/suggested-meal-plan",
@@ -34,9 +35,9 @@ export const suggestMealPlan = async () => {
 export const updateMealPlan = async () => {
   try {
     const value = await AsyncStorage.getItem("sugsestMealPlan");
-    const mealPlanDate = moment(JSON.parse(value).timeStamp);
+    const mealPlanDate = moment(JSON.parse(value)?.timeStamp);
 
-    if (!mealPlanDate.isSame(moment(), "day")) {
+    if (!mealPlanDate.isSame(moment(), "day") || !mealPlanDate || !value) {
       const mealPlanData = await suggestMealPlan();
       //   console.log("New Meal Plan:", mealPlanData);
       return mealPlanData;

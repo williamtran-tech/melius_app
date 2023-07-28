@@ -9,25 +9,25 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const ProfileScreen = ({ navigation }) => {
   const [childInf, setChildInf] = useState();
-  // AsyncStorage.getItem("childrenInf").then((value) => {
-  //   setChildInf(JSON.parse(value));
-  // });
-  // const showAllItems = async () => {
-  //   try {
-  //     const keys = await AsyncStorage.getAllKeys();
+  AsyncStorage.getItem("childrenInf").then((value) => {
+    setChildInf(JSON.parse(value));
+  });
+  const showAllItems = async () => {
+    try {
+      const keys = await AsyncStorage.getAllKeys();
 
-  //     const items = await AsyncStorage.multiGet(keys);
+      const items = await AsyncStorage.multiGet(keys);
 
-  //     console.log("All items in AsyncStorage:");
-  //     items.forEach(([key, value]) => {
-  //       console.log(key, value);
-  //     });
-  //   } catch (error) {
-  //     console.error("Error retrieving items from AsyncStorasge:", error);
-  //   }
-  // };
+      console.log("All items in AsyncStorageeee:");
+      items.forEach(([key, value]) => {
+        console.log(key, value);
+      });
+    } catch (error) {
+      console.error("Error retrieving items from AsyncStorasge:", error);
+    }
+  };
   useEffect(() => {
-    // showAllItems();
+    showAllItems();
   }, []);
   return (
     <View style={{ flex: 1, backgroundColor: "#FDFDFD" }}>
