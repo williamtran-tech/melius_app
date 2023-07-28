@@ -18,8 +18,23 @@ import AuthenticationNavigation from "./navigation/AuthenticationNavigation";
 import { Linking, StatusBar } from "react-native";
 import { navigationRef } from "./Services/GoogleSingIn";
 const App = () => {
+  const handleRedirect = (event) => {
+    // const url = event.url;
+    const data = Linking.parse(event.url);
+    console.log(data);
+    // if (url && url.includes("YOUR_SUCCESS_REDIRECT_URL")) {
+    //   // WebBrowser.dismissBrowser();
+    //   // navigation.navigate("Home"); // Replace 'Home' with the name of the screen you want to navigate to
+    // }
+  };
   useEffect(() => {
     StatusBar.setBarStyle("dark-content");
+    Linking.addEventListener("url", handleRedirect);
+
+    // Remove the event listener when the component unmounts to avoid memory leaks
+    return () => {
+      Linking.removeEventListener("url", handleRedirect);
+    };
   }, []);
 
   i18next.use(initReactI18next).init({

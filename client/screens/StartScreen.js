@@ -1,50 +1,53 @@
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  StyleSheet,
-  Image,
-  Linking,
-} from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet, Image } from "react-native";
 import googleIcon from "../assets/images/google.png";
 import facebookIcon from "../assets/images/facebook.png";
 import twitterIcon from "../assets/images/twitter.png";
 import VerticalLogo from "../assets/images/verticalLogo.png";
-import { handleGoogleLogin } from "../Services/GoogleSingIn";
-import { useEffect } from "react";
+// import { handleGoogleLogin } from "../Services/GoogleSingIn";
+import { useEffect, useState } from "react";
+import { Linking, Platform } from "react-native";
 import * as WebBrowser from "expo-web-browser";
+import { useNavigation } from "@react-navigation/native";
+
+const handleRedirect = (event) => {
+  const url = event.url;
+
+  if (url && url.includes("YOUR_SUCCESS_REDIRECT_URL")) {
+    WebBrowser.dismissBrowser();
+    const navigation = useNavigation();
+    navigation.navigate("Home"); // Replace 'Home' with the name of the screen you want to navigate to
+  }
+};
 
 const StartScreen = ({ navigation }) => {
-  const handleDeepLink = async (event) => {
-    const { url } = event;
-    console.log(url);
-    if (
-      url.startsWith(
-        "https://melius-service.onrender.com/api/v1/auth/google/callback/success#"
-      )
-    ) {
-      console.log("cc");
-      // Handle the deep link here, for example, navigate to the desired screen in your app.
-      await WebBrowser.dismissBrowser();
-      // navigation.replace("BottomNavigation"); // Replace with the screen name you want to navigate to.
+  const handleRedirect = (event) => {
+    const url = event.url;
+    const data = Linking.parse(event.url);
+    console.log(data);
+    if (url && url.includes("YOUR_SUCCESS_REDIRECT_URL")) {
+      WebBrowser.dismissBrowser();
+      // navigation.navigate("Home"); // Replace 'Home' with the name of the screen you want to navigate to
+    }
+  };
+
+  const handleGoogleLogin = async () => {
+    const googleLoginURL =
+      "https://melius-service.onrender.com/api/v1/auth/google";
+
+    try {
+      let result = await WebBrowser.openAuthSessionAsync(googleLoginURL);
+    } catch (error) {
+      console.error("Error opening Google login URL:", error);
     }
   };
 
   useEffect(() => {
-    const addDeepLinkListener = () => {
-      Linking.addEventListener("url", handleDeepLink);
-    };
+    // Add the event listener for handling the URL redirect after Google login
+    Linking.addEventListener("url", handleRedirect);
 
-    const removeDeepLinkListener = () => {
-      Linking.removeEventListener("url", handleDeepLink);
-    };
-
-    // Add event listener for deep linking when the component mounts.
-    addDeepLinkListener();
-
-    // Clean up event listener when the component unmounts.
+    // Remove the event listener when the component unmounts to avoid memory leaks
     return () => {
-      removeDeepLinkListener();
+      Linking.removeEventListener("url", handleRedirect);
     };
   }, []);
   return (
