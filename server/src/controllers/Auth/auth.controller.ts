@@ -343,9 +343,11 @@ export default class AuthController extends BaseController {
           httpOnly: true,
         });
 
-        res.status(200).json({
-          msg: "Redirect user home screen",
-        });
+        // res.status(200).json({
+        //   msg: "Redirect user home screen",
+        // });
+
+        res.redirect("exp://192.168.31.40:19000/success?token=" + token);
       } else {
         // User already exists in the database
         const userData = {
@@ -362,9 +364,10 @@ export default class AuthController extends BaseController {
           maxAge: token.expiresIn * 1000,
           secure: true,
         });
-        res.status(200).json({
-          msg: "User authenticated successfully",
-        });
+        // res.status(200).json({
+        //   msg: "User authenticated successfully",
+        // });
+        res.redirect("exp://192.168.31.40:19000/success?token=" + token.token);
       }
     } catch (error) {
       console.log(error);

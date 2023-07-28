@@ -15,17 +15,17 @@ import { useEffect } from "react";
 import * as WebBrowser from "expo-web-browser";
 
 const StartScreen = ({ navigation }) => {
-  const handleDeepLink = async (event) => {
+  const handleDeepLink = (event) => {
     const { url } = event;
     console.log(url);
     if (
       url.startsWith(
-        "https://melius-service.onrender.com/api/v1/auth/google/callback/success#"
+        "exp://192.168.31.40:19000/success"
       )
     ) {
       console.log("cc");
       // Handle the deep link here, for example, navigate to the desired screen in your app.
-      await WebBrowser.dismissBrowser();
+      WebBrowser.dismissBrowser();
       // navigation.replace("BottomNavigation"); // Replace with the screen name you want to navigate to.
     }
   };
