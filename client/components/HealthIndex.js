@@ -21,15 +21,15 @@ const HealthIndex = () => {
   };
   useEffect(() => {
     console.log("Mount");
-
+    fetchData();
     // Add a delay of 2 seconds before calling fetchData()
-    const delay = 2000; // 2 seconds in milliseconds
-    const timer = setTimeout(() => {
-      fetchData();
-    }, delay);
+    // const delay = 2000; // 2 seconds in milliseconds
+    // const timer = setTimeout(() => {
+    //   fetchData();
+    // }, delay);
 
-    // Clean up the timer when the component unmounts
-    return () => clearTimeout(timer);
+    // // Clean up the timer when the component unmounts
+    // return () => clearTimeout(timer);
   }, []);
 
   return (

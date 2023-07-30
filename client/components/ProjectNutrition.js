@@ -12,20 +12,26 @@ const ProjectNutrition = ({ targetPlan }) => {
       <View style={styles.infContainer}>
         <View>
           <SubText style={styles.inf}>
-            {targetPlan && targetPlan.carbTarget}g
+            {targetPlan && targetPlan.carbTarget.toFixed(2)}g
           </SubText>
           <SubText style={styles.title}>Carbs</SubText>
         </View>
         <View>
-          <SubText style={styles.inf}>14,9g</SubText>
+          <SubText style={styles.inf}>
+            {targetPlan && targetPlan.fatTarget.toFixed(2)}g
+          </SubText>
           <SubText style={styles.title}>Fat</SubText>
         </View>
         <View>
-          <SubText style={styles.inf}>136g</SubText>
+          <SubText style={styles.inf}>
+            {targetPlan && targetPlan.proteinTarget.toFixed(2)}g
+          </SubText>
           <SubText style={styles.title}>Protein</SubText>
         </View>
         <View>
-          <SubText style={styles.infTotal}>≈1400 kcal</SubText>
+          <SubText style={styles.infTotal}>
+            ≈{targetPlan && targetPlan.energyTarget.toFixed()} cal
+          </SubText>
           <SubText style={styles.titleTotal}>Energy</SubText>
         </View>
       </View>

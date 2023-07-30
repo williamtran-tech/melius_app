@@ -68,7 +68,6 @@ const LoginScreen = ({ navigation }) => {
       const mealplan = await HandleApi.serverGeneral.get(
         `/v1/users/meal-plan?kidId=${userProfile.kidProfile[0].id}`
       );
-      console.log("ccccc", mealplan.data);
       await AsyncStorage.setItem("mealPlan", JSON.stringify(mealplan.data));
       console.log("oke nha:", userProfile.kidProfile[0].id);
       if (authorizationCookie) {

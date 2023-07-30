@@ -27,7 +27,7 @@ const ProfileScreen = ({ navigation }) => {
     }
   };
   useEffect(() => {
-    showAllItems();
+    // showAllItems();
   }, []);
   return (
     <View style={{ flex: 1, backgroundColor: "#FDFDFD" }}>

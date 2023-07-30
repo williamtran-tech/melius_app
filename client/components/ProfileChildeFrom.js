@@ -18,51 +18,48 @@ import DateTimePicker from "@react-native-community/datetimepicker";
 import HandleApi from "../Services/HandleApi";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation } from "@react-navigation/native";
+import { getUserProfile } from "../Services/RetrieveNutritionProfile";
 const ProfileChildeFrom = () => {
   const navigation = useNavigation();
-  const handleSubmit = (values) => {
-    HandleApi.serverGeneral
-      .post("v1/users/create-child", values)
-      .then((response) => {
-        AsyncStorage.setItem("childrenInf", JSON.stringify(response.data))
-          .then(() => {
-            const storedData = AsyncStorage.getItem("childrenInf").then(
-              (value) => {
-                console.log(value);
-                console.log("Stored Data:", JSON.parse(value));
-              }
-            );
+  const handleSubmit = async (values) => {
+    try {
+      const response = await HandleApi.serverGeneral.post(
+        "v1/users/create-child",
+        values
+      );
+      await AsyncStorage.setItem("childrenInf", JSON.stringify(response.data));
 
-            //
-          })
-          .catch((error) => {
-            // setLoading(false);
-            console.error(error);
-          });
-        HandleApi.serverGeneral
-          .post("v1/users/meal-plan", {
-            kidId: response.data.child.id,
-          })
-          .then((response) => {
-            AsyncStorage.setItem("mealPlan", JSON.stringify(response.data))
-              .then(() => {
-                const storedData = AsyncStorage.getItem("mealPlan").then(
-                  (value) => {
-                    console.log(value);
-                    console.log("Stored Data:", JSON.parse(value));
-                    navigation.replace("BottomNavigation");
-                  }
-                );
-              })
-              .catch((error) => {
-                // setLoading(false);
-                console.error(error);
-              });
-          });
-        // const test = JSON.stringify(response.data);
-        // console.log(JSON.parse(test));
+      await HandleApi.serverGeneral.post("v1/users/meal-plan", {
+        kidId: response.data.child.id,
       });
+      const userProfile = await getUserProfile();
+      // const mealPlanResponse = await HandleApi.serverGeneral.post(
+      //   "v1/users/meal-plan",
+      //   {
+      //     kidId: response.data.child.id,
+      //   }
+      // );
+      // await AsyncStorage.setItem(
+      //   "mealPlan",
+      //   JSON.stringify(mealPlanResponse.data)
+      // );
+      // const storedMealPlan = await AsyncStorage.getItem("mealPlan");
+      // console.log(storedMealPlan);
+      // console.log("Stored Meal Plan:", JSON.parse(storedMealPlan));
+      const mealplan = await HandleApi.serverGeneral.get(
+        `/v1/users/meal-plan?kidId=${response.data.child.id}`
+      );
+      await AsyncStorage.setItem("mealPlan", JSON.stringify(mealplan.data));
+      console.log("oke nha:", response.data.child.id);
+
+      navigation.replace("BottomNavigation");
+    } catch (error) {
+      // Handle errors appropriately
+      console.error(error);
+      // setLoading(false);
+    }
   };
+
   return (
     <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
       <View style={styles.container}>
