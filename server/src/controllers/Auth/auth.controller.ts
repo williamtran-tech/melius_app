@@ -46,10 +46,10 @@ export default class AuthController extends BaseController {
         maxAge: 3600000,
       });
       if (req.body.verifiedMethod === "email") {
-        // this.authenticationService.sendVerifiedEmail(
-        //   userData.email,
-        //   verifiedCode
-        // );
+        this.authenticationService.sendVerifiedEmail(
+          userData.email,
+          verifiedCode
+        );
       }
       res.status(200).json({
         msg: "User acceptable",

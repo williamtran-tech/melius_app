@@ -221,17 +221,16 @@ class AuthenticationService {
       throw err;
     }
   }
+
   // Sending mail service
   public async sendVerifiedEmail(email: string, verifiedCode: string) {
     try {
       const mailUtil = new MailUtil();
       // Saver https://developers.google.com/oauthplayground/?code=4/0AbUR2VNYjBxZjzhS37rSnSBYK2hxiQEVEPPHALsZwewxPU8hA-Er92alWZEWmIDPDl73AQ&scope=https://mail.google.com/
-      const accessToken = await mailUtil.getAccessToken();
       mailUtil.sendMail(
-        accessToken.token!,
         email,
-        "Test",
-        `<h1>Verified Code: ${verifiedCode}</h1>`
+        "[Melius Application] Verify your email [Do not reply]",
+        `<h2>Verified Code: ${verifiedCode}</h2>`
       );
     } catch (err) {
       throw err;
