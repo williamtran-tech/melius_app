@@ -28,29 +28,9 @@ const SettingsScreen = () => {
               marginBottom: 16,
             }}
           >
-            Example of Splash, Login and Sign Up in React Native
-            {"\n\n"}
-            This is the Settings Screen
+            on developing
           </Text>
         </View>
-        <Text
-          style={{
-            fontSize: 18,
-            textAlign: "center",
-            color: "grey",
-          }}
-        >
-          Splash, Login and Register Example{"\n"}React Native
-        </Text>
-        <Text
-          style={{
-            fontSize: 16,
-            textAlign: "center",
-            color: "grey",
-          }}
-        >
-          www.aboutreact.com
-        </Text>
       </View>
     </SafeAreaView>
   );

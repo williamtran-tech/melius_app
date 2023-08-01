@@ -36,7 +36,14 @@ const Menu = ({ navigation, selectedDate, setSelectedDate, mealPlan }) => {
             <View style={styles.ItemContainer}>
               <SubText>7:30</SubText>
               <SubText style={{ flex: 1 }}>{suggestedMeals[0].name}</SubText>
-              <TouchableOpacity style={styles.reciprebtn}>
+              <TouchableOpacity
+                style={styles.reciprebtn}
+                onPress={() => {
+                  navigation.navigate("MenuDetail", {
+                    data: suggestedMeals[0].name,
+                  });
+                }}
+              >
                 <Image
                   source={require("../assets/icon/Iconrecipe.png")}
                   style={{ width: 15, height: 15 }}
@@ -58,7 +65,14 @@ const Menu = ({ navigation, selectedDate, setSelectedDate, mealPlan }) => {
             <View style={styles.ItemContainer}>
               <SubText>7:30</SubText>
               <SubText style={{ flex: 1 }}>{suggestedMeals[1].name}</SubText>
-              <TouchableOpacity style={styles.reciprebtn}>
+              <TouchableOpacity
+                style={styles.reciprebtn}
+                onPress={() => {
+                  navigation.navigate("MenuDetail", {
+                    data: suggestedMeals[1].name,
+                  });
+                }}
+              >
                 <Image
                   source={require("../assets/icon/Iconrecipe.png")}
                   style={{ width: 15, height: 15 }}
@@ -80,7 +94,14 @@ const Menu = ({ navigation, selectedDate, setSelectedDate, mealPlan }) => {
             <View style={styles.ItemContainer}>
               <SubText>7:30</SubText>
               <SubText style={{ flex: 1 }}>{suggestedMeals[2].name}</SubText>
-              <TouchableOpacity style={styles.reciprebtn}>
+              <TouchableOpacity
+                style={styles.reciprebtn}
+                onPress={() => {
+                  navigation.navigate("MenuDetail", {
+                    data: suggestedMeals[2].name,
+                  });
+                }}
+              >
                 <Image
                   source={require("../assets/icon/Iconrecipe.png")}
                   style={{ width: 15, height: 15 }}
@@ -93,7 +114,7 @@ const Menu = ({ navigation, selectedDate, setSelectedDate, mealPlan }) => {
       <View style={{ flex: 2 }}>
         <View style={styles.headerContainer}>
           <HeaderText style={{ color: "#518B1A", fontSize: 18 }}>
-            BEE's menu !
+            Mother's Ingredients
           </HeaderText>
           <TouchableOpacity
             style={styles.updatebtn}

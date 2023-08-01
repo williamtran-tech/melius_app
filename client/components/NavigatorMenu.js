@@ -45,5 +45,6 @@ const styles = StyleSheet.create({
   ScreenName: {
     fontSize: 18,
     color: "#518B1A",
+    textTransform: "capitalize",
   },
 });

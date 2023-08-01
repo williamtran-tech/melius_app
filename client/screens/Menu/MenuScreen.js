@@ -14,7 +14,7 @@ import {
 import AsyncStorage from "@react-native-async-storage/async-storage";
 const MenuScreen = ({ route }) => {
   const [activeTab, setActiveTab] = useState("daily");
-  const [targetPlan, setTargetPlan] = useState();
+
   // console.log(route.params);
   const { navigation, selectedDate, setSelectedDate } = route.params;
   console.log(selectedDate);
@@ -33,10 +33,6 @@ const MenuScreen = ({ route }) => {
     }
   };
   useEffect(() => {
-    AsyncStorage.getItem("mealPlan").then((value) => {
-      console.log("targettt:", JSON.parse(value));
-      setTargetPlan(JSON.parse(value).mealPlan);
-    });
     fetchMealPlan();
   }, []);
   const currentDate = moment().format("dddd, MMMM D");
@@ -133,7 +129,7 @@ const MenuScreen = ({ route }) => {
         <View style={{ paddingHorizontal: 25 }}>{renderCalendar()}</View>
       </View>
       <View style={{ paddingHorizontal: 25, marginTop: 10 }}>
-        <ProjectNutrition targetPlan={targetPlan}></ProjectNutrition>
+        <ProjectNutrition></ProjectNutrition>
       </View>
       <View style={{ marginTop: 20, flex: 1 }}>
         {mealPlan && (

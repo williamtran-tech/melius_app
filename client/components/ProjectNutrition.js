@@ -1,9 +1,17 @@
 import { StyleSheet, Text, View } from "react-native";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import SubText from "./SubText";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
-const ProjectNutrition = ({ targetPlan }) => {
-  console.log("target:", targetPlan);
+const ProjectNutrition = () => {
+  const [targetPlan, setTargetPlan] = useState();
+
+  useEffect(() => {
+    AsyncStorage.getItem("mealPlan").then((value) => {
+      // console.log("targettt:", JSON.parse(value));
+      setTargetPlan(JSON.parse(value).mealPlan);
+    });
+  }, []);
   return (
     <View style={styles.container}>
       <SubText style={{ color: "#FF9600", fontSize: 12 }}>

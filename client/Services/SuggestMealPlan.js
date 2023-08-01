@@ -39,11 +39,11 @@ export const updateMealPlan = async () => {
 
     if (!mealPlanDate.isSame(moment(), "day") || !mealPlanDate || !value) {
       const mealPlanData = await suggestMealPlan();
-      //   console.log("New Meal Plan:", mealPlanData);
+      // console.log("New Meal Plan:", mealPlanData);
       return mealPlanData;
     } else {
       const mealPlanData = JSON.parse(value);
-      //   console.log("Cached Meal Plan:", mealPlanData);
+      // console.log("Cached Meal Plan:", mealPlanData);
       return mealPlanData;
     }
   } catch (error) {
