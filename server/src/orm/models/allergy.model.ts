@@ -15,6 +15,7 @@ import { Ingredient } from "./ingredient.model";
 @Table({
   tableName: "allergies",
   timestamps: true,
+  paranoid: true,
 })
 export class Allergy extends Model {
   @PrimaryKey

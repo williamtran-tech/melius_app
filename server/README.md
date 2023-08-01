@@ -47,6 +47,13 @@ cd src/orm
 npx sequelize-cli db:seed --seed 20230711052934-create-roles.js
 ```
 
+## 2.4. Seeding paranoid for Tables: Users, Allergies, Available_ingredients
+
+```
+cd src/orm
+npx sequelize-cli db:seed --seed 20230801033236-create-soft-delete.js
+```
+
 # 3. Issues may occur
 
 ## 3.1. Error: Fetch is not defined

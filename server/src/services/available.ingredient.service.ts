@@ -67,11 +67,12 @@ export default class AvailableIngredientService {
     }
   }
 
-  public async deleteAvailableIngredient(availableIngredientId: number) {
+  public async deleteAvailableIngredient(availableIngredientId: number, userId: number) {
     try {
         const availableIngredient = await AvailableIngredient.findOne({
             where: {
-                id: availableIngredientId
+                id: availableIngredientId,
+                userId: userId
             }
         });
 
@@ -82,6 +83,28 @@ export default class AvailableIngredientService {
         await availableIngredient.destroy();
 
         return availableIngredient;
+    } catch (err) {
+        throw err;
+    }
+  }
+
+  public async undoDeleteAvailableIngredients(availableIngredientId: number, userId: number) {
+    try {
+        const availableIngredients = await AvailableIngredient.findOne({
+            where: {
+                id: availableIngredientId,
+                userId: userId,
+            },
+            paranoid: false
+        });
+
+        if (!availableIngredients) {
+            throw new HttpException(404, "Available ingredients not found");
+        }
+
+        await availableIngredients.restore();
+
+        return availableIngredients;
     } catch (err) {
         throw err;
     }

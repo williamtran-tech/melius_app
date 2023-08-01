@@ -2,6 +2,7 @@ import { Allergy } from "../orm/models/allergy.model";
 import { Ingredient } from "../orm/models/ingredient.model";
 import HttpException from "../exceptions/HttpException";
 import { User } from "../orm/models/user.model";
+import { Op } from "sequelize";
 
 export default class AllergyService {
   public async getAllergyList(kidId: number) {
@@ -61,11 +62,12 @@ export default class AllergyService {
     }
   }
 
-  public async deleteAllergy(allergyID: number) {
+  public async deleteAllergy(allergyID: number, kidId: number) {
     try {
         const allergy = await Allergy.findOne({
             where: {
-                id: allergyID
+                id: allergyID,
+                kidId: kidId
             }
         });
 
@@ -76,6 +78,28 @@ export default class AllergyService {
         await allergy.destroy();
 
         return allergy;
+    } catch (err) {
+        throw err;
+    }
+  }
+
+  public async undoDeleteAllergies(allergyID: number, kidId: number) {
+    try {
+        const allergies = await Allergy.findOne({
+            where: {
+                id: allergyID,
+                kidId: kidId,
+            },
+            paranoid: false
+        });
+
+        if (!allergies) {
+            throw new HttpException(404, "Allergies not found");
+        }
+
+        await allergies.restore();
+
+        return allergies;
     } catch (err) {
         throw err;
     }

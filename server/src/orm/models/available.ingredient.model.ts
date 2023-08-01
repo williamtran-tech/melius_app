@@ -14,6 +14,7 @@ import { Ingredient } from "./ingredient.model";
 @Table({
   tableName: "available_ingredients",
   timestamps: true,
+  paranoid: true,
 })
 export class AvailableIngredient extends Model {
   @PrimaryKey

@@ -16,7 +16,7 @@ export default class MailUtil {
     });
     
     const mailOptions = {
-      from: "app.melius@gmail.com",
+      from: process.env.ADMIN_EMAIL_ADDRESS,
       to: to,
       subject: subject,
       html: message,

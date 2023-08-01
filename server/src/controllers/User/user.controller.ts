@@ -200,8 +200,9 @@ export default class UserController extends BaseController {
   public deleteAllergy = async (req: express.Request, res: express.Response, next: express.NextFunction) => {
     try {
       const allergyId = Number(req.query.id);
+      const kidId = Number(req.query.kidId);
 
-      const deletedAllergy = await this.allergyService.deleteAllergy(allergyId);
+      const deletedAllergy = await this.allergyService.deleteAllergy(allergyId, kidId);
       res.status(200).json({
         msg: "Delete allergy successfully",
         ingredient: deletedAllergy, 
@@ -210,6 +211,22 @@ export default class UserController extends BaseController {
       next(error);
     }
   };
+
+  public undoDeleteAllergies = async (req: express.Request, res: express.Response, next: express.NextFunction) => {
+    try {
+      const allergyId = Number(req.query.id);
+      const kidId = Number(req.query.kidId);
+
+      const deletedAllergies = await this.allergyService.undoDeleteAllergies(allergyId, kidId);
+      res.status(200).json({
+        msg: "Undo delete allergies successfully",
+        ingredient: deletedAllergies,
+      })
+    } catch (error) {
+      next(error);
+    }
+  };
+
   // AVAILABLE INGREDIENTS FUNCTIONS
   public addIngredientToAvailableList = async (
     req: express.Request,
@@ -257,12 +274,29 @@ export default class UserController extends BaseController {
   public deleteAvailableIngredient = async (req: express.Request, res: express.Response, next: express.NextFunction) => {
     try {
       const availableIngredientId = Number(req.query.id);
+      const userId = Number(req.userData.id);
 
-      const deletedAvailableIngredient = await this.availableIngredientService.deleteAvailableIngredient(availableIngredientId);
+      const deletedAvailableIngredient = await this.availableIngredientService.deleteAvailableIngredient(availableIngredientId, userId);
       
       res.status(200).json({
         msg: "Delete available ingredient successfully",
         ingredient: deletedAvailableIngredient, 
+      })
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  public undoDeleteAvailableIngredients = async (req: express.Request, res: express.Response, next: express.NextFunction) => {
+    try {
+      const availableIngredientId = Number(req.query.id);
+      const userId = Number(req.userData.id);
+
+      const deletedAvailableIngredients = await this.availableIngredientService.undoDeleteAvailableIngredients(availableIngredientId, userId);
+      
+      res.status(200).json({
+        msg: "Undo delete available ingredients successfully",
+        ingredient: deletedAvailableIngredients, 
       })
     } catch (err) {
       next(err);
