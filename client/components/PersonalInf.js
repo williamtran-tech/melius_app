@@ -1,15 +1,44 @@
 import { StyleSheet, Text, View, TouchableOpacity, Image } from "react-native";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import HeaderText from "./HeaderText";
 import SubText from "./SubText";
 import IconWithText from "./IconWithText";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import moment from "moment";
 
 const PersonalInf = () => {
+  const [momInfor, setMomInfor] = useState();
+  const fetchData = async () => {
+    try {
+      const value = await AsyncStorage.getItem("userProfile");
+      console.log({ value });
+      if (value) {
+        const userProfile = JSON.parse(value);
+        console.log("userProfileeeeee:", userProfile);
+        // Check if the required data is available before setting the state
+        setMomInfor(userProfile.userProfile);
+      }
+    } catch (error) {
+      console.error("Error fetching userProfile from AsyncStorage:", error);
+    }
+  };
+  useEffect(() => {
+    console.log("Mount");
+    fetchData();
+    // Add a delay of 2 seconds before calling fetchData()
+    // const delay = 2000; // 2 seconds in milliseconds
+    // const timer = setTimeout(() => {
+    //   fetchData();
+    // }, delay);
+
+    // // Clean up the timer when the component unmounts
+    // return () => clearTimeout(timer);
+  }, []);
   return (
     <View>
       <View style={styles.titleContainer}>
         <HeaderText style={{ color: "#518B1A", fontSize: 18 }}>
-          Personal information
+          Personal informationnnn
         </HeaderText>
         <TouchableOpacity style={styles.updatebtn}>
           <SubText style={styles.updateText}>Edit</SubText>
@@ -17,14 +46,22 @@ const PersonalInf = () => {
       </View>
       <View style={styles.infContainer}>
         <View style={styles.row1}>
-          <IconWithText iconName="Iconfemale" title="Female"></IconWithText>
-          <IconWithText iconName="Iconbirthday" title="Birthday"></IconWithText>
+          <IconWithText
+            iconName="Iconfemale"
+            title={momInfor && momInfor.user.fullName}
+          ></IconWithText>
+          <IconWithText
+            iconName="Iconbirthday"
+            title={
+              momInfor && moment(momInfor.user.DOB).format("MMMM DD, YYYY")
+            }
+          ></IconWithText>
           <IconWithText iconName="Iconphone" title="0921122219"></IconWithText>
         </View>
         <View style={styles.row1}>
           <IconWithText
             iconName="Iconmail"
-            title="abcd@gmail.com"
+            title={momInfor && momInfor.email}
           ></IconWithText>
         </View>
         <View style={styles.row1}>

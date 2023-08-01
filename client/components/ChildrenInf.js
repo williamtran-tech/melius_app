@@ -1,5 +1,5 @@
 import { StyleSheet, Text, View, TouchableOpacity, Image } from "react-native";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import HeaderText from "./HeaderText";
 import SubText from "./SubText";
 import IconWithText from "./IconWithText";
@@ -9,9 +9,12 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const ChildrenInf = () => {
   const [childInf, setChildInf] = useState();
-  AsyncStorage.getItem("userProfile").then((value) => {
-    setChildInf(JSON.parse(value).kidProfile[0]);
-  });
+  useEffect(() => {
+    AsyncStorage.getItem("userProfile").then((value) => {
+      setChildInf(JSON.parse(value).kidProfile[0]);
+    });
+  }, []);
+
   return (
     <View style={{ flex: 1 }}>
       {childInf && (

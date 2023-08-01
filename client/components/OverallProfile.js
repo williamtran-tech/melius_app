@@ -6,12 +6,42 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import HeaderText from "./HeaderText";
 import { LinearGradient } from "expo-linear-gradient";
 import SubText from "./SubText";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const OverallProfile = () => {
+  const [momInfor, setMomInfor] = useState();
+  const fetchData = async () => {
+    try {
+      const value = await AsyncStorage.getItem("userProfile");
+      console.log({ value });
+      if (value) {
+        const userProfile = JSON.parse(value);
+        console.log("userProfileeeeee:", userProfile);
+        // Check if the required data is available before setting the state
+        setMomInfor(userProfile.userProfile);
+      }
+    } catch (error) {
+      console.error("Error fetching userProfile from AsyncStorage:", error);
+    }
+  };
+  const imageSource = { uri: momInfor && momInfor.user.img };
+  useEffect(() => {
+    console.log("Mount");
+    fetchData();
+
+    // Add a delay of 2 seconds before calling fetchData()
+    // const delay = 2000; // 2 seconds in milliseconds
+    // const timer = setTimeout(() => {
+    //   fetchData();
+    // }, delay);
+
+    // // Clean up the timer when the component unmounts
+    // return () => clearTimeout(timer);
+  }, []);
   return (
     <View style={styles.container}>
       <ImageBackground
@@ -27,12 +57,16 @@ const OverallProfile = () => {
         <View style={styles.avatarContainer}>
           <Image
             style={styles.avatar}
-            source={require("../assets/images/Avatar.png")}
+            source={
+              imageSource ? imageSource : require("../assets/images/Logo.png")
+            }
           ></Image>
         </View>
         <View style={{ flex: 1 }}>
           <View style={styles.containerName}>
-            <HeaderText style={styles.nameMom}>ME RONG</HeaderText>
+            <HeaderText style={styles.nameMom}>
+              {momInfor && momInfor.user.fullName}
+            </HeaderText>
             <TouchableOpacity>
               <Image
                 source={require("../assets/icon/Iconedit.png")}
@@ -48,7 +82,9 @@ const OverallProfile = () => {
                 style={styles.icon}
                 resizeMode="contain"
               ></Image>
-              <SubText style={{ color: "#fff" }}>Housewife</SubText>
+              <SubText style={{ color: "#fff" }}>
+                {/* {momInfor && momInfor.user.fullName} */}Doctor
+              </SubText>
             </View>
             <View style={styles.inforMom}>
               <Image
@@ -110,6 +146,7 @@ const styles = StyleSheet.create({
   avatar: {
     height: 100,
     width: 100,
+    borderRadius: 50,
   },
   icon: {
     // height: 12,
