@@ -22,6 +22,7 @@ import { UserRole } from "./user.role.model";
 @Table({
   tableName: "users",
   timestamps: true,
+  paranoid: true,
 })
 export class User extends Model {
   @PrimaryKey

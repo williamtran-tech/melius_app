@@ -20,13 +20,15 @@ userRouter.get("/profile/kid", authMiddleware,authorize(["User"]),checkKidIDMidd
 // Add ingredient to allergy list of kid
 userRouter.post("/allergy", authMiddleware, checkKidIDMiddleware, userController.addIngredientToAllergyList)
           .get("/allergy", authMiddleware, authorize(["User"]), checkKidIDMiddleware, userController.getAllergyList)
-          .delete("/allergy", authMiddleware, authorize(["User"]), userController.deleteAllergy);
+          .delete("/allergy", authMiddleware, authorize(["User"]), userController.deleteAllergy)
+          .patch("/allergy", authMiddleware, authorize(["User"]), userController.undoDeleteAllergies);
 
 // AVAILABLE INGREDIENTS
 // Add ingredient to available list of mother
 userRouter.post("/available-ingredients", authMiddleware, userController.addIngredientToAvailableList)
           .get("/available-ingredients", authMiddleware, userController.getAvailableIngredientList)
-          .delete("/available-ingredients", authMiddleware, authorize(["User"]), userController.deleteAvailableIngredient);
+          .delete("/available-ingredients", authMiddleware, authorize(["User"]), userController.deleteAvailableIngredient)
+          .patch("/available-ingredients", authMiddleware, authorize(["User"]), userController.undoDeleteAvailableIngredients);
 
 // Meal Planning
 userRouter.get("/meal-plan", authMiddleware, authorize(["User"]),checkKidIDMiddleware,userController.getMealPlan)
