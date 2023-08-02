@@ -18,7 +18,7 @@ _This will drop all the tables and create new ones._
 
 To keep the data, comment the line `// await sequelize.sync({});` and run the following command to create the tables.
 
-# 2. Seeding data
+# 2. Seeding data (Seeding only executes on development repository not the production repo)
 
 ## 2.1. Seeding data from Recipes dataset
 

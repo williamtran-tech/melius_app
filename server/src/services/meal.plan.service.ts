@@ -198,6 +198,20 @@ export default class MealPlanService {
     } 
   }
 
+  public async getMealPlanInfo(kidId: number) {
+    try {
+      const mealPlan = await MealPlan.findOne({
+        where: { kidId: kidId },
+        attributes: ["id", "energyTarget", "proteinTarget", "fatTarget", "carbTarget", "updatedAt"],
+        order: [["updatedAt", "DESC"]],
+      });
+
+      return mealPlan;
+    } catch (error) {
+      throw error;
+    }
+  }
+
   public async checkMealPlanExist(kidId: number) {
     try {
       const mealPlan = await MealPlan.findOne({
@@ -388,7 +402,13 @@ export default class MealPlanService {
       TOTAL_SATURATED_FAT += mealNutrientsInGrams.saturatedFat;
       TOTAL_SODIUM += mealNutrientsInGrams.sodium;
 
+      // For TESTING PURPOSES
+      // Insert RECIPE ID to the MEAL PLAN DETAILS - Default is 3 meals per day
+      
+      
+
       return {
+        id: meal.id,
         name: meal.name,
         nSteps: meal.nSteps,
         nIngredients: meal.nIngredients,

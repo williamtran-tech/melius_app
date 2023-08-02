@@ -16,7 +16,6 @@ export default class IngredientService {
         attributes: [
           "id",
           "fdcId",
-          "category.name" as "category",
           "name",
           "portionValue",
           "portionUnit",
@@ -25,15 +24,18 @@ export default class IngredientService {
         where: {
           fdcId: ingredientDTO.fdcId,
         },
-        include: ["category"],
+        include: {
+          model: IngreCategory,
+          as: "category",
+          attributes: ["id", "name"],
+        }
       });
 
       if (!ingredient) {
-        console.log("Supdude: ", ingredientDTO);
         const ingredientNutrition = await this.USDAService.getFoodNutritionData(
           ingredientDTO
         );
-        const categoryId = Number(ingredientNutrition.foodCode.toString()[0]);
+        
         const [ingredient, result] = await Ingredient.findOrCreate({
           where: {
             name: ingredientNutrition.foods,
@@ -41,17 +43,15 @@ export default class IngredientService {
           attributes: [
             "id",
             "fdcId",
-            "category.name" as "category",
             "name",
             "portionValue",
             "portionUnit",
             "nutrients",
           ],
-          include: ["category"],
           defaults: {
             name: ingredientNutrition.foods,
             fdcId: ingredientNutrition.fdcId,
-            categoryId: categoryId,
+            categoryId: ingredientNutrition.category.id,
             portionValue: ingredientNutrition.foodPortions.value,
             portionUnit: ingredientNutrition.foodPortions.unitName,
             // remove the backslash from the string
@@ -60,38 +60,32 @@ export default class IngredientService {
         });
 
         let responseData = {};
-        if (result === false) {
-          responseData = {
-            fdcId: ingredient?.fdcId,
-            name: ingredient?.name,
-            category: ingredient?.category.name,
-            foodPortions: {
-              unitName: ingredient?.portionUnit,
-              value: ingredient?.portionValue,
-            },
-            foodNutrients: JSON.parse(ingredient?.nutrients!),
-          };
-        } else {
-          responseData = {
-            id: ingredient?.id,
-            fdcId: ingredientNutrition.fdcId,
-            name: ingredientNutrition.foods,
-            category: ingredientNutrition.category,
-            foodPortions: {
-              unitName: ingredientNutrition.foodPortions.unitName,
-              value: ingredientNutrition.foodPortions.value,
-            },
-            foodNutrients: ingredientNutrition.foodNutrients,
-          };
-        }
-
+       
+        responseData = {
+          id: ingredient?.id,
+          fdcId: ingredientNutrition.fdcId,
+          name: ingredientNutrition.foods,
+          category: {
+            id: ingredientNutrition.category.id,
+            name: ingredientNutrition.category.name,
+          },
+          foodPortions: {
+            unitName: ingredientNutrition.foodPortions.unitName,
+            value: ingredientNutrition.foodPortions.value,
+          },
+          foodNutrients: ingredientNutrition.foodNutrients,
+        };
+        
         return responseData;
       } else {
         const responseData = {
           id: ingredient.id,
           fdcId: ingredient.fdcId,
           name: ingredient.name,
-          category: ingredient!.name,
+          category: {
+            id: ingredient!.category.id,
+            name: ingredient!.category.name,
+          },  
           foodPortions: {
             unitName: ingredient.portionUnit,
             value: ingredient.portionValue,

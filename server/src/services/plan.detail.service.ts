@@ -1,14 +1,5 @@
-import KidHealthDTO from "../DTOs/Kid/KidHealthData.DTO";
-import HttpException from "../exceptions/HttpException";
-import { Ingredient } from "../orm/models/ingredient.model";
-import { IngreCategory } from "../orm/models/ingre.category.model";
-import USDAService from "./usda.service";
-import { Allergy } from "../orm/models/allergy.model";
-import { User } from "../orm/models/user.model";
-import { AvailableIngredient } from "../orm/models/available.ingredient.model";
-import { Health } from "../orm/models/health.model";
-import { MealPlan } from "../orm/models/meal.plan.model";
 import { PlanDetail } from "../orm/models/plan.detail.model";
+import { Recipe } from "../orm/models/recipe.model";
 
 export default class PlanDetailService {
     public async getPlanDetails(mealPlanId: number) {
@@ -19,8 +10,40 @@ export default class PlanDetailService {
                 },
                 order: [["mealTime", "DESC"]],
                 attributes: ["id", "mealTime", "session", "type", "nutritionRange", "updatedAt"],
-            })
-            return planDetails;
+                include: {
+                    model: Recipe,
+                    attributes: ["id", "name", "cookTime", "nSteps", "nIngredients", "ingredients", "steps", "nutrition"],
+                }
+            });
+
+            const parsedPlanDetails = planDetails.map((planDetail: any) => {
+                const ingre = planDetail.recipes.ingredients;
+                const stringIngre = ingre.replace(/'/g, '"');
+                const parsedIngre = JSON.parse(stringIngre);
+
+                const step = planDetail.recipes.steps;
+                const stringStep = step.replace(/'/g, '"');
+                const parsedStep = JSON.parse(stringStep);
+                console.log("Ingre: ", parsedStep);
+                const parsedPlanDetail = {
+                    id: planDetail.id,
+                    mealTime: planDetail.mealTime,
+                    session: planDetail.session,
+                    type: planDetail.type,
+                    nutritionRange: planDetail.nutritionRange,
+                    recipe: {
+                        id: planDetail.recipes.id,
+                        name: planDetail.recipes.name,
+                        cookTime: planDetail.recipes.cookTime,
+                        nSteps: planDetail.recipes.nSteps,
+                        nIngredients: planDetail.recipes.nIngredients,
+                        ingredients: parsedIngre,
+                        steps: parsedStep,
+                    },
+                }
+                return parsedPlanDetail;
+            });
+            return parsedPlanDetails;
         } catch (err) {
             throw err;
         }
@@ -398,6 +421,51 @@ export default class PlanDetailService {
                 await this.updatePlanDetails(mealPlanId, mealPlanDetails);
             }
             return sessionNutrientRange;
+        } catch (err) {
+            throw err;
+        }
+    }
+
+    // Insert Recipes into Plan Details
+    public async insertRecipesIntoPlanDetails(mealPlanId: number, recipes: number[]) {
+        try {
+           await PlanDetail.update(
+                {
+                    recipeId: recipes[0],
+                },
+                {
+                    where: {
+                        mealPlanId: mealPlanId,
+                        session: "Morning",
+                        type: "Main course",
+                    },
+                });
+
+            await PlanDetail.update(
+                {
+                    recipeId: recipes[1],
+                },
+                {
+                    where: {
+                        mealPlanId: mealPlanId,
+                        session: "Noon",
+                        type: "Main course",
+                    },
+                });
+
+            await PlanDetail.update(
+                {
+                    recipeId: recipes[2],
+                },
+                {
+                    where: {
+                        mealPlanId: mealPlanId,
+                        session: "Evening",
+                        type: "Main course",
+                    },
+                });
+
+            return true;
         } catch (err) {
             throw err;
         }
