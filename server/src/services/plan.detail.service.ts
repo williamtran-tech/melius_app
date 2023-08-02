@@ -16,6 +16,12 @@ export default class PlanDetailService {
                 }
             });
 
+
+            // Check if user has not created any meal details yet
+            if (planDetails[0].recipes === null) {
+                return planDetails;
+            }
+            
             const parsedPlanDetails = planDetails.map((planDetail: any) => {
                 const ingre = planDetail.recipes.ingredients;
                 const stringIngre = ingre.replace(/'/g, '"');
@@ -24,7 +30,7 @@ export default class PlanDetailService {
                 const step = planDetail.recipes.steps;
                 const stringStep = step.replace(/'/g, '"');
                 const parsedStep = JSON.parse(stringStep);
-                console.log("Ingre: ", parsedStep);
+
                 const parsedPlanDetail = {
                     id: planDetail.id,
                     mealTime: planDetail.mealTime,
@@ -45,6 +51,7 @@ export default class PlanDetailService {
             });
             return parsedPlanDetails;
         } catch (err) {
+            console.log(err);
             throw err;
         }
     }

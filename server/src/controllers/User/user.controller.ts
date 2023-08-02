@@ -344,7 +344,6 @@ export default class UserController extends BaseController {
       const [suggestedMeals, nutrientsTarget, estimatedNutrition] = await this.mealPlanService.createSuggestedMeals(mealPlanDTO);
       let recipeIds: number[] = [];
       for (let i = 0; i < suggestedMeals.length; i++) {
-        console.log("ID", suggestedMeals[i].id);
         recipeIds.push(suggestedMeals[i].id);
       }
 
