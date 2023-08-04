@@ -5,8 +5,8 @@ import SubText from "./SubText";
 import { ScrollView } from "react-native-gesture-handler";
 
 const Menu = ({ navigation, selectedDate, setSelectedDate, mealPlan }) => {
-  const { suggestedMeals } = mealPlan;
-  // console.log(suggestedMeals);
+  const { suggestedMeals, suggestedNutrition } = mealPlan;
+  // console.log(suggestedNutrition);
   return (
     <View style={{ flex: 1 }}>
       <View style={{ flex: 3 }}>
@@ -16,7 +16,9 @@ const Menu = ({ navigation, selectedDate, setSelectedDate, mealPlan }) => {
           </HeaderText>
           <TouchableOpacity
             style={styles.updatebtn}
-            onPress={() => navigation.navigate("MenuEditScreen")}
+            onPress={() =>
+              navigation.navigate("MenuEditScreen", { suggestedNutrition })
+            }
           >
             <SubText style={styles.updateText}>Edit</SubText>
           </TouchableOpacity>

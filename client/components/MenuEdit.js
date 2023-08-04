@@ -14,67 +14,40 @@ import { ScrollView } from "react-native-gesture-handler";
 import { SwipeListView } from "react-native-swipe-list-view";
 import moment from "moment";
 
-const MenuEdit = () => {
-  const [data, setData] = useState([
-    {
-      id: 1,
-      food: "country french potato soup",
-      time: "2023-08-03T07:00:00.000Z",
-    },
-    {
-      id: 2,
-      food: "Noodles with tomato sauce with bruised meat",
-      time: "2023-07-30T08:00:00.000Z",
-    },
-    {
-      id: 3,
-      food: "creamy chicken black bean tacos",
-      time: "2023-07-30T13:00:00.000Z",
-    },
-    {
-      id: 4,
-      food: "quick peach cobbler",
-      time: "2023-07-30T14:00:00.000Z",
-    },
-    {
-      id: 5,
-      food: "country french potato soup",
-      time: "2023-07-30T19:00:00.000Z",
-    },
-    {
-      id: 6,
-      food: "Noodles with tomato sauce with bruised meat",
-      time: "2023-07-30T20:00:00.000Z",
-    },
-  ]);
-  const [undoItem, setUndoItem] = useState(null);
+const MenuEdit = ({
+  data,
+  setData,
+  undoItem,
+  setUndoItem,
+  suggestedNutrition,
+}) => {
   const [modalVisible, setModalVisible] = useState(false);
-
-  const MorningFood = data
+  console.log(suggestedNutrition);
+  const MorningFood = suggestedNutrition
     .filter((item) => {
-      const time = moment(item.time);
-      const hour = time.hours() - 7;
-      // console.log(hour);
-      return hour >= 7 && hour <= 12;
+      const time = moment(item.mealTime);
+      const hour = time.hours();
+      console.log(hour);
+      return hour >= 7 && hour < 12;
     })
-    .sort((a, b) => moment(a.time).diff(moment(b.time)));
-  const AfternoonFood = data
+    .sort((a, b) => moment(a.mealTime).diff(moment(b.mealTime)));
+  console.log(MorningFood);
+  const AfternoonFood = suggestedNutrition
     .filter((item) => {
-      const time = moment(item.time);
-      const hour = time.hours() - 7;
-      // console.log(hour);
-      return hour > 12 && hour <= 18;
+      const time = moment(item.mealTime);
+      const hour = time.hours();
+      return hour >= 12 && hour < 18;
     })
-    .sort((a, b) => moment(a.time).diff(moment(b.time)));
-  const EverningFood = data
+    .sort((a, b) => moment(a.mealTime).diff(moment(b.mealTime)));
+  const EverningFood = suggestedNutrition
     .filter((item) => {
-      const time = moment(item.time);
-      const hour = time.hours() + 24 - 7;
-      // console.log(hour);
-      return hour > 18 && hour <= 24;
+      const time = moment(item.mealTime);
+      const hour = time.hours();
+      console.log(hour);
+      return hour >= 18 && hour <= 24;
     })
-    .sort((a, b) => moment(a.time).diff(moment(b.time)));
-  // console.log(EverningFood);
+    .sort((a, b) => moment(a.mealTime).diff(moment(b.mealTime)));
+  // console.log("evernig", EverningFood);
   const renderHiddenItem = (rowData, rowMap) => {
     const { item } = rowData;
     // console.log(rowData);
@@ -104,13 +77,13 @@ const MenuEdit = () => {
   };
   const renderListItem = (rowData) => {
     const { item } = rowData;
-
+    console.log(item);
     return (
       <View style={styles.ItemContainer}>
         <SubText>
-          {moment(item.time).subtract(7, "hours").format("HH:mm")}
+          {moment(item.mealTime).subtract(7, "hours").format("HH:mm")}
         </SubText>
-        <SubText style={{ flex: 1 }}>{item.food}</SubText>
+        <SubText style={{ flex: 1 }}>{item.recipe.name}</SubText>
         <TouchableOpacity style={styles.reciprebtn}>
           <Image
             source={require("../assets/icon/IconeditMenu.png")}
@@ -165,6 +138,7 @@ const MenuEdit = () => {
             renderItem={renderListItem}
             renderHiddenItem={renderHiddenItem}
             rightOpenValue={-90}
+            disableRightSwipe
           />
         </View>
         <View style={styles.section}>
@@ -183,6 +157,7 @@ const MenuEdit = () => {
             renderItem={renderListItem}
             renderHiddenItem={renderHiddenItem}
             rightOpenValue={-90}
+            disableRightSwipe
           />
         </View>
 

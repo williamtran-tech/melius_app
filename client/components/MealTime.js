@@ -12,8 +12,7 @@ import DateTimePicker from "@react-native-community/datetimepicker";
 import SubText from "./SubText";
 import moment from "moment";
 
-const MealTime = () => {
-  const [selectedTime, setSelectedTime] = useState(null);
+const MealTime = ({ setData, selectedTime, setSelectedTime }) => {
   const [isModalVisible, setModalVisible] = useState(false);
   const [hourDisplay, setHourDisplay] = useState("");
   const [minDisplay, setMinDisplay] = useState("");
@@ -23,6 +22,7 @@ const MealTime = () => {
       setSelectedTime(selected);
     }
   };
+
   useEffect(() => {
     if (selectedTime) {
       setHourDisplay(moment(selectedTime).format("HH"));

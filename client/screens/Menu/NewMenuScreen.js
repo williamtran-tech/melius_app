@@ -1,11 +1,23 @@
 import { StyleSheet, Text, View, TouchableOpacity } from "react-native";
-import React from "react";
+import React, { useState } from "react";
 import NavigatorMenu from "../../components/NavigatorMenu";
 import SubText from "../../components/SubText";
 import MealTime from "../../components/MealTime";
 
 const NewMenuScreen = ({ route }) => {
-  const { navigation, selectedDate, setSelectedDate } = route.params;
+  const { navigation, selectedDate, setSelectedDate, listFood, setData } =
+    route.params;
+  console.log("ccccc", listFood);
+  const [selectedTime, setSelectedTime] = useState(null);
+
+  const handleNewFood = () => {
+    const newFood = {
+      id: 10,
+      food: "Shitttttttttttt",
+      time: selectedTime,
+    };
+    setData((prevData) => [...prevData, newFood]);
+  };
   return (
     <View style={{ flex: 1, backgroundColor: "#FDFDFD" }}>
       {selectedDate && (
@@ -17,7 +29,12 @@ const NewMenuScreen = ({ route }) => {
             navigation={navigation}
             action={
               <View style={styles.container}>
-                <TouchableOpacity style={styles.btnAction}>
+                <TouchableOpacity
+                  style={styles.btnAction}
+                  onPress={() => {
+                    handleNewFood(), navigation.navigate("MenuEditScreen");
+                  }}
+                >
                   <SubText style={{ fontSize: 14, color: "#518B1A" }}>
                     Save
                   </SubText>
@@ -37,7 +54,11 @@ const NewMenuScreen = ({ route }) => {
       )}
       <View style={{ flex: 1 }}>
         <View style={{ paddingHorizontal: 25, marginVertical: 15 }}>
-          <MealTime></MealTime>
+          <MealTime
+            setData={setData}
+            selectedTime={selectedTime}
+            setSelectedTime={setSelectedTime}
+          ></MealTime>
         </View>
       </View>
     </View>
