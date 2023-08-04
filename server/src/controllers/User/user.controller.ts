@@ -350,13 +350,14 @@ export default class UserController extends BaseController {
       const mealPlan = await this.mealPlanService.getMealPlanInfo(kidId);
       await this.planDetailService.insertRecipesIntoPlanDetails(Number(mealPlan!.id), recipeIds);
       
+      const [mealsPlan, planDetails] = await this.mealPlanService.getMealPlan(kidId);
       res.status(200).json({
         msg: "Create suggested meals successfully",
         suggestedMeals: suggestedMeals,
         nutrientsTarget: nutrientsTarget[0],
         suggestedNutrition: {
           totalNutrition: estimatedNutrition,
-          sessionNutrition: nutrientsTarget[1]
+          sessionNutrition: planDetails,
         },
       });
     } catch (error) {
