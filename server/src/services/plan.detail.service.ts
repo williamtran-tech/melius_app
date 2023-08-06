@@ -278,7 +278,7 @@ export default class PlanDetailService {
                 const sBreakfast = Math.round(calories * 0.3);
                 const eBreakfast = Math.round(calories * 0.35);
                 mealPlanDetails.push({
-                    mealTime: new Date().setHours(7, 30, 0),
+                    mealTime: new Date().setHours(0, 30, 0),
                     session: "Morning",
                     type: "Main course",
                     nutritionRange: [sBreakfast, eBreakfast],
@@ -288,7 +288,7 @@ export default class PlanDetailService {
                 const sLunch = Math.round(calories * 0.35);
                 const eLunch = Math.round(calories * 0.4);
                 mealPlanDetails.push({
-                    mealTime: new Date().setHours(12, 0, 0),
+                    mealTime: new Date().setHours(5, 0, 0),
                     session: "Noon",
                     type: "Main course",
                     nutritionRange: [sLunch, eLunch],
@@ -298,7 +298,7 @@ export default class PlanDetailService {
                 const sDinner = Math.round(calories * 0.25);
                 const eDinner = Math.round(calories * 0.35);
                 mealPlanDetails.push({
-                    mealTime: new Date().setHours(18, 0, 0),
+                    mealTime: new Date().setHours(11, 0, 0),
                     session: "Evening",
                     type: "Main course",
                     nutritionRange: [sDinner, eDinner],
@@ -318,7 +318,7 @@ export default class PlanDetailService {
                 const sBreakfast = Math.round(calories * 0.25);
                 const eBreakfast = Math.round(calories * 0.3);
                 mealPlanDetails.push({
-                    mealTime: new Date().setHours(7, 30, 0),
+                    mealTime: new Date().setHours(0, 30, 0),
                     session: "Morning",
                     type: "Main course",
                     nutritionRange: [sBreakfast, eBreakfast],
@@ -327,7 +327,7 @@ export default class PlanDetailService {
                 const sSnack = Math.round(calories * 0.05);
                 const eSnack = Math.round(calories * 0.1);
                 mealPlanDetails.push({
-                    mealTime: new Date().setHours(9, 0, 0),
+                    mealTime: new Date().setHours(2, 0, 0),
                     session: "Morning",
                     type: "Side dish",
                     nutritionRange: [sSnack, eSnack],
@@ -337,7 +337,7 @@ export default class PlanDetailService {
                 const sLunch = Math.round(calories * 0.35);
                 const eLunch = Math.round(calories * 0.4);
                 mealPlanDetails.push({
-                    mealTime: new Date().setHours(12, 0, 0),
+                    mealTime: new Date().setHours(5, 0, 0),
                     session: "Noon",
                     type: "Main course",
                     nutritionRange: [sLunch, eLunch],
@@ -347,7 +347,7 @@ export default class PlanDetailService {
                 const sDinner = Math.round(calories * 0.25);
                 const eDinner = Math.round(calories * 0.3);
                 mealPlanDetails.push({
-                    mealTime: new Date().setHours(12, 0, 0),
+                    mealTime: new Date().setHours(11, 0, 0),
                     session: "Evening",
                     type: "Main course",
                     nutritionRange: [sLunch, eLunch],
@@ -366,7 +366,7 @@ export default class PlanDetailService {
                 const sBreakfast = Math.round(calories * 0.25);
                 const eBreakfast = Math.round(calories * 0.3);
                 mealPlanDetails.push({
-                    mealTime: new Date().setHours(7, 30, 0),
+                    mealTime: new Date().setHours(0, 30, 0),
                     session: "Morning",
                     type: "Main course",
                     nutritionRange: [sBreakfast, eBreakfast],
@@ -376,7 +376,7 @@ export default class PlanDetailService {
                 const sSnack1 = Math.round(calories * 0.05);
                 const eSnack1 = Math.round(calories * 0.1);
                 mealPlanDetails.push({
-                    mealTime: new Date().setHours(9, 0, 0),
+                    mealTime: new Date().setHours(2, 0, 0),
                     session: "Morning",
                     type: "Main course",
                     nutritionRange: [sSnack1, eSnack1],
@@ -386,7 +386,7 @@ export default class PlanDetailService {
                 const sLunch = Math.round(calories * 0.35);
                 const eLunch = Math.round(calories * 0.4);
                 mealPlanDetails.push({
-                    mealTime: new Date().setHours(12, 0, 0),
+                    mealTime: new Date().setHours(5, 0, 0),
                     session: "Noon",
                     type: "Main course",
                     nutritionRange: [sLunch, eLunch],
@@ -396,7 +396,7 @@ export default class PlanDetailService {
                 const sSnack2 = Math.round(calories * 0.05);
                 const eSnack2 = Math.round(calories * 0.1);
                 mealPlanDetails.push({
-                    mealTime: new Date().setHours(15, 0, 0),
+                    mealTime: new Date().setHours(8, 0, 0),
                     session: "Noon",
                     type: "Main course",
                     nutritionRange: [sSnack2, eSnack2],
@@ -406,7 +406,7 @@ export default class PlanDetailService {
                 const sDinner = Math.round(calories * 0.15);
                 const eDinner = Math.round(calories * 0.20);
                 mealPlanDetails.push({
-                    mealTime: new Date().setHours(18, 0, 0),
+                    mealTime: new Date().setHours(11, 0, 0),
                     session: "Evening",
                     type: "Main course",
                     nutritionRange: [sDinner, eDinner],

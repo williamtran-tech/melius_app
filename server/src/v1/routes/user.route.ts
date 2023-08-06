@@ -35,6 +35,9 @@ userRouter.get("/meal-plan", authMiddleware, authorize(["User"]),checkKidIDMiddl
           .post("/meal-plan", authMiddleware, authorize(["User"]),checkKidIDMiddleware,userController.createMealPlan)
           .delete("/meal-plan", authMiddleware, authorize(["User"]),checkKidIDMiddleware,userController.deleteMealPlan);
 
+// Meal Plan Details
+// userRouter.get("/meal-plan/meal-plan-details", authMiddleware, authorize(["User"]),checkKidIDMiddleware,userController.getMealPlanDetails)
+
 userRouter.post("/suggested-meal-plan", authMiddleware, authorize(["User"]),checkKidIDMiddleware, userController.createSuggestedMeals);
 
 

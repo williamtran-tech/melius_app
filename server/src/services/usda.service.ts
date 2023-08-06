@@ -19,7 +19,6 @@ export default class USDAService {
       }
 
       const categoryName = data.foodCategory.description;
-      console.log("categoryName: ", categoryName)
       const category = await IngreCategory.findOne({
         where: {
           name: categoryName,
@@ -62,21 +61,27 @@ export default class USDAService {
       const params = {
         api_key: process.env.USDA_API,
         query: ingredientDTO.ingredient,
-        dataType: "Foundation",
+        dataType: ["Foundation", "SR Legacy"],
         foodCategory: ingredientDTO.foodCategory
           ? ingredientDTO.foodCategory
           : "",
         pageSize: ingredientDTO.pageSize,
       };
 
-      const url = `https://api.nal.usda.gov/fdc/v1/foods/search?api_key=${params.api_key}&query=${params.query}&dataType=${params.dataType}&pageSize=${params.pageSize}`;
+      let url = `https://api.nal.usda.gov/fdc/v1/foods/search?api_key=${params.api_key}&query=${params.query}&dataType=${params.dataType}&pageSize=${params.pageSize}`;
       // https://api.nal.usda.gov/fdc/v1/foods/search?api_key={API_KEY}&query=sweet%20potato&dataType=Foundation&pageSize=3
-      const response = await fetch(url);
-      const data = await response.json();
+      let response = await fetch(url);
+      let data = await response.json();
 
-      // Throw error if ingredient not found
+      // If Foundation Food not found, search for SR Legacy
       if (data.foods[0] === undefined) {
-        throw new HttpException(404, "Ingredient not found");
+        url = `https://api.nal.usda.gov/fdc/v1/foods/search?api_key=${params.api_key}&query=${params.query}&dataType=${params.dataType[1]}&pageSize=${params.pageSize}`;
+        response = await fetch(url);
+        data = await response.json();
+        // Throw error if ingredient not found
+        if (data.foods[0] === undefined) {
+          throw new HttpException(404, "Ingredient not found");
+        }
       }
 
       const ingredientList = [];
@@ -89,19 +94,24 @@ export default class USDAService {
           },
           attributes: ["id", "name"],
         });
-        const ingredient = {
-          fdcId: data.foods[i].fdcId,
-          foodCode: data.foods[i].foodCode,
-          foods: data.foods[i].description,
-          category: category!.name,
-          categoryId: category!.id,
-          foodPortions: {
-            unitName: "G",
-            value: 100,
-          },
-          foodNutrients: data.foods[i].foodNutrients,
-        };
-        ingredientList.push(ingredient);
+        if (category === null) {
+          console.log("Category not found: ", categoryName);
+          // If data food length
+        } else {
+          const ingredient = {
+            fdcId: data.foods[i].fdcId,
+            foodCode: data.foods[i].foodCode,
+            foods: data.foods[i].description,
+            category: category!.name,
+            categoryId: category!.id,
+            foodPortions: {
+              unitName: "G",
+              value: 100,
+            },
+            foodNutrients: data.foods[i].foodNutrients,
+          };
+          ingredientList.push(ingredient);
+        }
       }
       return ingredientList;
     } catch (error) {
