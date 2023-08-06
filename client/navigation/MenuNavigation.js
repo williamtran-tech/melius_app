@@ -33,6 +33,7 @@ const MenuNavigation = () => {
         }}
         options={{
           headerShown: false,
+          unmountOnBlur: true,
         }}
       />
       <Stack.Screen

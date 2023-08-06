@@ -3,10 +3,46 @@ import React from "react";
 import HeaderText from "./HeaderText";
 import SubText from "./SubText";
 import { ScrollView } from "react-native-gesture-handler";
+import moment from "moment";
 
 const Menu = ({ navigation, selectedDate, setSelectedDate, mealPlan }) => {
-  const { suggestedMeals, suggestedNutrition } = mealPlan;
-  // console.log(suggestedNutrition);
+  const { planDetails } = mealPlan;
+  console.log("cc", planDetails);
+  const renderItemMenu = (session) => {
+    let menuItem = {};
+    menuItem = planDetails
+      .filter((item) => {
+        const time = moment(item.mealTime);
+        const hour = time.hours() - 7;
+        console.log("here", hour);
+        if (session == "morning") return hour >= 7 && hour < 12;
+        else if (session == "noon") return hour >= 12 && hour <= 18;
+        else if (session == "everning") return hour > 18 && hour <= 24;
+      })
+      .sort((a, b) => moment(a.mealTime).diff(moment(b.mealTime)));
+    console.log(menuItem);
+    return menuItem?.map((item) => (
+      <View key={item.id} style={styles.ItemContainer}>
+        <SubText>
+          {moment(item.mealTime).subtract(7, "hours").format("HH:mm")}
+        </SubText>
+        <SubText style={{ flex: 1 }}>{item.recipe.name}</SubText>
+        <TouchableOpacity
+          style={styles.recipeBtn}
+          onPress={() => {
+            navigation.navigate("MenuDetail", {
+              data: item.recipe.name,
+            });
+          }}
+        >
+          <Image
+            source={require("../assets/icon/Iconrecipe.png")}
+            style={{ width: 15, height: 15 }}
+          />
+        </TouchableOpacity>
+      </View>
+    ));
+  };
   return (
     <View style={{ flex: 1 }}>
       <View style={{ flex: 3 }}>
@@ -17,7 +53,7 @@ const Menu = ({ navigation, selectedDate, setSelectedDate, mealPlan }) => {
           <TouchableOpacity
             style={styles.updatebtn}
             onPress={() =>
-              navigation.navigate("MenuEditScreen", { suggestedNutrition })
+              navigation.navigate("MenuEditScreen", { planDetails })
             }
           >
             <SubText style={styles.updateText}>Edit</SubText>
@@ -34,25 +70,7 @@ const Menu = ({ navigation, selectedDate, setSelectedDate, mealPlan }) => {
               Morning
             </SubText>
           </View>
-          <View>
-            <View style={styles.ItemContainer}>
-              <SubText>7:30</SubText>
-              <SubText style={{ flex: 1 }}>{suggestedMeals[0].name}</SubText>
-              <TouchableOpacity
-                style={styles.reciprebtn}
-                onPress={() => {
-                  navigation.navigate("MenuDetail", {
-                    data: suggestedMeals[0].name,
-                  });
-                }}
-              >
-                <Image
-                  source={require("../assets/icon/Iconrecipe.png")}
-                  style={{ width: 15, height: 15 }}
-                ></Image>
-              </TouchableOpacity>
-            </View>
-          </View>
+          <View>{renderItemMenu("morning")}</View>
           <View style={styles.section}>
             <Image
               source={require("../assets/icon/Iconmorning.png")}
@@ -63,25 +81,7 @@ const Menu = ({ navigation, selectedDate, setSelectedDate, mealPlan }) => {
               Afternoon
             </SubText>
           </View>
-          <View>
-            <View style={styles.ItemContainer}>
-              <SubText>7:30</SubText>
-              <SubText style={{ flex: 1 }}>{suggestedMeals[1].name}</SubText>
-              <TouchableOpacity
-                style={styles.reciprebtn}
-                onPress={() => {
-                  navigation.navigate("MenuDetail", {
-                    data: suggestedMeals[1].name,
-                  });
-                }}
-              >
-                <Image
-                  source={require("../assets/icon/Iconrecipe.png")}
-                  style={{ width: 15, height: 15 }}
-                ></Image>
-              </TouchableOpacity>
-            </View>
-          </View>
+          <View>{renderItemMenu("noon")}</View>
           <View style={styles.section}>
             <Image
               source={require("../assets/icon/Iconmorning.png")}
@@ -92,25 +92,7 @@ const Menu = ({ navigation, selectedDate, setSelectedDate, mealPlan }) => {
               Evening
             </SubText>
           </View>
-          <View>
-            <View style={styles.ItemContainer}>
-              <SubText>7:30</SubText>
-              <SubText style={{ flex: 1 }}>{suggestedMeals[2].name}</SubText>
-              <TouchableOpacity
-                style={styles.reciprebtn}
-                onPress={() => {
-                  navigation.navigate("MenuDetail", {
-                    data: suggestedMeals[2].name,
-                  });
-                }}
-              >
-                <Image
-                  source={require("../assets/icon/Iconrecipe.png")}
-                  style={{ width: 15, height: 15 }}
-                ></Image>
-              </TouchableOpacity>
-            </View>
-          </View>
+          <View>{renderItemMenu("everning")}</View>
         </ScrollView>
       </View>
       <View style={{ flex: 2 }}>

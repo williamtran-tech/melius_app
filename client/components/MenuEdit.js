@@ -14,36 +14,28 @@ import { ScrollView } from "react-native-gesture-handler";
 import { SwipeListView } from "react-native-swipe-list-view";
 import moment from "moment";
 
-const MenuEdit = ({
-  data,
-  setData,
-  undoItem,
-  setUndoItem,
-  suggestedNutrition,
-}) => {
+const MenuEdit = ({ data, setData, undoItem, setUndoItem, planDetails }) => {
   const [modalVisible, setModalVisible] = useState(false);
-  console.log(suggestedNutrition);
-  const MorningFood = suggestedNutrition
+  // console.log(planDetails);
+  const MorningFood = planDetails
     .filter((item) => {
       const time = moment(item.mealTime);
-      const hour = time.hours();
-      console.log(hour);
+      const hour = time.hours() - 7;
       return hour >= 7 && hour < 12;
     })
     .sort((a, b) => moment(a.mealTime).diff(moment(b.mealTime)));
-  console.log(MorningFood);
-  const AfternoonFood = suggestedNutrition
+  // console.log(MorningFood);
+  const AfternoonFood = planDetails
     .filter((item) => {
       const time = moment(item.mealTime);
-      const hour = time.hours();
+      const hour = time.hours() - 7;
       return hour >= 12 && hour < 18;
     })
     .sort((a, b) => moment(a.mealTime).diff(moment(b.mealTime)));
-  const EverningFood = suggestedNutrition
+  const EverningFood = planDetails
     .filter((item) => {
       const time = moment(item.mealTime);
-      const hour = time.hours();
-      console.log(hour);
+      const hour = time.hours() - 7;
       return hour >= 18 && hour <= 24;
     })
     .sort((a, b) => moment(a.mealTime).diff(moment(b.mealTime)));
@@ -77,7 +69,7 @@ const MenuEdit = ({
   };
   const renderListItem = (rowData) => {
     const { item } = rowData;
-    console.log(item);
+    // console.log(item);
     return (
       <View style={styles.ItemContainer}>
         <SubText>

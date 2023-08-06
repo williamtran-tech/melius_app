@@ -32,6 +32,22 @@ export const suggestMealPlan = async () => {
     console.error("Error fetching meal plan:", error);
   }
 };
+export const getMealPlan = async () => {
+  try {
+    const value = await AsyncStorage.getItem("userProfile");
+    // console.log(JSON.parse(value)?.mealPlan);
+    const kidId = JSON.parse(value)?.kidProfile[0].id;
+    // console.log(kidId);
+    const response = await HandleApi.serverGeneral.get(`v1/users/meal-plan`, {
+      params: {
+        kidId: kidId,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching meal plan:", error);
+  }
+};
 export const updateMealPlan = async () => {
   try {
     const value = await AsyncStorage.getItem("sugsestMealPlan");
@@ -39,12 +55,13 @@ export const updateMealPlan = async () => {
 
     if (!mealPlanDate.isSame(moment(), "day") || !mealPlanDate || !value) {
       const mealPlanData = await suggestMealPlan();
-      // console.log("New Meal Plan:", mealPlanData);
-      return mealPlanData;
+      const MealPlan = await getMealPlan();
+      return MealPlan;
     } else {
       const mealPlanData = JSON.parse(value);
-      // console.log("Cached Meal Plan:", mealPlanData);
-      return mealPlanData;
+      const MealPlan = await getMealPlan();
+      // console.log(MealPlan);
+      return MealPlan;
     }
   } catch (error) {
     console.error("Error fetching meal plan:", error);

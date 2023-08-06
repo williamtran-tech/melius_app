@@ -17,7 +17,7 @@ const MenuScreen = ({ route }) => {
 
   // console.log(route.params);
   const { navigation, selectedDate, setSelectedDate } = route.params;
-  console.log(selectedDate);
+  // console.log(selectedDate);
   const handleTabPress = (tab) => {
     setActiveTab(tab);
   };

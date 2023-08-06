@@ -6,9 +6,9 @@ import ProjectNutrition from "../../components/ProjectNutrition";
 import MenuEdit from "../../components/MenuEdit";
 
 const MenuEditScreen = ({ route }) => {
-  const { navigation, selectedDate, setSelectedDate, suggestedNutrition } =
+  const { navigation, selectedDate, setSelectedDate, planDetails } =
     route.params;
-  console.log("hello", suggestedNutrition);
+  // console.log("hello", planDetails);
 
   const [data, setData] = useState([
     {
@@ -92,7 +92,7 @@ const MenuEditScreen = ({ route }) => {
           setData={setData}
           undoItem={undoItem}
           setUndoItem={setUndoItem}
-          suggestedNutrition={suggestedNutrition.sessionNutrition}
+          planDetails={planDetails}
         ></MenuEdit>
       </View>
     </View>

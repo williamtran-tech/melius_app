@@ -93,6 +93,8 @@ function BottomNavigation() {
           focus: () => setSelectedTab("Menu"), // Set the selected tab as "Setting" when it is focused
         }}
         options={{
+          unmountOnBlur: true,
+
           tabBarActiveTintColor: "black",
           tabBarLabel: () => null,
         }} // Set active tint color for the tab
