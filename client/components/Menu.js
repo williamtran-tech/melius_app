@@ -12,8 +12,8 @@ const Menu = ({ navigation, selectedDate, setSelectedDate, mealPlan }) => {
     let menuItem = {};
     menuItem = planDetails
       .filter((item) => {
-        const time = moment(item.mealTime);
-        const hour = time.hours() - 7;
+        const time = moment.utc(item.mealTime).utcOffset(0);
+        const hour = time.hours();
         console.log("here", hour);
         if (session == "morning") return hour >= 7 && hour < 12;
         else if (session == "noon") return hour >= 12 && hour <= 18;
@@ -31,7 +31,7 @@ const Menu = ({ navigation, selectedDate, setSelectedDate, mealPlan }) => {
           style={styles.recipeBtn}
           onPress={() => {
             navigation.navigate("MenuDetail", {
-              data: item.recipe.name,
+              data: item,
             });
           }}
         >

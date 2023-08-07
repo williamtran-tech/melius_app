@@ -19,30 +19,28 @@ const MenuEdit = ({ data, setData, undoItem, setUndoItem, planDetails }) => {
   // console.log(planDetails);
   const MorningFood = planDetails
     .filter((item) => {
-      const time = moment(item.mealTime);
-      const hour = time.hours() - 7;
+      const time = moment.utc(item.mealTime).utcOffset(0);
+      const hour = time.hours();
       return hour >= 7 && hour < 12;
     })
     .sort((a, b) => moment(a.mealTime).diff(moment(b.mealTime)));
   // console.log(MorningFood);
   const AfternoonFood = planDetails
     .filter((item) => {
-      const time = moment(item.mealTime);
-      const hour = time.hours() - 7;
+      const time = moment.utc(item.mealTime).utcOffset(0);
+      const hour = time.hours();
       return hour >= 12 && hour < 18;
     })
     .sort((a, b) => moment(a.mealTime).diff(moment(b.mealTime)));
   const EverningFood = planDetails
     .filter((item) => {
-      const time = moment(item.mealTime);
-      const hour = time.hours() - 7;
+      const time = moment.utc(item.mealTime).utcOffset(0);
+      const hour = time.hours();
       return hour >= 18 && hour <= 24;
     })
     .sort((a, b) => moment(a.mealTime).diff(moment(b.mealTime)));
-  // console.log("evernig", EverningFood);
   const renderHiddenItem = (rowData, rowMap) => {
     const { item } = rowData;
-    // console.log(rowData);
     return (
       <View style={styles.ItemContainerHidden}>
         <TouchableOpacity

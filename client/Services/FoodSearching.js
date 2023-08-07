@@ -1,7 +1,7 @@
 import { CustomSearch_Key } from "@env";
 import axios from "axios";
 export const imageSearchEngine = async (foodName) => {
-  console.log(CustomSearch_Key);
+  // console.log(CustomSearch_Key);
   try {
     const response = await axios.get(
       `https://www.googleapis.com/customsearch/v1`,
@@ -20,6 +20,6 @@ export const imageSearchEngine = async (foodName) => {
     return response.data.items[0].pagemap.cse_image[0].src;
   } catch (error) {
     console.error("Error fetching images:", error.message);
-    return [];
+    return "https://eagle-sensors.com/wp-content/uploads/unavailable-image.jpg";
   }
 };
