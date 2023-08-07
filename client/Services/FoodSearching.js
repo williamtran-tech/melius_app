@@ -16,7 +16,7 @@ export const imageSearchEngine = async (foodName) => {
       }
     );
     console.log(response.data.items[0].pagemap.cse_image[0].src);
-    // const imageUrls = response.data.items.map((item) => item.link);
+    const imageUrls = response.data.items.map((item) => item.link);
     return response.data.items[0].pagemap.cse_image[0].src;
   } catch (error) {
     console.error("Error fetching images:", error.message);

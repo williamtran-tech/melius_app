@@ -13,10 +13,11 @@ import SubText from "./SubText";
 import { ScrollView } from "react-native-gesture-handler";
 import { SwipeListView } from "react-native-swipe-list-view";
 import moment from "moment";
+import { useNavigation } from "@react-navigation/native";
 
 const MenuEdit = ({ data, setData, undoItem, setUndoItem, planDetails }) => {
   const [modalVisible, setModalVisible] = useState(false);
-  // console.log(planDetails);
+  const navigation = useNavigation();
   const MorningFood = planDetails
     .filter((item) => {
       const time = moment.utc(item.mealTime).utcOffset(0);
@@ -74,7 +75,12 @@ const MenuEdit = ({ data, setData, undoItem, setUndoItem, planDetails }) => {
           {moment(item.mealTime).subtract(7, "hours").format("HH:mm")}
         </SubText>
         <SubText style={{ flex: 1 }}>{item.recipe.name}</SubText>
-        <TouchableOpacity style={styles.reciprebtn}>
+        <TouchableOpacity
+          style={styles.reciprebtn}
+          onPress={() => {
+            navigation.navigate("NewMenuScreen", { data: item });
+          }}
+        >
           <Image
             source={require("../assets/icon/IconeditMenu.png")}
             style={{ width: 15, height: 15 }}

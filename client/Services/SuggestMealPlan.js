@@ -1,6 +1,7 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import moment from "moment";
 import HandleApi from "./HandleApi";
+import axios from "axios";
 
 export const suggestMealPlan = async () => {
   try {
@@ -65,5 +66,34 @@ export const updateMealPlan = async () => {
     }
   } catch (error) {
     console.error("Error fetching meal plan:", error);
+  }
+};
+export const patchUpdateMealPlan = async (id, mealTime) => {
+  const value = await AsyncStorage.getItem("userProfile");
+  // console.log(JSON.parse(value)?.mealPlan);
+  const kidId = JSON.parse(value)?.kidProfile[0].id;
+
+  const dataToUpdate = {
+    id: id,
+    kidId: kidId,
+    mealTime: mealTime,
+  };
+
+  const params = {
+    id: id,
+    kidId: kidId,
+    mealTime: mealTime.format("YYYY-MM-DD HH:mm:ss"),
+  };
+  console.log(params);
+
+  try {
+    const response = await HandleApi.serverGeneral.patch(
+      `v1/users/meal-plan/meal-detail?id=${params.id}&kidId=${params.kidId}&mealTime=${params.mealTime}`
+    );
+    console.log("PATCH request successful:", response.data);
+    // You can handle the response data here
+  } catch (error) {
+    console.error("Error making PATCH request:", error);
+    // You can handle the error here
   }
 };

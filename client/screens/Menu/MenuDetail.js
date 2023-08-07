@@ -18,7 +18,7 @@ const MenuDetail = ({ route }) => {
   };
   useEffect(() => {
     if (data && data.recipe && data.recipe.name) {
-      searchEngine("hello");
+      searchEngine(data.recipe.name);
     }
   }, []);
   return (

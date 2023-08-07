@@ -3,12 +3,16 @@ import React, { useState } from "react";
 import NavigatorMenu from "../../components/NavigatorMenu";
 import SubText from "../../components/SubText";
 import MealTime from "../../components/MealTime";
+import moment from "moment";
+import { patchUpdateMealPlan } from "../../Services/SuggestMealPlan";
 
 const NewMenuScreen = ({ route }) => {
-  const { navigation, selectedDate, setSelectedDate, listFood, setData } =
+  const { navigation, selectedDate, setSelectedDate, listFood, setData, data } =
     route.params;
-  console.log("ccccc", listFood);
-  const [selectedTime, setSelectedTime] = useState(null);
+  console.log("ccccc", data);
+  const [selectedTime, setSelectedTime] = useState(
+    data ? moment.utc(data.mealTime).utcOffset(0) : moment()
+  );
 
   const handleNewFood = () => {
     const newFood = {
@@ -17,6 +21,9 @@ const NewMenuScreen = ({ route }) => {
       time: selectedTime,
     };
     setData((prevData) => [...prevData, newFood]);
+  };
+  const updateMealPlan = async () => {
+    const hanldeUpdate = await patchUpdateMealPlan(data.id, selectedTime);
   };
   return (
     <View style={{ flex: 1, backgroundColor: "#FDFDFD" }}>
@@ -32,7 +39,7 @@ const NewMenuScreen = ({ route }) => {
                 <TouchableOpacity
                   style={styles.btnAction}
                   onPress={() => {
-                    handleNewFood(), navigation.navigate("MenuEditScreen");
+                    updateMealPlan();
                   }}
                 >
                   <SubText style={{ fontSize: 14, color: "#518B1A" }}>
@@ -58,6 +65,7 @@ const NewMenuScreen = ({ route }) => {
             setData={setData}
             selectedTime={selectedTime}
             setSelectedTime={setSelectedTime}
+            data={data}
           ></MealTime>
         </View>
       </View>

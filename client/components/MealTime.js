@@ -12,21 +12,21 @@ import DateTimePicker from "@react-native-community/datetimepicker";
 import SubText from "./SubText";
 import moment from "moment";
 
-const MealTime = ({ setData, selectedTime, setSelectedTime }) => {
+const MealTime = ({ setData, selectedTime, setSelectedTime, data }) => {
   const [isModalVisible, setModalVisible] = useState(false);
   const [hourDisplay, setHourDisplay] = useState("");
   const [minDisplay, setMinDisplay] = useState("");
 
   const handleTimeChange = (event, selected) => {
     if (selected) {
-      setSelectedTime(selected);
+      setSelectedTime(moment(selected));
     }
   };
-
+  console.log(selectedTime);
   useEffect(() => {
     if (selectedTime) {
-      setHourDisplay(moment(selectedTime).format("HH"));
-      setMinDisplay(moment(selectedTime).format("mm"));
+      setHourDisplay(selectedTime.format("HH"));
+      setMinDisplay(selectedTime.format("mm"));
     } else {
       setHourDisplay(moment().format("HH"));
       setMinDisplay(moment().format("mm"));
@@ -53,7 +53,10 @@ const MealTime = ({ setData, selectedTime, setSelectedTime }) => {
           <SubText style={{ fontSize: 50 }}>{hourDisplay}</SubText>
         </TouchableOpacity>
         <SubText style={{ fontSize: 50 }}>:</SubText>
-        <TouchableOpacity style={styles.mealTime}>
+        <TouchableOpacity
+          style={styles.mealTime}
+          onPress={() => showTimePicker()}
+        >
           <SubText style={{ fontSize: 50 }}>{minDisplay}</SubText>
         </TouchableOpacity>
       </View>
@@ -61,7 +64,7 @@ const MealTime = ({ setData, selectedTime, setSelectedTime }) => {
         <View style={styles.modalContainer}>
           <DateTimePicker
             mode="time"
-            value={selectedTime || new Date()}
+            value={selectedTime.toDate()}
             onChange={handleTimeChange}
             display="spinner"
             style={styles.dateTimePicker}
