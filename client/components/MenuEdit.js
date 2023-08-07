@@ -15,7 +15,15 @@ import { SwipeListView } from "react-native-swipe-list-view";
 import moment from "moment";
 import { useNavigation } from "@react-navigation/native";
 
-const MenuEdit = ({ data, setData, undoItem, setUndoItem, planDetails }) => {
+const MenuEdit = ({
+  data,
+  setData,
+  undoItem,
+  setUndoItem,
+  planDetails,
+  updateFlag,
+  setUpdateFlag,
+}) => {
   const [modalVisible, setModalVisible] = useState(false);
   const navigation = useNavigation();
   const MorningFood = planDetails
@@ -66,6 +74,7 @@ const MenuEdit = ({ data, setData, undoItem, setUndoItem, planDetails }) => {
       setUndoItem(null);
     }, 3000);
   };
+  console.log(updateFlag, setUpdateFlag);
   const renderListItem = (rowData) => {
     const { item } = rowData;
     // console.log(item);
@@ -78,7 +87,11 @@ const MenuEdit = ({ data, setData, undoItem, setUndoItem, planDetails }) => {
         <TouchableOpacity
           style={styles.reciprebtn}
           onPress={() => {
-            navigation.navigate("NewMenuScreen", { data: item });
+            navigation.navigate("NewMenuScreen", {
+              data: item,
+              updateFlag: updateFlag,
+              setUpdateFlag: setUpdateFlag,
+            });
           }}
         >
           <Image
@@ -95,7 +108,7 @@ const MenuEdit = ({ data, setData, undoItem, setUndoItem, planDetails }) => {
     setUndoItem(null);
     setModalVisible(false);
   };
-  useEffect(() => {}, [data]);
+  useEffect(() => {}, [data, updateFlag]);
   return (
     <View style={{ flex: 1 }}>
       <View style={{ flex: 3 }}>

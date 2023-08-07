@@ -68,7 +68,7 @@ export const updateMealPlan = async () => {
     console.error("Error fetching meal plan:", error);
   }
 };
-export const patchUpdateMealPlan = async (id, mealTime) => {
+export const patchUpdateMealPlan = async (id, mealTime, recipeId) => {
   const value = await AsyncStorage.getItem("userProfile");
   // console.log(JSON.parse(value)?.mealPlan);
   const kidId = JSON.parse(value)?.kidProfile[0].id;
@@ -83,12 +83,13 @@ export const patchUpdateMealPlan = async (id, mealTime) => {
     id: id,
     kidId: kidId,
     mealTime: mealTime.format("YYYY-MM-DD HH:mm:ss"),
+    recipeId: recipeId,
   };
-  console.log(params);
+  console.log("params:", params);
 
   try {
     const response = await HandleApi.serverGeneral.patch(
-      `v1/users/meal-plan/meal-detail?id=${params.id}&kidId=${params.kidId}&mealTime=${params.mealTime}`
+      `v1/users/meal-plan/meal-detail?id=${params.id}&kidId=${params.kidId}&mealTime=${params.mealTime}&recipeId=${params.recipeId}`
     );
     console.log("PATCH request successful:", response.data);
     // You can handle the response data here

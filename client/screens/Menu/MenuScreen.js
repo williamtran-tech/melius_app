@@ -14,7 +14,7 @@ import {
 import AsyncStorage from "@react-native-async-storage/async-storage";
 const MenuScreen = ({ route }) => {
   const [activeTab, setActiveTab] = useState("daily");
-
+  const [updateFlag, setUpdateFlag] = useState(false);
   // console.log(route.params);
   const { navigation, selectedDate, setSelectedDate } = route.params;
   // console.log(selectedDate);
@@ -34,7 +34,7 @@ const MenuScreen = ({ route }) => {
   };
   useEffect(() => {
     fetchMealPlan();
-  }, []);
+  }, [updateFlag]);
   const currentDate = moment().format("dddd, MMMM D");
   const renderCalendar = () => {
     switch (activeTab) {
@@ -138,6 +138,8 @@ const MenuScreen = ({ route }) => {
             selectedDate={selectedDate}
             setSelectedDate={setSelectedDate}
             mealPlan={mealPlan}
+            updateFlag={updateFlag}
+            setUpdateFlag={setUpdateFlag}
           ></Menu>
         )}
       </View>

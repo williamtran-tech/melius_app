@@ -1,13 +1,20 @@
 import { StyleSheet, Text, View, TouchableOpacity, Image } from "react-native";
-import React from "react";
+import React, { useEffect } from "react";
 import HeaderText from "./HeaderText";
 import SubText from "./SubText";
 import { ScrollView } from "react-native-gesture-handler";
 import moment from "moment";
 
-const Menu = ({ navigation, selectedDate, setSelectedDate, mealPlan }) => {
+const Menu = ({
+  navigation,
+  selectedDate,
+  setSelectedDate,
+  mealPlan,
+  updateFlag,
+  setUpdateFlag,
+}) => {
   const { planDetails } = mealPlan;
-  console.log("cc", planDetails);
+  console.log("cc", updateFlag);
   const renderItemMenu = (session) => {
     let menuItem = {};
     menuItem = planDetails
@@ -16,8 +23,8 @@ const Menu = ({ navigation, selectedDate, setSelectedDate, mealPlan }) => {
         const hour = time.hours();
         console.log("here", hour);
         if (session == "morning") return hour >= 7 && hour < 12;
-        else if (session == "noon") return hour >= 12 && hour <= 18;
-        else if (session == "everning") return hour > 18 && hour <= 24;
+        else if (session == "noon") return hour >= 12 && hour < 18;
+        else if (session == "everning") return hour >= 18 && hour <= 24;
       })
       .sort((a, b) => moment(a.mealTime).diff(moment(b.mealTime)));
     console.log(menuItem);
@@ -43,6 +50,7 @@ const Menu = ({ navigation, selectedDate, setSelectedDate, mealPlan }) => {
       </View>
     ));
   };
+  useEffect(() => {}, [updateFlag]);
   return (
     <View style={{ flex: 1 }}>
       <View style={{ flex: 3 }}>
@@ -53,7 +61,11 @@ const Menu = ({ navigation, selectedDate, setSelectedDate, mealPlan }) => {
           <TouchableOpacity
             style={styles.updatebtn}
             onPress={() =>
-              navigation.navigate("MenuEditScreen", { planDetails })
+              navigation.navigate("MenuEditScreen", {
+                planDetails: planDetails,
+                updateFlag: updateFlag,
+                setUpdateFlag: setUpdateFlag,
+              })
             }
           >
             <SubText style={styles.updateText}>Edit</SubText>

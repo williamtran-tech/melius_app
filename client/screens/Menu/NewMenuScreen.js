@@ -1,19 +1,40 @@
-import { StyleSheet, Text, View, TouchableOpacity } from "react-native";
-import React, { useState } from "react";
+import {
+  StyleSheet,
+  Text,
+  View,
+  TouchableOpacity,
+  Keyboard,
+  TouchableWithoutFeedback,
+  Image,
+} from "react-native";
+import React, { useEffect, useState } from "react";
 import NavigatorMenu from "../../components/NavigatorMenu";
 import SubText from "../../components/SubText";
 import MealTime from "../../components/MealTime";
 import moment from "moment";
 import { patchUpdateMealPlan } from "../../Services/SuggestMealPlan";
+import SearchRecipe from "../../components/SearchRecipe";
+import { imageSearchEngine } from "../../Services/FoodSearching";
+import HandleApi from "../../Services/HandleApi";
 
 const NewMenuScreen = ({ route }) => {
-  const { navigation, selectedDate, setSelectedDate, listFood, setData, data } =
-    route.params;
-  console.log("ccccc", data);
+  const {
+    navigation,
+    selectedDate,
+    setSelectedDate,
+    listFood,
+    setData,
+    data,
+    updateFlag,
+    setUpdateFlag,
+  } = route.params;
   const [selectedTime, setSelectedTime] = useState(
     data ? moment.utc(data.mealTime).utcOffset(0) : moment()
   );
-
+  const [recipeImages, setRecipeImages] = useState({});
+  const [searchResults, setSearchResults] = useState([]);
+  const [recipeId, setRecipeId] = useState(data.recipe.id);
+  const [imageUrl, setImageUrl] = useState();
   const handleNewFood = () => {
     const newFood = {
       id: 10,
@@ -23,8 +44,36 @@ const NewMenuScreen = ({ route }) => {
     setData((prevData) => [...prevData, newFood]);
   };
   const updateMealPlan = async () => {
-    const hanldeUpdate = await patchUpdateMealPlan(data.id, selectedTime);
+    const hanldeUpdate = await patchUpdateMealPlan(
+      data.id,
+      selectedTime,
+      recipeId
+    );
+    setUpdateFlag(!updateFlag);
   };
+  const capitalizeFirstLetter = (str) => {
+    return str.charAt(0).toUpperCase() + str.slice(1);
+  };
+
+  const searchRecipe = async (value) => {
+    const response = await HandleApi.serverGeneral.get(
+      "v1/recipes/recipes-details",
+      {
+        params: {
+          id: recipeId,
+        },
+      }
+    );
+    console.log("recipeID", response.data);
+    setSearchResults(response.data);
+    const imageSearchData = await imageSearchEngine(response.data.name);
+    setImageUrl(imageSearchData);
+    console.log(imageSearchData);
+  };
+  useEffect(() => {
+    searchRecipe();
+    console.log(searchResults);
+  }, [updateFlag]);
   return (
     <View style={{ flex: 1, backgroundColor: "#FDFDFD" }}>
       {selectedDate && (
@@ -40,6 +89,7 @@ const NewMenuScreen = ({ route }) => {
                   style={styles.btnAction}
                   onPress={() => {
                     updateMealPlan();
+                    navigation.navigate("MenuScreen");
                   }}
                 >
                   <SubText style={{ fontSize: 14, color: "#518B1A" }}>
@@ -48,7 +98,9 @@ const NewMenuScreen = ({ route }) => {
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={styles.btnActionCancel}
-                  onPress={() => navigation.navigate("NewMenuScreen")}
+                  onPress={() => {
+                    navigation.navigate("NewMenuScreen");
+                  }}
                 >
                   <SubText style={{ fontSize: 14, color: "#FF9600" }}>
                     Cancel
@@ -59,15 +111,43 @@ const NewMenuScreen = ({ route }) => {
           ></NavigatorMenu>
         </View>
       )}
+      <View>
+        <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
+          <View>
+            <View style={{ paddingHorizontal: 25, marginVertical: 15 }}>
+              <MealTime
+                setData={setData}
+                selectedTime={selectedTime}
+                setSelectedTime={setSelectedTime}
+                data={data}
+              ></MealTime>
+            </View>
+            <View>
+              <View style={styles.recipecontainer}>
+                <View style={{ flex: 2 }}>
+                  <Image
+                    source={{ uri: imageUrl }}
+                    style={{ flex: 2, aspectRatio: 16 / 14 }}
+                  />
+                </View>
+                <View style={{ flex: 2, paddingLeft: 10 }}>
+                  <SubText>capitalizeFirstLetter(searchResults.name)</SubText>
+                </View>
+                <View
+                  style={{
+                    flex: 1,
+                    alignItems: "flex-end",
+                  }}
+                >
+                  <SubText>item.nSteps</SubText>
+                </View>
+              </View>
+            </View>
+          </View>
+        </TouchableWithoutFeedback>
+      </View>
       <View style={{ flex: 1 }}>
-        <View style={{ paddingHorizontal: 25, marginVertical: 15 }}>
-          <MealTime
-            setData={setData}
-            selectedTime={selectedTime}
-            setSelectedTime={setSelectedTime}
-            data={data}
-          ></MealTime>
-        </View>
+        <SearchRecipe setRecipeId={setRecipeId}></SearchRecipe>
       </View>
     </View>
   );
@@ -96,5 +176,11 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 10,
+  },
+  recipecontainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    paddingHorizontal: 25,
+    paddingVertical: 5,
   },
 });
