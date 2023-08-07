@@ -17,6 +17,7 @@ import { Recipe } from "./recipe.model";
 @Table({
   tableName: "plan_details",
   timestamps: true,
+  paranoid: true
 })
 export class PlanDetail extends Model {
   @PrimaryKey

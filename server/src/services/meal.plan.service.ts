@@ -70,6 +70,10 @@ export default class MealPlanService {
     return {mealNutrientsInGrams, servingSize};
   }
 
+  // This function will create the Meal Plan and Meal Plan Template (Meal Plan Details) without the suggested meals
+  // Return: 
+  // 1. Meal Plan Object
+  // 2. Meal Plan Details Object (Nutrients Range)
   public async createMealPlan(MealPlanDTO: any) {
     try {
       // Get the kid data
@@ -110,6 +114,10 @@ export default class MealPlanService {
     }
   }
 
+  // This function will create the suggested meals based on the constraints of the kid
+  // Return:
+  // 1. Suggested Meals
+  // 2. Estimated Nutrition of the meals
   public async createSuggestedMeals(MealPlanDTO: any) {
     try {
       
@@ -130,7 +138,6 @@ export default class MealPlanService {
           attributes: ["name"],
         },
       });
-
 
       // Get nutrients target of the kid
       const nutrientsTarget = await this.getMealPlan(kidId);
@@ -300,15 +307,40 @@ export default class MealPlanService {
         where: { kidId: kidId},
         order: [["updatedAt", "DESC"]],
       })
-
+      
       let res;
       if (deletedMealPlan) {
+        // Delete the meal plan details
+        await this.planDetailService.deletePlanDetails(deletedMealPlan!.id);
+        // Delete the meal plan
         res = await deletedMealPlan.destroy();
       }
 
       return res;
     } catch (error) {
       throw error;
+    }
+  }
+
+  public async undoDeleteMealPlan(kidId: number, mealPlanId: number) {
+    try {
+      // Undo delete the Meal Plan with the given id
+      const mealPlan = await MealPlan.findOne({
+        where: { id: mealPlanId, kidId: kidId },
+        paranoid: false,
+      });
+
+      console.log("Meal Plan: ", mealPlan);
+
+      if (mealPlan) {
+        const res = await mealPlan.restore();
+        // Undo delete the meal plan details
+        await this.planDetailService.undoDeletePlanDetails(mealPlanId);
+        return res;
+      } 
+      throw new HttpException(404, "Meal Plan not found");
+    } catch (err) {
+      throw err;
     }
   }
 
@@ -341,6 +373,7 @@ export default class MealPlanService {
       suggestedMeals.push(suggestedMeal[i]);
     }
 
+    // Find meal contains the available ingredients
     if (numberOfMeals < nMeal) {
       // const randomMeal = await Recipe.findOne({
       //   limit: nMeal - numberOfMeals,
@@ -433,7 +466,7 @@ export default class MealPlanService {
     return [responseMeals, estimatedNutrition];
   }
 
-  // This function will check the constraints of the meal based on allergies, nutrients target, available ingredients of the kid
+  // Check the constraints of the meal based on allergies, nutrients target, available ingredients of the kid
   private checkMealConstraints(meals: any, allergies: any, nutrientsTarget: any, availableIngredients: any): [boolean, string] {
     try {
       let flag = true;

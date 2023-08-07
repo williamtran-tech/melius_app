@@ -342,6 +342,8 @@ export default class UserController extends BaseController {
       };
 
       const [suggestedMeals, nutrientsTarget, estimatedNutrition] = await this.mealPlanService.createSuggestedMeals(mealPlanDTO);
+
+      // Get the recipe ids - Put them into plan details
       let recipeIds: number[] = [];
       for (let i = 0; i < suggestedMeals.length; i++) {
         recipeIds.push(suggestedMeals[i].id);
@@ -385,7 +387,7 @@ export default class UserController extends BaseController {
       const kidId = Number(req.query.kidId);
 
       const deletedMealPlan = await this.mealPlanService.deleteMealPlan(kidId);
-      console.log(deletedMealPlan);
+     
       if (deletedMealPlan === undefined) {
         throw new HttpException(404, "Meal plan not found");
       }
@@ -393,6 +395,91 @@ export default class UserController extends BaseController {
       res.status(200).json({
         msg: "Delete meal plan successfully",
         deletedMealPlan: deletedMealPlan,
+      });
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  public undoDeleteMealPlan = async (req: express.Request, res: express.Response, next: express.NextFunction) => {
+    try {
+      const kidId = Number(req.query.kidId);
+      const id = Number(req.query.id);
+
+      const deletedMealPlan = await this.mealPlanService.undoDeleteMealPlan(kidId, id);
+     
+      if (deletedMealPlan === undefined) {
+        throw new HttpException(404, "Meal plan not found");
+      }
+
+      res.status(200).json({
+        msg: "Undo delete meal plan successfully",
+        deletedMealPlan: deletedMealPlan,
+      });
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  // MEAL PLAN DETAILS FUNCTIONS
+  public updateMeal = async (req: express.Request, res: express.Response, next: express.NextFunction) => {
+    try {
+      const mealId = Number(req.query.id);
+      const recipeId = Number(req.query.recipeId);
+
+      const mealDTO = {
+        mealId: mealId,
+        recipeId: recipeId || null,
+        mealTime: req.query.mealTime || null,
+        type: req.query.type || null,
+      }
+      const updatedMeal = await this.planDetailService.updateMeal(mealDTO);
+
+      if (!updatedMeal) {
+        throw new HttpException(404, "Meal not found");
+      }
+
+      res.status(200).json({
+        msg: "Update meal successfully",
+        updatedMeal: updatedMeal,
+      });
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  public deleteMeal = async (req: express.Request, res: express.Response, next: express.NextFunction) => {
+    try {
+      const mealId = Number(req.query.id);
+
+      const deletedMeal = await this.planDetailService.deleteMeal(mealId);
+
+      if (!deletedMeal) {
+        throw new HttpException(404, "Meal not found");
+      }
+
+      res.status(200).json({
+        msg: "Delete meal successfully",
+        deletedMeal: deletedMeal,
+      });
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  public undoDeleteMeal = async (req: express.Request, res: express.Response, next: express.NextFunction) => {
+    try {
+      const mealId = Number(req.query.id);
+
+      const deletedMeal = await this.planDetailService.undoDeleteMeal(mealId);
+
+      if (!deletedMeal) {
+        throw new HttpException(404, "Meal not found");
+      }
+
+      res.status(200).json({
+        msg: "Undo delete meal successfully",
+        deletedMeal: deletedMeal,
       });
     } catch (err) {
       next(err);
