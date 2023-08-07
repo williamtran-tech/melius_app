@@ -20,6 +20,7 @@ import { Recipe } from "./recipe.model";
 @Table({
   tableName: "meal_plans",
   timestamps: true,
+  paranoid: true,
 })
 export class MealPlan extends Model {
   @PrimaryKey

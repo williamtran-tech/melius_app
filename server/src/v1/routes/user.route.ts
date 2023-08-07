@@ -33,17 +33,12 @@ userRouter.post("/available-ingredients", authMiddleware, userController.addIngr
 // Meal Planning
 userRouter.get("/meal-plan", authMiddleware, authorize(["User"]),checkKidIDMiddleware,userController.getMealPlan)
           .post("/meal-plan", authMiddleware, authorize(["User"]),checkKidIDMiddleware,userController.createMealPlan)
-          .delete("/meal-plan", authMiddleware, authorize(["User"]),checkKidIDMiddleware,userController.deleteMealPlan);
-
-// Meal Plan Details
-// userRouter.get("/meal-plan/meal-plan-details", authMiddleware, authorize(["User"]),checkKidIDMiddleware,userController.getMealPlanDetails)
+          .delete("/meal-plan", authMiddleware, authorize(["User"]),checkKidIDMiddleware,userController.deleteMealPlan)
+          .patch("/meal-plan", authMiddleware, authorize(["User"]),checkKidIDMiddleware,userController.undoDeleteMealPlan);
 
 userRouter.post("/suggested-meal-plan", authMiddleware, authorize(["User"]),checkKidIDMiddleware, userController.createSuggestedMeals);
 
-
-// userRouter.post(
-//   "/",
-//   validationMiddleware(CreateUserDTO, false),
-//   userController.createUser
-// );
-// userRouter.get("/:id", userController.getUserById);
+// Meal Details
+userRouter.delete("/meal-plan/detail", authMiddleware, authorize(["User"]),checkKidIDMiddleware,userController.deleteMeal)
+          .patch("/meal-plan/detail", authMiddleware, authorize(["User"]),checkKidIDMiddleware,userController.undoDeleteMeal)
+          .patch("/meal-plan/meal-detail", authMiddleware, authorize(["User"]),checkKidIDMiddleware,userController.updateMeal);
