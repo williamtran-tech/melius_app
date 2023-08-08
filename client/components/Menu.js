@@ -1,9 +1,17 @@
-import { StyleSheet, Text, View, TouchableOpacity, Image } from "react-native";
-import React, { useEffect } from "react";
+import {
+  StyleSheet,
+  Text,
+  View,
+  TouchableOpacity,
+  Image,
+  FlatList,
+} from "react-native";
+import React, { useEffect, useState } from "react";
 import HeaderText from "./HeaderText";
 import SubText from "./SubText";
 import { ScrollView } from "react-native-gesture-handler";
 import moment from "moment";
+import IngredientIcon from "../assets/icon/IngredientsIcon/IngredientIcon";
 
 const Menu = ({
   navigation,
@@ -14,6 +22,8 @@ const Menu = ({
   setUpdateFlag,
 }) => {
   const { planDetails } = mealPlan;
+  const [listIngre, setListIngre] = useState(IngredientIcon);
+
   console.log("cc", updateFlag);
   const renderItemMenu = (session) => {
     let menuItem = {};
@@ -33,12 +43,14 @@ const Menu = ({
         <SubText>
           {moment(item.mealTime).subtract(7, "hours").format("HH:mm")}
         </SubText>
-        <SubText style={{ flex: 1 }}>{item.recipe.name}</SubText>
+        <SubText style={{ flex: 1 }}>
+          {capitalizeFirstLetter(item.recipe.name)}
+        </SubText>
         <TouchableOpacity
           style={styles.recipeBtn}
           onPress={() => {
             navigation.navigate("MenuDetail", {
-              data: item,
+              data: item.recipe,
             });
           }}
         >
@@ -50,10 +62,13 @@ const Menu = ({
       </View>
     ));
   };
+  const capitalizeFirstLetter = (str) => {
+    return str.charAt(0).toUpperCase() + str.slice(1);
+  };
   useEffect(() => {}, [updateFlag]);
   return (
     <View style={{ flex: 1 }}>
-      <View style={{ flex: 3 }}>
+      <View style={{}}>
         <View style={styles.headerContainer}>
           <HeaderText style={{ color: "#518B1A", fontSize: 18 }}>
             BEE's menu !
@@ -107,7 +122,7 @@ const Menu = ({
           <View>{renderItemMenu("everning")}</View>
         </ScrollView>
       </View>
-      <View style={{ flex: 2 }}>
+      <View style={{ marginTop: 25 }}>
         <View style={styles.headerContainer}>
           <HeaderText style={{ color: "#518B1A", fontSize: 18 }}>
             Mother's Ingredients
@@ -119,51 +134,29 @@ const Menu = ({
             <SubText style={styles.updateText}>Edit</SubText>
           </TouchableOpacity>
         </View>
-        <ScrollView>
-          <View style={styles.ingredient}>
-            <Image
-              source={require("../assets/icon/Iconrice.png")}
-              style={styles.image}
-            />
-            <Image
-              source={require("../assets/icon/Iconrice.png")}
-              style={styles.image}
-            />
-            <Image
-              source={require("../assets/icon/Iconrice.png")}
-              style={styles.image}
-            />
-            <Image
-              source={require("../assets/icon/Iconrice.png")}
-              style={styles.image}
-            />
-            <Image
-              source={require("../assets/icon/Iconrice.png")}
-              style={styles.image}
-            />
-            <Image
-              source={require("../assets/icon/Iconrice.png")}
-              style={styles.image}
-            />
-            <Image
-              source={require("../assets/icon/Iconrice.png")}
-              style={styles.image}
-            />
-            <Image
-              source={require("../assets/icon/Iconrice.png")}
-              style={styles.image}
-            />
-            <View style={{ flex: 1 }}>
-              <TouchableOpacity>
-                <Image
-                  source={require("../assets/icon/Iconadd.png")}
-                  style={styles.image}
-                  resizeMode="contain"
-                ></Image>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </ScrollView>
+        <FlatList
+          data={listIngre}
+          numColumns={5}
+          contentContainerStyle={styles.contentContainer}
+          renderItem={({ item }) => {
+            return (
+              <View style={styles.itemContainer}>
+                <TouchableOpacity
+                  style={styles.iconContainer}
+                  onPress={() => moveItemToWishlist(item)}
+                >
+                  <Image
+                    source={item.source}
+                    style={styles.icon}
+                    resizeMode="contain"
+                  />
+                </TouchableOpacity>
+                <SubText style={styles.name}>{item.name}</SubText>
+              </View>
+            );
+          }}
+          keyExtractor={(item, index) => index.toString()}
+        />
       </View>
     </View>
   );
@@ -213,8 +206,7 @@ const styles = StyleSheet.create({
   ItemContainer: {
     flexDirection: "row",
     gap: 25,
-    paddingLeft: 25,
-    paddingRight: 10,
+    paddingHorizontal: 25,
     paddingVertical: 5,
     borderBottomWidth: 1,
     borderBottomColor: "#8CC840",
@@ -241,5 +233,30 @@ const styles = StyleSheet.create({
     width: 50,
     height: 50,
     resizeMode: "contain",
+  },
+  ingredientContainer: {
+    flex: 1,
+    justifyContent: "space-between",
+  },
+  contentContainer: {
+    marginTop: 10,
+    flexGrow: 1,
+    marginLeft: "auto",
+    marginRight: "auto",
+  },
+  itemContainer: {
+    alignItems: "center",
+    marginHorizontal: 10,
+  },
+  iconContainer: {
+    width: 50,
+    height: 50,
+  },
+  icon: {
+    width: 50,
+    height: 50,
+  },
+  name: {
+    fontSize: 8,
   },
 });

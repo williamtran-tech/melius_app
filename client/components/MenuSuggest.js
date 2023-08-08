@@ -1,82 +1,94 @@
-import { Image, StyleSheet, Text, View } from "react-native";
-import React from "react";
+import { Image, StyleSheet, Text, View, TouchableOpacity } from "react-native";
+import React, { useEffect, useState } from "react";
 import HeaderText from "./HeaderText";
 import { ScrollView } from "react-native-gesture-handler";
 import SubText from "./SubText";
+import HandleApi from "../Services/HandleApi";
+import { imageSearchEngine } from "../Services/FoodSearching";
+import { useNavigation } from "@react-navigation/native";
 
 const MenuSuggest = () => {
+  const navigation = useNavigation();
+  const [searchResults, setSearchResults] = useState([]);
+  const capitalizeFirstLetter = (str) => {
+    return str.charAt(0).toUpperCase() + str.slice(1);
+  };
+  const searchEngine = async (name) => {
+    // Assuming imageSearchEngine returns the URL of the recipe image
+    const url = await imageSearchEngine(name);
+    return url;
+  };
+  const [recipeImages, setRecipeImages] = useState({});
+
+  const searchRecipe = async (value) => {
+    const response = await HandleApi.serverGeneral.get("v1/recipes", {
+      params: {
+        limit: 5,
+      },
+    });
+    // console.log("recipeID", response.data.recipes);
+
+    const imageUrls = {};
+    for (const recipe of response.data.recipes) {
+      const imageUrl = await searchEngine(recipe.name);
+      imageUrls[recipe.id] = imageUrl;
+    }
+    setRecipeImages(imageUrls);
+    setSearchResults(response.data.recipes);
+  };
+
+  useEffect(() => {
+    searchRecipe();
+    console.log("url:", recipeImages);
+  }, []);
   return (
     <View>
       <HeaderText style={{ fontSize: 18, color: "#518B1A", paddingLeft: 25 }}>
         Handbook of suggestions
       </HeaderText>
       <ScrollView>
-        <View style={styles.menuItemInf}>
-          <View style={styles.imageContainer}>
-            <Image
-              source={require("../assets/images/menuItem.png")}
-              style={{ height: 83, width: 121 }}
-            ></Image>
-          </View>
-
-          <View style={styles.menuItemText}>
-            <HeaderText style={styles.menuItemTitle}>
-              Nutritious snack for kids
-            </HeaderText>
-            <SubText
-              numberOfLines={2}
-              ellipsizeMode="tail"
-              style={styles.menuDescription}
-            >
-              Delicious snacks for your baby but guaranteed Delicious snacks for
-              your baby but guaranteed Delicious snacks for your baby but
-            </SubText>
-          </View>
-        </View>
-        <View style={styles.menuItemInf}>
-          <View style={styles.imageContainer}>
-            <Image
-              source={require("../assets/images/menuItem.png")}
-              style={{ height: 83, width: 121 }}
-            ></Image>
-          </View>
-
-          <View style={styles.menuItemText}>
-            <HeaderText style={styles.menuItemTitle}>
-              Nutritious snack for kids
-            </HeaderText>
-            <SubText
-              numberOfLines={2}
-              ellipsizeMode="tail"
-              style={styles.menuDescription}
-            >
-              Delicious snacks for your baby but guaranteed Delicious snacks for
-              your baby but guaranteed Delicious snacks for your baby but
-            </SubText>
-          </View>
-        </View>
-        <View style={styles.menuItemInf}>
-          <View style={styles.imageContainer}>
-            <Image
-              source={require("../assets/images/menuItem.png")}
-              style={{ height: 83, width: 121 }}
-            ></Image>
-          </View>
-
-          <View style={styles.menuItemText}>
-            <HeaderText style={styles.menuItemTitle}>
-              Nutritious snack for kids
-            </HeaderText>
-            <SubText
-              numberOfLines={2}
-              ellipsizeMode="tail"
-              style={styles.menuDescription}
-            >
-              Delicious snacks for your baby but guaranteed Delicious snacks for
-              your baby but guaranteed Delicious snacks for your baby but
-            </SubText>
-          </View>
-        </View>
+        {searchResults &&
+          searchResults.map((menuItem) => {
+            return (
+              <TouchableOpacity
+                key={menuItem.id}
+                onPress={() => {
+                  navigation.navigate(
+                    navigation.navigate("Menu", {
+                      screen: "MenuDetail",
+                      params: {
+                        data: menuItem,
+                      },
+                    })
+                  );
+                }}
+              >
+                <View style={styles.menuItemInf}>
+                  <View style={styles.imageContainer}>
+                    <Image
+                      source={
+                        recipeImages && { uri: recipeImages[menuItem.id] }
+                      }
+                      style={{ height: 83, width: 121, resizeMode: "cover" }}
+                    ></Image>
+                  </View>
+                  <View style={styles.menuItemText}>
+                    <HeaderText style={styles.menuItemTitle}>
+                      {capitalizeFirstLetter(menuItem.name)}
+                    </HeaderText>
+                    <SubText
+                      numberOfLines={2}
+                      ellipsizeMode="tail"
+                      style={styles.menuDescription}
+                    >
+                      Step: {menuItem.nSteps}, Ingredient:{" "}
+                      {menuItem.nIngredients}
+                    </SubText>
+                  </View>
+                </View>
+              </TouchableOpacity>
+            );
+          })}
       </ScrollView>
     </View>
   );

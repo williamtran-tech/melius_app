@@ -7,18 +7,19 @@ import MealTime from "../../components/MealTime";
 import IngredientList from "../../components/IngredientList";
 import { ScrollView } from "react-native-gesture-handler";
 import InstructionCook from "../../components/InstructionCook";
+import { useNavigation } from "@react-navigation/native";
 
 const MenuDetail = ({ route }) => {
-  const { navigation, selectedDate, setSelectedDate, data } = route.params;
+  const { selectedDate, setSelectedDate, data } = route.params;
   const [foodUrl, setFoodUrl] = useState();
-  // console.log("cc:", data);
+  console.log("cc:", data);
   const searchEngine = async (name) => {
     const url = await imageSearchEngine(name);
     setFoodUrl(url);
   };
   useEffect(() => {
-    if (data && data.recipe && data.recipe.name) {
-      searchEngine(data.recipe.name);
+    if (data && data.name) {
+      searchEngine(data.name);
     }
   }, []);
   return (
@@ -27,9 +28,9 @@ const MenuDetail = ({ route }) => {
         <View style={{ paddingHorizontal: 25 }}>
           <NavigatorMenu
             Date={selectedDate}
-            ScreenName={data.recipe.name}
+            ScreenName={data.name}
             navigationName="MenuScreen"
-            navigation={navigation}
+            // navigation={navigation.goBack()}
             // action={
             //   <View style={styles.container}>
             //     <TouchableOpacity style={styles.btnAction}>

@@ -16,6 +16,7 @@ import { patchUpdateMealPlan } from "../../Services/SuggestMealPlan";
 import SearchRecipe from "../../components/SearchRecipe";
 import { imageSearchEngine } from "../../Services/FoodSearching";
 import HandleApi from "../../Services/HandleApi";
+import HeaderText from "../../components/HeaderText";
 
 const NewMenuScreen = ({ route }) => {
   const {
@@ -56,24 +57,21 @@ const NewMenuScreen = ({ route }) => {
   };
 
   const searchRecipe = async (value) => {
-    const response = await HandleApi.serverGeneral.get(
-      "v1/recipes/recipes-details",
-      {
-        params: {
-          id: recipeId,
-        },
-      }
-    );
-    console.log("recipeID", response.data);
-    setSearchResults(response.data);
-    const imageSearchData = await imageSearchEngine(response.data.name);
+    const response = await HandleApi.serverGeneral.get("v1/recipes/recipes", {
+      params: {
+        id: recipeId,
+      },
+    });
+    console.log("recipeID", response.data.recipe);
+    setSearchResults(response.data.recipe);
+    const imageSearchData = await imageSearchEngine(response.data.recipe.name);
     setImageUrl(imageSearchData);
     console.log(imageSearchData);
   };
   useEffect(() => {
     searchRecipe();
     console.log(searchResults);
-  }, [updateFlag]);
+  }, [updateFlag, recipeId]);
   return (
     <View style={{ flex: 1, backgroundColor: "#FDFDFD" }}>
       {selectedDate && (
@@ -99,7 +97,7 @@ const NewMenuScreen = ({ route }) => {
                 <TouchableOpacity
                   style={styles.btnActionCancel}
                   onPress={() => {
-                    navigation.navigate("NewMenuScreen");
+                    navigation.navigate("MenuScreen");
                   }}
                 >
                   <SubText style={{ fontSize: 14, color: "#FF9600" }}>
@@ -122,6 +120,11 @@ const NewMenuScreen = ({ route }) => {
                 data={data}
               ></MealTime>
             </View>
+            <View style={{ paddingHorizontal: 25 }}>
+              <HeaderText style={{ color: "#518B1A", fontSize: 18 }}>
+                Selected dish
+              </HeaderText>
+            </View>
             <View>
               <View style={styles.recipecontainer}>
                 <View style={{ flex: 2 }}>
@@ -131,7 +134,11 @@ const NewMenuScreen = ({ route }) => {
                   />
                 </View>
                 <View style={{ flex: 2, paddingLeft: 10 }}>
-                  <SubText>capitalizeFirstLetter(searchResults.name)</SubText>
+                  <SubText>
+                    {searchResults &&
+                      searchResults.name &&
+                      capitalizeFirstLetter(searchResults.name)}
+                  </SubText>
                 </View>
                 <View
                   style={{
@@ -139,7 +146,7 @@ const NewMenuScreen = ({ route }) => {
                     alignItems: "flex-end",
                   }}
                 >
-                  <SubText>item.nSteps</SubText>
+                  <SubText>{searchResults.nSteps}</SubText>
                 </View>
               </View>
             </View>
@@ -182,5 +189,6 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     paddingHorizontal: 25,
     paddingVertical: 5,
+    height: 100,
   },
 });

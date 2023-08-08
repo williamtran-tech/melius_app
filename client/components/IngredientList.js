@@ -10,7 +10,7 @@ const IngredientList = ({ data }) => {
   return (
     <View style={{ flex: 1 }}>
       {data &&
-        data.recipe.ingredients.map((ingre, index) => (
+        data.ingredients.map((ingre, index) => (
           <View style={styles.ingredientItem} key={index}>
             <SubText style={styles.IngredientName}>
               {capitalizeFirstLetter(ingre)}

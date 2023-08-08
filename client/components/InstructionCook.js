@@ -10,7 +10,7 @@ const InstructionCook = ({ data }) => {
   return (
     <View>
       {data &&
-        data.recipe.steps.map((step, index) => (
+        data.steps.map((step, index) => (
           <View style={styles.menuItemInf} key={index}>
             <View style={styles.stepNum}>
               <SubText>{index < 9 ? "0" + (index + 1) : index + 1}</SubText>

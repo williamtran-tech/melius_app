@@ -2,15 +2,11 @@ import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import React from "react";
 import HeaderText from "./HeaderText";
 import moment from "moment";
+import { useNavigation } from "@react-navigation/native";
 
-const NavigatorMenu = ({
-  Date,
-  ScreenName,
-  navigationName,
-  navigation,
-  action,
-}) => {
+const NavigatorMenu = ({ Date, ScreenName, navigationName, action }) => {
   const formattedDate = moment(Date, "DD-MM-YYYY").format("dddd, MMMM DD");
+  const navigation = useNavigation();
   return (
     <View style={styles.container}>
       {Date && <HeaderText style={styles.date}>{formattedDate}</HeaderText>}
@@ -21,7 +17,7 @@ const NavigatorMenu = ({
           alignItems: "center",
         }}
       >
-        <TouchableOpacity>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
           <HeaderText style={styles.ScreenName}>❮ {ScreenName}</HeaderText>
         </TouchableOpacity>
         {action}

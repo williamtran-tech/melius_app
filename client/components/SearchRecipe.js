@@ -27,7 +27,6 @@ const SearchRecipe = ({ setRecipeId }) => {
       .then((response) => {
         console.log(response.data.recipes);
         setSearchResults(response.data.recipes);
-        // console.log(response.data.ingredientsList[1].category);
       })
       .catch((error) => console.log(error));
   };
@@ -78,7 +77,7 @@ const SearchRecipe = ({ setRecipeId }) => {
               <Text>Close</Text>
             </TouchableOpacity> */}
       </View>
-      <View>
+      <View style={{ paddingBottom: 50 }}>
         {searchResults && searchResults && (
           <FlatList
             data={searchResults}

@@ -32,7 +32,6 @@ const IngredientsList = ({
           numColumns={5}
           contentContainerStyle={styles.contentContainer}
           renderItem={({ item }) => {
-            console.log(item, "hello");
             return (
               <View style={styles.itemContainer}>
                 <TouchableOpacity

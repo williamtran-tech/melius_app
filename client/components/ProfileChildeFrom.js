@@ -29,29 +29,20 @@ const ProfileChildeFrom = () => {
       );
       await AsyncStorage.setItem("childrenInf", JSON.stringify(response.data));
 
-      await HandleApi.serverGeneral.post("v1/users/meal-plan", {
-        kidId: response.data.child.id,
-      });
       const userProfile = await getUserProfile();
+      console.log(userProfile);
+      console.log(response.data.child.id);
       // const mealPlanResponse = await HandleApi.serverGeneral.post(
       //   "v1/users/meal-plan",
       //   {
-      //     kidId: response.data.child.id,
+      //     kidId: userProfile.kidProfile[0].id,
       //   }
       // );
-      // await AsyncStorage.setItem(
-      //   "mealPlan",
-      //   JSON.stringify(mealPlanResponse.data)
-      // );
-      // const storedMealPlan = await AsyncStorage.getItem("mealPlan");
-      // console.log(storedMealPlan);
-      // console.log("Stored Meal Plan:", JSON.parse(storedMealPlan));
       const mealplan = await HandleApi.serverGeneral.get(
-        `/v1/users/meal-plan?kidId=${response.data.child.id}`
+        `/v1/users/meal-plan?kidId=${userProfile.kidProfile[0].id}`
       );
       await AsyncStorage.setItem("mealPlan", JSON.stringify(mealplan.data));
       console.log("oke nha:", response.data.child.id);
-
       navigation.replace("BottomNavigation");
     } catch (error) {
       // Handle errors appropriately
