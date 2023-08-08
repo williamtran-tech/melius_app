@@ -20,9 +20,7 @@ export default class RecipeController extends BaseController {
   ) => {
     try {
       const limit = req.query.limit ? req.query.limit : 10;
-      console.log("Limit: ", limit);
       const recipes = await this.recipeService.getRecipes(Number(limit));
-      console.log("AS", recipes);
 
       res.status(200).json({
         msg: "Successfully get recipes",
@@ -35,4 +33,33 @@ export default class RecipeController extends BaseController {
       });
     }
   };
+  
+  // Search meal by name
+  public searchRecipes = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      console.log("Query: ", req.query);
+      const name: string = req.query.name ? req.query.name.toString() : "";
+      const recipes = await this.recipeService.searchRecipes(name);
+      res.status(200).json({
+        msg: "Successfully get recipes",
+        recipes: recipes,
+      });
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  // Get meal by Id
+  public searchRecipeById = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const id = req.query.id;
+      const recipe = await this.recipeService.getRecipeById(Number(id));
+      res.status(200).json({
+        msg: "Successfully get recipe",
+        recipe: recipe,
+      });
+    } catch (err) {
+      next(err);
+    }
+  }
 }

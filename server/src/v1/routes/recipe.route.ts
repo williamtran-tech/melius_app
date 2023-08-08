@@ -7,3 +7,7 @@ export const recipeRouter = Router();
 const recipeController = new RecipeController();
 
 recipeRouter.get("/", authMiddleware, recipeController.getRecipes);
+recipeRouter.get("/recipes-details", authMiddleware, recipeController.searchRecipes);
+
+// Need to change this route uri
+recipeRouter.get("/recipes", authMiddleware, recipeController.searchRecipeById)
