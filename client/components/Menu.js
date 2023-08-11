@@ -24,43 +24,48 @@ const Menu = ({
   const { planDetails } = mealPlan;
   const [listIngre, setListIngre] = useState(IngredientIcon);
 
-  console.log("cc", updateFlag);
+  console.log("cc", planDetails);
   const renderItemMenu = (session) => {
     let menuItem = {};
     menuItem = planDetails
       .filter((item) => {
-        const time = moment.utc(item.mealTime).utcOffset(0);
-        const hour = time.hours();
-        console.log("here", hour);
-        if (session == "morning") return hour >= 7 && hour < 12;
-        else if (session == "noon") return hour >= 12 && hour < 18;
-        else if (session == "everning") return hour >= 18 && hour <= 24;
+        if (item.mealTime) {
+          const time = moment.utc(item.mealTime).utcOffset(0);
+          const hour = time.hours();
+          console.log("here", hour);
+          if (session == "morning") return hour >= 7 && hour < 12;
+          else if (session == "noon") return hour >= 12 && hour < 18;
+          else if (session == "everning") return hour >= 18 && hour <= 24;
+        }
       })
       .sort((a, b) => moment(a.mealTime).diff(moment(b.mealTime)));
     console.log(menuItem);
-    return menuItem?.map((item) => (
-      <View key={item.id} style={styles.ItemContainer}>
-        <SubText>
-          {moment(item.mealTime).subtract(7, "hours").format("HH:mm")}
-        </SubText>
-        <SubText style={{ flex: 1 }}>
-          {capitalizeFirstLetter(item.recipe.name)}
-        </SubText>
-        <TouchableOpacity
-          style={styles.recipeBtn}
-          onPress={() => {
-            navigation.navigate("MenuDetail", {
-              data: item.recipe,
-            });
-          }}
-        >
-          <Image
-            source={require("../assets/icon/Iconrecipe.png")}
-            style={{ width: 15, height: 15 }}
-          />
-        </TouchableOpacity>
-      </View>
-    ));
+    return menuItem?.map(
+      (item) =>
+        item.recipe && (
+          <View key={item.id} style={styles.ItemContainer}>
+            <SubText>
+              {moment(item.mealTime).subtract(7, "hours").format("HH:mm")}
+            </SubText>
+            <SubText style={{ flex: 1 }}>
+              {capitalizeFirstLetter(item.recipe.name)}
+            </SubText>
+            <TouchableOpacity
+              style={styles.recipeBtn}
+              onPress={() => {
+                navigation.navigate("MenuDetail", {
+                  data: item.recipe,
+                });
+              }}
+            >
+              <Image
+                source={require("../assets/icon/Iconrecipe.png")}
+                style={{ width: 15, height: 15 }}
+              />
+            </TouchableOpacity>
+          </View>
+        )
+    );
   };
   const capitalizeFirstLetter = (str) => {
     return str.charAt(0).toUpperCase() + str.slice(1);

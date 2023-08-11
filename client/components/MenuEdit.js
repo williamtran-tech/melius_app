@@ -14,6 +14,7 @@ import { ScrollView } from "react-native-gesture-handler";
 import { SwipeListView } from "react-native-swipe-list-view";
 import moment from "moment";
 import { useNavigation } from "@react-navigation/native";
+import { deleteMeal } from "../Services/SuggestMealPlan";
 
 const MenuEdit = ({
   data,
@@ -26,59 +27,75 @@ const MenuEdit = ({
 }) => {
   const [modalVisible, setModalVisible] = useState(false);
   const navigation = useNavigation();
-  const MorningFood = planDetails
-    .filter((item) => {
-      const time = moment.utc(item.mealTime).utcOffset(0);
-      const hour = time.hours();
-      return hour >= 7 && hour < 12;
-    })
-    .sort((a, b) => moment(a.mealTime).diff(moment(b.mealTime)));
-  // console.log(MorningFood);
-  const AfternoonFood = planDetails
-    .filter((item) => {
-      const time = moment.utc(item.mealTime).utcOffset(0);
-      const hour = time.hours();
-      return hour >= 12 && hour < 18;
-    })
-    .sort((a, b) => moment(a.mealTime).diff(moment(b.mealTime)));
-  const EverningFood = planDetails
-    .filter((item) => {
-      const time = moment.utc(item.mealTime).utcOffset(0);
-      const hour = time.hours();
-      return hour >= 18 && hour <= 24;
-    })
-    .sort((a, b) => moment(a.mealTime).diff(moment(b.mealTime)));
+  // const MorningFood = planDetails
+  //   .filter((item) => {
+  //     const time = moment.utc(item.mealTime).utcOffset(0);
+  //     const hour = time.hours();
+  //     return hour >= 7 && hour < 12;
+  //   })
+  //   .sort((a, b) => moment(a.mealTime).diff(moment(b.mealTime)));
+  // // console.log(MorningFood);
+  // const AfternoonFood = planDetails
+  //   .filter((item) => {
+  //     const time = moment.utc(item.mealTime).utcOffset(0);
+  //     const hour = time.hours();
+  //     return hour >= 12 && hour < 18;
+  //   })
+  //   .sort((a, b) => moment(a.mealTime).diff(moment(b.mealTime)));
+  // const EverningFood = planDetails
+  //   .filter((item) => {
+  //     const time = moment.utc(item.mealTime).utcOffset(0);
+  //     const hour = time.hours();
+  //     return hour >= 18 && hour <= 24;
+  //   })
+  //   .sort((a, b) => moment(a.mealTime).diff(moment(b.mealTime)));
+  const dataRecipe = (session) => {
+    let menuItem = {};
+    menuItem = planDetails
+      .filter((item) => {
+        if (item.mealTime) {
+          const time = moment.utc(item.mealTime).utcOffset(0);
+          const hour = time.hours();
+          if (session == "morning") return hour >= 7 && hour < 12;
+          else if (session == "noon") return hour >= 12 && hour < 18;
+          else if (session == "everning") return hour >= 18 && hour <= 24;
+        }
+      })
+      .sort((a, b) => moment(a.mealTime).diff(moment(b.mealTime)));
+    return menuItem;
+  };
   const renderHiddenItem = (rowData, rowMap) => {
     const { item } = rowData;
+
     return (
-      <View style={styles.ItemContainerHidden}>
-        <TouchableOpacity
-          style={styles.deleteButton}
-          onPress={() => handleDelete(item)}
-        >
-          <Image
-            source={require("../assets/icon/IconDelete.png")}
-            style={{ resizeMode: "contain" }}
-          ></Image>
-        </TouchableOpacity>
-      </View>
+      item.recipe && (
+        <View style={styles.ItemContainerHidden}>
+          <TouchableOpacity
+            style={styles.deleteButton}
+            onPress={() => handleDelete(item.id)}
+          >
+            <Image
+              source={require("../assets/icon/IconDelete.png")}
+              style={{ resizeMode: "contain" }}
+            />
+          </TouchableOpacity>
+        </View>
+      )
     );
   };
-  const handleDelete = (itemDelted) => {
-    setData((prevData) => prevData.filter((item) => item.id !== itemDelted.id));
-    setUndoItem(itemDelted);
-    setModalVisible(true);
+  const handleDelete = async (itemDeleted) => {
+    const response = await deleteMeal(itemDeleted);
+    setUpdateFlag(updateFlag);
 
     setTimeout(() => {
       setModalVisible(false);
       setUndoItem(null);
     }, 3000);
   };
-  console.log(updateFlag, setUpdateFlag);
   const renderListItem = (rowData) => {
     const { item } = rowData;
-    // console.log(item);
-    return (
+    console.log("okie", item.recipe && item);
+    return item.recipe ? (
       <View style={styles.ItemContainer}>
         <SubText>
           {moment(item.mealTime).subtract(7, "hours").format("HH:mm")}
@@ -100,6 +117,8 @@ const MenuEdit = ({
           ></Image>
         </TouchableOpacity>
       </View>
+    ) : (
+      <View></View>
     );
   };
   const handleUndo = () => {
@@ -108,7 +127,9 @@ const MenuEdit = ({
     setUndoItem(null);
     setModalVisible(false);
   };
-  useEffect(() => {}, [data, updateFlag]);
+  useEffect(() => {
+    console.log("updated");
+  }, [data, updateFlag]);
   return (
     <View style={{ flex: 1 }}>
       <View style={{ flex: 3 }}>
@@ -124,7 +145,7 @@ const MenuEdit = ({
         </View>
         <View>
           <SwipeListView
-            data={MorningFood}
+            data={dataRecipe("morning")}
             renderItem={renderListItem}
             renderHiddenItem={renderHiddenItem}
             rightOpenValue={-90}
@@ -143,7 +164,7 @@ const MenuEdit = ({
         </View>
         <View>
           <SwipeListView
-            data={AfternoonFood}
+            data={dataRecipe("noon")}
             renderItem={renderListItem}
             renderHiddenItem={renderHiddenItem}
             rightOpenValue={-90}
@@ -162,7 +183,7 @@ const MenuEdit = ({
         </View>
         <View>
           <SwipeListView
-            data={EverningFood}
+            data={dataRecipe("everning")}
             renderItem={renderListItem}
             renderHiddenItem={renderHiddenItem}
             rightOpenValue={-90}

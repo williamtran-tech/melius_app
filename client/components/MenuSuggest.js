@@ -1,4 +1,11 @@
-import { Image, StyleSheet, Text, View, TouchableOpacity } from "react-native";
+import {
+  Image,
+  StyleSheet,
+  Text,
+  View,
+  TouchableOpacity,
+  ActivityIndicator,
+} from "react-native";
 import React, { useEffect, useState } from "react";
 import HeaderText from "./HeaderText";
 import { ScrollView } from "react-native-gesture-handler";
@@ -10,6 +17,8 @@ import { useNavigation } from "@react-navigation/native";
 const MenuSuggest = () => {
   const navigation = useNavigation();
   const [searchResults, setSearchResults] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+
   const capitalizeFirstLetter = (str) => {
     return str.charAt(0).toUpperCase() + str.slice(1);
   };
@@ -35,6 +44,7 @@ const MenuSuggest = () => {
     }
     setRecipeImages(imageUrls);
     setSearchResults(response.data.recipes);
+    setIsLoading(false);
   };
 
   useEffect(() => {
@@ -42,54 +52,74 @@ const MenuSuggest = () => {
     console.log("url:", recipeImages);
   }, []);
   return (
-    <View>
+    <View
+      style={{
+        flex: 1,
+      }}
+    >
       <HeaderText style={{ fontSize: 18, color: "#518B1A", paddingLeft: 25 }}>
         Handbook of suggestions
       </HeaderText>
-      <ScrollView>
-        {searchResults &&
-          searchResults.map((menuItem) => {
-            return (
-              <TouchableOpacity
-                key={menuItem.id}
-                onPress={() => {
-                  navigation.navigate(
-                    navigation.navigate("Menu", {
-                      screen: "MenuDetail",
-                      params: {
-                        data: menuItem,
-                      },
-                    })
-                  );
-                }}
-              >
-                <View style={styles.menuItemInf}>
-                  <View style={styles.imageContainer}>
-                    <Image
-                      source={
-                        recipeImages && { uri: recipeImages[menuItem.id] }
-                      }
-                      style={{ height: 83, width: 121, resizeMode: "cover" }}
-                    ></Image>
+      {isLoading ? (
+        <View
+          style={{
+            flex: 1,
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <ActivityIndicator
+            size="large"
+            color="#518B1A"
+            style={styles.loader}
+          />
+        </View>
+      ) : (
+        <ScrollView>
+          {searchResults &&
+            searchResults.map((menuItem) => {
+              return (
+                <TouchableOpacity
+                  key={menuItem.id}
+                  onPress={() => {
+                    navigation.navigate(
+                      navigation.navigate("Menu", {
+                        screen: "MenuDetail",
+                        params: {
+                          data: menuItem,
+                        },
+                      })
+                    );
+                  }}
+                >
+                  <View style={styles.menuItemInf}>
+                    <View style={styles.imageContainer}>
+                      <Image
+                        source={
+                          recipeImages && { uri: recipeImages[menuItem.id] }
+                        }
+                        style={{ height: 83, width: 121, resizeMode: "cover" }}
+                      ></Image>
+                    </View>
+                    <View style={styles.menuItemText}>
+                      <HeaderText style={styles.menuItemTitle}>
+                        {capitalizeFirstLetter(menuItem.name)}
+                      </HeaderText>
+                      <SubText
+                        numberOfLines={2}
+                        ellipsizeMode="tail"
+                        style={styles.menuDescription}
+                      >
+                        Step: {menuItem.nSteps}, Ingredient:{" "}
+                        {menuItem.nIngredients}
+                      </SubText>
+                    </View>
                   </View>
-                  <View style={styles.menuItemText}>
-                    <HeaderText style={styles.menuItemTitle}>
-                      {capitalizeFirstLetter(menuItem.name)}
-                    </HeaderText>
-                    <SubText
-                      numberOfLines={2}
-                      ellipsizeMode="tail"
-                      style={styles.menuDescription}
-                    >
-                      Step: {menuItem.nSteps}, Ingredient:{" "}
-                      {menuItem.nIngredients}
-                    </SubText>
-                  </View>
-                </View>
-              </TouchableOpacity>
-            );
-          })}
-      </ScrollView>
+                </TouchableOpacity>
+              );
+            })}
+        </ScrollView>
+      )}
     </View>
   );
 };
@@ -131,4 +161,5 @@ const styles = StyleSheet.create({
   imageContainer: {
     backgroundColor: "#FFFFEE",
   },
+  loader: {},
 });

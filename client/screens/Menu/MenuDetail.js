@@ -1,4 +1,11 @@
-import { StyleSheet, Text, View, TouchableOpacity, Image } from "react-native";
+import {
+  StyleSheet,
+  Text,
+  View,
+  TouchableOpacity,
+  Image,
+  ActivityIndicator,
+} from "react-native";
 import React, { useEffect, useState } from "react";
 import NavigatorMenu from "../../components/NavigatorMenu";
 import { imageSearchEngine } from "../../Services/FoodSearching";
@@ -11,11 +18,14 @@ import { useNavigation } from "@react-navigation/native";
 
 const MenuDetail = ({ route }) => {
   const { selectedDate, setSelectedDate, data } = route.params;
+  const [isLoading, setIsLoading] = useState(true);
+
   const [foodUrl, setFoodUrl] = useState();
   console.log("cc:", data);
   const searchEngine = async (name) => {
     const url = await imageSearchEngine(name);
     setFoodUrl(url);
+    setIsLoading(false);
   };
   useEffect(() => {
     if (data && data.name) {
@@ -54,11 +64,27 @@ const MenuDetail = ({ route }) => {
 
       <View style={{ flex: 1 }}>
         <ScrollView style={{ flex: 1 }}>
-          <View style={{ flex: 1, backgroundColor: "#FD0000" }}>
-            <Image
-              source={{ uri: foodUrl }}
-              style={{ flex: 1, resizeMode: "cover", aspectRatio: 16 / 9 }}
-            ></Image>
+          <View style={{ flex: 1 }}>
+            {isLoading ? (
+              <View
+                style={{
+                  flex: 1,
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+              >
+                <ActivityIndicator
+                  size="large"
+                  color="#518B1A"
+                  style={styles.loader}
+                />
+              </View>
+            ) : (
+              <Image
+                source={{ uri: foodUrl }}
+                style={{ flex: 1, resizeMode: "cover", aspectRatio: 16 / 9 }}
+              ></Image>
+            )}
           </View>
           <View style={{ padding: 25 }}>
             <HeaderText style={{ color: "#518B1A", fontSize: 18 }}>

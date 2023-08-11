@@ -45,7 +45,7 @@ const WelcomHeader = () => {
             <Text style={styles.datetext}> {formattedDate}</Text>
           </View>
           <HeaderText style={styles.text}>{t("welcome")}</HeaderText>
-          <HeaderText style={styles.text}>Hello Mother Fcker</HeaderText>
+          <HeaderText style={styles.text}>Hello Mom</HeaderText>
         </View>
         <View>
           <Image

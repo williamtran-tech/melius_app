@@ -1,9 +1,10 @@
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import NavigatorMenu from "../../components/NavigatorMenu";
 import SubText from "../../components/SubText";
 import ProjectNutrition from "../../components/ProjectNutrition";
 import MenuEdit from "../../components/MenuEdit";
+import { getMealPlan } from "../../Services/SuggestMealPlan";
 
 const MenuEditScreen = ({ route }) => {
   const {
@@ -49,6 +50,20 @@ const MenuEditScreen = ({ route }) => {
     },
   ]);
   const [undoItem, setUndoItem] = useState(null);
+  const [mealPlan, setMealPlan] = useState();
+  const fetchMealPlan = async () => {
+    try {
+      const mealPlanData = await getMealPlan();
+
+      setMealPlan(mealPlanData);
+    } catch (error) {
+      console.error("Error fetching meal plan:", error);
+    }
+  };
+  useEffect(() => {
+    fetchMealPlan();
+    console.log("updated");
+  }, [updateFlag]);
   return (
     <View style={{ flex: 1, backgroundColor: "#FDFDFD" }}>
       {selectedDate && (
@@ -93,15 +108,17 @@ const MenuEditScreen = ({ route }) => {
         </View>
       )}
       <View style={{ flex: 1 }}>
-        <MenuEdit
-          data={data}
-          setData={setData}
-          undoItem={undoItem}
-          setUndoItem={setUndoItem}
-          planDetails={planDetails}
-          updateFlag={updateFlag}
-          setUpdateFlag={setUpdateFlag}
-        ></MenuEdit>
+        {mealPlan && (
+          <MenuEdit
+            data={data}
+            setData={setData}
+            undoItem={undoItem}
+            setUndoItem={setUndoItem}
+            planDetails={mealPlan.planDetails}
+            updateFlag={updateFlag}
+            setUpdateFlag={setUpdateFlag}
+          ></MenuEdit>
+        )}
       </View>
     </View>
   );

@@ -30,7 +30,6 @@ const OverallProfile = () => {
   };
   const imageSource = { uri: momInfor && momInfor.user.img };
   useEffect(() => {
-    console.log("Mount");
     fetchData();
 
     // Add a delay of 2 seconds before calling fetchData()

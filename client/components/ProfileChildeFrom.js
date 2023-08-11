@@ -19,6 +19,7 @@ import HandleApi from "../Services/HandleApi";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation } from "@react-navigation/native";
 import { getUserProfile } from "../Services/RetrieveNutritionProfile";
+import { suggestMealPlan } from "../Services/SuggestMealPlan";
 const ProfileChildeFrom = () => {
   const navigation = useNavigation();
   const handleSubmit = async (values) => {
@@ -32,12 +33,13 @@ const ProfileChildeFrom = () => {
       const userProfile = await getUserProfile();
       console.log(userProfile);
       console.log(response.data.child.id);
-      // const mealPlanResponse = await HandleApi.serverGeneral.post(
-      //   "v1/users/meal-plan",
-      //   {
-      //     kidId: userProfile.kidProfile[0].id,
-      //   }
-      // );
+      const mealPlanResponse = await HandleApi.serverGeneral.post(
+        "v1/users/meal-plan",
+        {
+          kidId: userProfile.kidProfile[0].id,
+        }
+      );
+      await suggestMealPlan();
       const mealplan = await HandleApi.serverGeneral.get(
         `/v1/users/meal-plan?kidId=${userProfile.kidProfile[0].id}`
       );
