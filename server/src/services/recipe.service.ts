@@ -6,6 +6,31 @@ import sequelize from "sequelize";
 
 export default class RecipeService {
   constructor() {}
+  
+  private TOTAL_FAT_BASE = 78;
+  private SUGAR_BASE = 50;
+  private SODIUM_BASE = 2.3;
+  private PROTEIN_BASE = 50;
+  private SATURATED_FAT_BASE = 20;
+  private CARBOHYDRATES_BASE = 275;
+
+  private convertPDVToGrams(mealNutrient: any) {
+    var mealNutrientsInGrams = {
+      calories: Number(mealNutrient.calories.toFixed(2)),
+      totalFat: Number((mealNutrient.totalFat * this.TOTAL_FAT_BASE / 100).toFixed(2)),
+      sugar: Number((mealNutrient.sugar * this.SUGAR_BASE / 100).toFixed(2)),
+      sodium: Number((mealNutrient.sodium * this.SODIUM_BASE / 100).toFixed(2)),
+      protein: Number((mealNutrient.protein * this.PROTEIN_BASE / 100).toFixed(2)),
+      saturatedFat: Number((mealNutrient.saturatedFat * this.SATURATED_FAT_BASE / 100).toFixed(2)),
+      carbohydrates: Number((mealNutrient.carbohydrates * this.CARBOHYDRATES_BASE / 100).toFixed(2)),
+    };
+    
+    let servingSize = mealNutrientsInGrams.totalFat + mealNutrientsInGrams.sugar + mealNutrientsInGrams.sodium + mealNutrientsInGrams.protein + mealNutrientsInGrams.carbohydrates;
+    servingSize = Math.round(servingSize);
+    
+    return {mealNutrientsInGrams, servingSize};
+  }
+
   public async getRecipes(limit: number) {
     try {
       const idErrorRecipe: number[] = [];
@@ -85,12 +110,14 @@ export default class RecipeService {
 
   public async getRecipeById(id: number) {
     try {
+      let meal: any;
       const recipe = await Recipe.findOne({
         where: { id: id },
-        attributes: ["id", "name", "nSteps", "nIngredients", "ingredients", "steps"],
+        attributes: ["id", "name", "nSteps", "nIngredients", "ingredients", "steps", "nutrition"],
       });
-
+      
       if (recipe) {
+        meal = recipe;
         const data = recipe.ingredients;
         const stringData = data.replace(/'/g, '"');
         let ingredientsArray: string[] = [];
@@ -102,6 +129,22 @@ export default class RecipeService {
         ingredientsArray = JSON.parse(stringData);
         stepsArray = JSON.parse(stringStep);
 
+        const nutritionData = meal.nutrition.replace(/'/g, '"');
+        let nutritionArray: number[] = [];
+        nutritionArray = JSON.parse(nutritionData);
+
+        let nutrition = {
+          'calories': nutritionArray[0],
+          'totalFat': nutritionArray[1],
+          'sugar': nutritionArray[2],
+          'sodium': nutritionArray[3],
+          'protein': nutritionArray[4],
+          'saturatedFat': nutritionArray[5],
+          'carbohydrates': nutritionArray[6]
+        };
+
+        const {mealNutrientsInGrams, servingSize} = this.convertPDVToGrams(nutrition);
+        
         return {
           id: recipe.id,
           name: recipe.name,
@@ -109,6 +152,8 @@ export default class RecipeService {
           nIngredients: recipe.nIngredients,
           ingredients: ingredientsArray,
           steps: stepsArray,
+          servingSize: servingSize,
+          nutrition: mealNutrientsInGrams,
         };
       }
 

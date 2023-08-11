@@ -41,4 +41,5 @@ userRouter.post("/suggested-meal-plan", authMiddleware, authorize(["User"]),chec
 // Meal Details
 userRouter.delete("/meal-plan/detail", authMiddleware, authorize(["User"]),checkKidIDMiddleware,userController.deleteMeal)
           .patch("/meal-plan/detail", authMiddleware, authorize(["User"]),checkKidIDMiddleware,userController.undoDeleteMeal)
-          .patch("/meal-plan/meal-detail", authMiddleware, authorize(["User"]),checkKidIDMiddleware,userController.updateMeal);
+          .patch("/meal-plan/meal-detail", authMiddleware, authorize(["User"]),checkKidIDMiddleware,userController.updateMeal)
+          .post("/meal-plan/detail", authMiddleware, authorize(["User"]),checkKidIDMiddleware,userController.addMeal);
