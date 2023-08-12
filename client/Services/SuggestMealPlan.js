@@ -114,3 +114,19 @@ export const deleteMeal = async (id) => {
     // You can handle the error here
   }
 };
+export const undoMeal = async (id) => {
+  const value = await AsyncStorage.getItem("userProfile");
+  const kidId = JSON.parse(value)?.kidProfile[0].id;
+  console.log(kidId);
+  console.log(id);
+
+  try {
+    const response = await HandleApi.serverGeneral.patch(
+      `/v1/users/meal-plan/detail?id=${id}&kidId=${kidId}`
+    );
+    console.log("Undo Delete request successful:", response.data);
+  } catch (error) {
+    console.error("Error making delete request:", error);
+    // You can handle the error here
+  }
+};

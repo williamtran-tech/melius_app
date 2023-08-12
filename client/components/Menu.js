@@ -24,7 +24,7 @@ const Menu = ({
   const { planDetails } = mealPlan;
   const [listIngre, setListIngre] = useState(IngredientIcon);
 
-  console.log("cc", planDetails);
+  // console.log("planDetails", planDetails);
   const renderItemMenu = (session) => {
     let menuItem = {};
     menuItem = planDetails
