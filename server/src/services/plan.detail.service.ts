@@ -63,6 +63,38 @@ export default class PlanDetailService {
         }
     }
 
+    public async getPlanDetailsByMealTime(mealTime: Date) {
+        try {
+            const session = this.timeConverter(mealTime.getUTCHours());
+            const oldMeal = await PlanDetail.findOne({
+                where: {
+                    session: session,
+                }
+            });
+
+            return oldMeal;
+        } catch (err) {
+            throw err;
+        }
+    }
+
+    public async getUnfilledPlanDetails(mealPlanId: number, mealTime: number) {
+        try {
+            const session = this.timeConverter(mealTime);
+            const planDetails = await PlanDetail.findOne({
+                where: {
+                    mealPlanId: mealPlanId,
+                    session: session,
+                    recipeId: null,
+                },
+                attributes: ["id", "mealTime", "session", "type", "nutritionRange", "updatedAt"],
+            });
+            return planDetails;
+        } catch (err) {
+            throw err;
+        }
+    }
+
     private async createPlanDetails(planDetails: any) {
         try {
             const createdPlanDetails = await PlanDetail.bulkCreate(planDetails);
@@ -590,6 +622,36 @@ export default class PlanDetailService {
 
     // Edit Meal Details Functions:
     // CRUD for Meal Details
+    public async addMeal(mealDTO: any) {
+        try {
+            const session = this.timeConverter(mealDTO.mealTime.getUTCHours());
+
+            // Check if meal exceeds the limit of 2 meals per session
+            const mealCount = await PlanDetail.count({
+                where: {
+                    mealPlanId: mealDTO.mealPlanId,
+                    session: session,
+                },
+            });
+
+            if (mealCount >= 2) {
+                throw new HttpException(406, "Cannot add meal because the session has 2 meals");
+            }
+            const addMeal = await PlanDetail.create({
+                mealTime: mealDTO.mealTime,
+                session: session,
+                type: mealDTO.type,
+                nutritionRange: mealDTO.nutritionRange,
+                mealPlanId: mealDTO.mealPlanId,
+                recipeId: mealDTO.recipeId,
+            });
+
+            return addMeal;
+        } catch (err) {
+            throw err;
+        }
+    }
+
     public async updateMeal(mealDTO: any) {
         try {
             // Find the meal details
@@ -700,11 +762,21 @@ export default class PlanDetailService {
                     await mealDetail.restore();
                     return mealDetail;
                 }
-                throw new HttpException(401, "Cannot undo delete meal because the new meal has its recipe");
+                throw new HttpException(406, "Cannot undo delete meal because the new meal has its recipe");
             }
             return mealDetail;
         } catch (err) {
             throw err;
         }
+    }
+
+    // Helper functions
+    public checkMealSession(oldMealSession: string, newMealTime: number): boolean {
+        let newSession = this.timeConverter(newMealTime);
+        console.log("New Session: ", newSession);
+        if (oldMealSession === newSession) {
+            return true;
+        }
+        return false;
     }
 }

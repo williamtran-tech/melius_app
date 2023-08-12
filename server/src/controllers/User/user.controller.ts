@@ -12,6 +12,9 @@ import PlanDetailService from "../../services/plan.detail.service";
 import MealPlanDTO from "../../DTOs/MealPlan/MealPlan.DTO";
 import AllergyService from "../../services/allergy.service";
 import AvailableIngredientService from "../../services/available.ingredient.service";
+import RecipeService from "../../services/recipe.service";
+
+import dateTimeUtil from "../../utils/dateTime";
 export default class UserController extends BaseController {
   constructor() {
     super();
@@ -30,6 +33,10 @@ export default class UserController extends BaseController {
   public allergyService = new AllergyService();
   
   public availableIngredientService = new AvailableIngredientService();
+
+  public recipeService = new RecipeService();
+
+  public dateTimeUtil = new dateTimeUtil();
 
   public getUserProfile = async (
     req: express.Request,
@@ -481,6 +488,108 @@ export default class UserController extends BaseController {
         msg: "Undo delete meal successfully",
         deletedMeal: deletedMeal,
       });
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  public addMeal = async (req: express.Request, res: express.Response, next: express.NextFunction) => {
+    try {
+      // Check the meal plan is exist or not
+      const kidId = Number(req.body.kidId);
+      const mealPlan = await this.mealPlanService.getMealPlanInfo(kidId);
+
+      // Date Time Format UTC 
+      this.dateTimeUtil.setUTCDateTime(req.body.mealTime);
+      let mealTime = this.dateTimeUtil.getUTCDateTime();
+
+      let newMeal = {
+        mealPlanId: Number(mealPlan!.id),
+        recipeId: Number(req.body.recipeId),
+        mealTime: new Date(mealTime).toISOString().replace(/T/, ' ').substr(0, 19),
+        type: req.body.type,
+      };
+      let responseMeal;
+
+      let nMealChanged: boolean = false;
+
+      // Find the Unfilled Meal Plan Details
+      // If the meal plan details is unfilled:
+      // [Unfilled Meal]
+      // 1. Check session of the new meal is matched with the session of the unfilled meal plan details
+        // [1] If the session is matched, then update the new meal to the unfilled meal plan details
+      // [Filled Meal]
+      // 1. Get the Mail Course of the Old meal in that session => Old meal
+      // 2. Compare the nutrition of the Old meal and the new meal
+      // 3. Check if the nutrition of the new meal is matched with the nutrition of the old meal
+        // [1] If the nutrition is matched, then update the new meal to the old meal
+        // [2] If the nutrition is less than the old meal
+          // 2.1. Check the session of new meal contains any side dish
+            // [1]. If the session contains any side dish, then update the new meal to the old meal (side dish)
+            // [2]. Else, create a new meal with type = side dish
+      const unfilledMealPlanDetails = await this.planDetailService.getUnfilledPlanDetails(mealPlan!.id, mealTime.getUTCHours());
+    
+      if (unfilledMealPlanDetails) {
+        // 1. Check if the new meal is matched with the time of the empty meal
+        const checkMealSession = this.planDetailService.checkMealSession(unfilledMealPlanDetails!.session, mealTime.getUTCHours());
+        if (checkMealSession) {
+          // Update the new meal to the empty meal
+          console.log("Update new meal to the meal plan detail");
+          const mealDTO = {
+            mealId: unfilledMealPlanDetails!.id,
+            ...newMeal,
+          }
+
+          console.log(mealDTO);
+          responseMeal = await this.planDetailService.updateMeal(mealDTO);
+        }
+      } else {
+        // Create new meal plan detail
+        console.log("Create new meal plan detail");
+
+        // Get the Main course of the Old meal in that session
+        const oldMeal = await this.planDetailService.getPlanDetailsByMealTime(mealTime);
+        console.log("Old meal", oldMeal!.mealTime.getUTCHours() + ":" + oldMeal!.mealTime.getMinutes() + " " + oldMeal!.type + " " + oldMeal!.recipeId);
+        console.log("Old meal Nutrition Range: ", oldMeal!.nutritionRange);
+
+        // Get the nutrition of the new meal
+        const newMealNutrition = await this.recipeService.getRecipeById(newMeal.recipeId);
+        console.log("Calories: ", newMealNutrition!.nutrition.calories);
+
+        if (newMealNutrition!.nutrition.calories < Number(oldMeal?.nutritionRange[0])) {
+          console.log("New meal is less energy than the old meal");
+          // Insert new meal to side dish
+          const sideDishMeal = {
+            mealPlanId: Number(mealPlan!.id),
+            recipeId: Number(req.body.recipeId),
+            mealTime: new Date(mealTime),
+            type: "Side dish",
+            nutritionRange: [newMealNutrition!.servingSize, newMealNutrition!.servingSize]
+          };
+
+          responseMeal = await this.planDetailService.addMeal(sideDishMeal);
+        } else {
+          console.log("New meal is greater energy than the old meal");
+          // Update the new meal to the old meal
+          const mealDTO = {
+            mealId: oldMeal!.id,
+            ...newMeal,
+          };
+
+          responseMeal = await this.planDetailService.updateMeal(mealDTO);
+        }
+        // const newMealNutrition = await this.recipeService.getNutritionByRecipeId(newMeal.recipeId);
+      }
+      
+      // 1.1. If the new meal is matched, then update the meal plan details
+      // 1.2. If the new meal is not matched, then create a new meal plan detail
+
+      res.status(200).json({
+        msg: "Add meal successfully",
+        newMeal: responseMeal ? responseMeal : newMeal,
+        nMealChanged: nMealChanged,
+      });
+
     } catch (err) {
       next(err);
     }
