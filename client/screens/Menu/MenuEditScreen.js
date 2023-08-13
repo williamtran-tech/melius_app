@@ -52,8 +52,10 @@ const MenuEditScreen = ({ route }) => {
                   style={styles.btnAction}
                   onPress={() =>
                     navigation.navigate("NewMenuScreen", {
-                      listFood: data,
-                      setData: setData,
+                      updateFlag: updateFlag,
+                      setUpdateFlag: setUpdateFlag,
+                      menuUpdated: menuUpdated,
+                      setMenuUpdated: setMenuUpdated,
                     })
                   }
                 >

@@ -92,6 +92,8 @@ const MenuEdit = ({
               data: item,
               updateFlag: updateFlag,
               setUpdateFlag: setUpdateFlag,
+              menuUpdated: menuUpdated,
+              setMenuUpdated: setMenuUpdated,
             });
           }}
         >
