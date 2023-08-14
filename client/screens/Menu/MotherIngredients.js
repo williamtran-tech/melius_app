@@ -17,6 +17,7 @@ import BottomSheet from "@gorhom/bottom-sheet";
 import Animated from "react-native-reanimated";
 import IngredientsList from "../../components/IngredientsList";
 import HandleApi from "../../Services/HandleApi";
+import IngredientSearch from "../../components/IngredientSearch";
 
 const MotherIngredients = ({ route }) => {
   const bottomSheetRef = useRef(0);
@@ -28,8 +29,6 @@ const MotherIngredients = ({ route }) => {
   const { navigation, selectedDate, setSelectedDate } = route.params;
   const [selectedItem, setSelectedItem] = useState([]);
   const [listItem, setListItem] = useState(IngredientIcon);
-  const [searchResults, setSearchResults] = useState([]);
-  const [searchText, setSearchText] = useState("");
 
   const moveItemToWishlist = (item) => {
     setSelectedItem((prevSelectedItem) => [...prevSelectedItem, item]);
@@ -43,34 +42,10 @@ const MotherIngredients = ({ route }) => {
       prevList.filter((listItem) => listItem.name !== item.name)
     );
   };
-  const searchIngredient = (value) => {
-    HandleApi.serverGeneral
-      .get("v1/ingredients/search-list", {
-        params: {
-          ingredient: value,
-          pageSize: 3,
-        },
-      })
-      .then((response) => {
-        console.log(response.data);
-        setSearchResults(response.data.ingredientsList);
-        // console.log(response.data.ingredientsList[1].category);
-      })
-      .catch((error) => console.log(error));
-  };
   useEffect(() => {
     console.log(selectedItem);
   }, [selectedItem]);
-  const handleInputChange = (text) => {
-    setSearchText(text);
-    // Perform search operation here based on the input text
-    if (debounceTimeoutRef.current) {
-      clearTimeout(debounceTimeoutRef.current);
-    }
-    debounceTimeoutRef.current = setTimeout(() => {
-      searchIngredient(text);
-    }, 500);
-  };
+
   return (
     <View style={{ flex: 1, backgroundColor: "#FDFDFD" }}>
       {selectedDate && (
@@ -112,34 +87,7 @@ const MotherIngredients = ({ route }) => {
         enablePanDownToClose={true}
         initialSnap={0}
       >
-        <View style={styles.bottomSheetContent}>
-          <View style={styles.bottomSheetHeader}>
-            <TextInput
-              style={styles.searchInput}
-              placeholder="Enter search text"
-              value={searchText}
-              onChangeText={handleInputChange}
-            />
-            {/* <TouchableOpacity onPress={handleClosePress}>
-              <Text>Close</Text>
-            </TouchableOpacity> */}
-          </View>
-          <View>
-            {searchResults && (
-              <FlatList
-                data={searchResults}
-                renderItem={(item) => {
-                  return (
-                    <View>
-                      <SubText>{item.item.foods}</SubText>
-                    </View>
-                  );
-                }}
-                keyExtractor={(item) => item.fdcId}
-              />
-            )}
-          </View>
-        </View>
+        <IngredientSearch></IngredientSearch>
       </BottomSheet>
     </View>
   );
@@ -159,19 +107,4 @@ const styles = StyleSheet.create({
     borderRadius: 16,
   },
   bottomSheetContent: {},
-  bottomSheetHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    gap: 20,
-    paddingHorizontal: 25,
-  },
-  searchInput: {
-    flex: 1,
-    backgroundColor: "#F9F9F9",
-    borderWidth: 1,
-    borderColor: "#8f8f8f",
-    padding: 5,
-    borderRadius: 20,
-  },
 });

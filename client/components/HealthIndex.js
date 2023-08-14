@@ -1,24 +1,36 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import moment from "moment";
 import React, { useEffect, useState } from "react";
-import { StyleSheet, Text, View, TouchableOpacity, Image } from "react-native";
+import {
+  StyleSheet,
+  Text,
+  View,
+  TouchableOpacity,
+  Image,
+  Modal,
+} from "react-native";
 import Loader from "./Loader";
 import SubText from "./SubText";
+import UpdateHealth from "./UpdateHealth";
 const HealthIndex = () => {
   const [healthRecord, setHealthRecord] = useState();
+  const [modalVisible, setModalVisible] = useState(false);
+
   const fetchData = async () => {
     try {
       const value = await AsyncStorage.getItem("userProfile");
       console.log({ value });
       if (value) {
         const userProfile = JSON.parse(value);
-        console.log("userProfileeeeee:", userProfile);
+        // console.log("userProfile:", userProfile.kidProfile[0].healthRecord[0]);
         // Check if the required data is available before setting the state
-        setHealthRecord(userProfile.kidProfile[0].healthRecord[0]);
+        setHealthRecord(userProfile.kidProfile[0]);
       }
     } catch (error) {
       console.error("Error fetching userProfile from AsyncStorage:", error);
     }
   };
+  const [updateFlag, setUpdateFlag] = useState(false);
   useEffect(() => {
     console.log("Mount");
     fetchData();
@@ -30,38 +42,61 @@ const HealthIndex = () => {
 
     // // Clean up the timer when the component unmounts
     // return () => clearTimeout(timer);
-  }, []);
+  }, [updateFlag]);
 
   return (
     <View style={styles.inforItemContainer}>
-      <SubText style={styles.lastupdatetext}>Last updated 15/04/2023</SubText>
+      <SubText style={styles.lastupdatetext}>
+        Last updated{" "}
+        {moment(healthRecord && healthRecord.healthRecord[0].updatedAt).format(
+          "dddd, DD MMMM"
+        )}
+      </SubText>
       <View style={styles.informationContainer}>
         <View style={styles.inforItem}>
           <View style={{ flexDirection: "column", marginTop: "auto" }}>
             <SubText style={styles.inforItemText}>
-              {healthRecord && healthRecord.weight}kg
+              {healthRecord && healthRecord.healthRecord[0].weight}kg
             </SubText>
             <SubText style={styles.nameItemText}>Weight</SubText>
           </View>
           <View style={{ flexDirection: "column", marginTop: "auto" }}>
             <SubText style={styles.inforItemText}>
-              {healthRecord && healthRecord.height}cm
+              {healthRecord && healthRecord.healthRecord[0].height}cm
             </SubText>
             <SubText style={styles.nameItemText}>Height</SubText>
           </View>
           <View style={{ flexDirection: "column", marginTop: "auto" }}>
             <SubText style={styles.BMIItemText}>
-              {healthRecord && healthRecord.bmi
-                ? healthRecord.bmi.toFixed()
+              {healthRecord && healthRecord.healthRecord[0].bmi
+                ? healthRecord.healthRecord[0].bmi.toFixed()
                 : "N/A"}
             </SubText>
             <SubText style={styles.nameItemText}>BMI</SubText>
           </View>
         </View>
 
-        <TouchableOpacity style={styles.updatebtn}>
+        <TouchableOpacity
+          style={styles.updatebtn}
+          onPress={() => {
+            setModalVisible(true);
+          }}
+        >
           <SubText style={styles.updateText}>Update</SubText>
         </TouchableOpacity>
+        <Modal
+          animationType="slide"
+          transparent={true}
+          visible={modalVisible}
+          onRequestClose={() => setModalVisible(false)}
+        >
+          <UpdateHealth
+            healthRecord={healthRecord}
+            setUpdateFlag={setUpdateFlag}
+            updateFlag={updateFlag}
+            setModalVisible={setModalVisible}
+          ></UpdateHealth>
+        </Modal>
       </View>
     </View>
   );

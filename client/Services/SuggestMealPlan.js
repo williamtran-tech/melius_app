@@ -155,3 +155,16 @@ export const addNewMealPlan = async (mealTime, recipeId, type) => {
     // You can handle the error here
   }
 };
+export const createMealPlan = async (kidId) => {
+  try {
+    const mealPlanResponse = await HandleApi.serverGeneral.post(
+      "v1/users/meal-plan",
+      {
+        kidId: kidId,
+      }
+    );
+  } catch (error) {
+    console.error(error);
+    // setLoading(false);
+  }
+};
