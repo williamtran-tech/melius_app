@@ -12,7 +12,10 @@ import NavigatorMenu from "../../components/NavigatorMenu";
 import SubText from "../../components/SubText";
 import MealTime from "../../components/MealTime";
 import moment from "moment";
-import { patchUpdateMealPlan } from "../../Services/SuggestMealPlan";
+import {
+  addNewMealPlan,
+  patchUpdateMealPlan,
+} from "../../Services/SuggestMealPlan";
 import SearchRecipe from "../../components/SearchRecipe";
 import { imageSearchEngine } from "../../Services/FoodSearching";
 import HandleApi from "../../Services/HandleApi";
@@ -23,54 +26,60 @@ const NewMenuScreen = ({ route }) => {
     navigation,
     selectedDate,
     setSelectedDate,
-    listFood,
     setData,
     data,
     updateFlag,
     setUpdateFlag,
+    menuUpdated,
+    setMenuUpdated,
   } = route.params;
   const [selectedTime, setSelectedTime] = useState(
     data ? moment.utc(data.mealTime).utcOffset(0) : moment()
   );
   const [recipeImages, setRecipeImages] = useState({});
   const [searchResults, setSearchResults] = useState([]);
-  const [recipeId, setRecipeId] = useState(data.recipe.id);
+  const [recipeId, setRecipeId] = useState(data && data.recipe.id);
+  const [type, setType] = useState();
   const [imageUrl, setImageUrl] = useState();
-  const handleNewFood = () => {
-    const newFood = {
-      id: 10,
-      food: "Shitttttttttttt",
-      time: selectedTime,
-    };
-    setData((prevData) => [...prevData, newFood]);
+
+  const capitalizeFirstLetter = (str) => {
+    return str.charAt(0).toUpperCase() + str.slice(1);
   };
   const updateMealPlan = async () => {
     const hanldeUpdate = await patchUpdateMealPlan(
-      data.id,
+      data && data.id,
       selectedTime,
       recipeId
     );
     setUpdateFlag(!updateFlag);
+    setMenuUpdated(!menuUpdated);
   };
-  const capitalizeFirstLetter = (str) => {
-    return str.charAt(0).toUpperCase() + str.slice(1);
+
+  const addNewMeal = async () => {
+    await addNewMealPlan(selectedTime, recipeId, type);
+    setUpdateFlag(!updateFlag);
+    setMenuUpdated(!menuUpdated);
   };
 
   const searchRecipe = async (value) => {
-    const response = await HandleApi.serverGeneral.get("v1/recipes/recipes", {
-      params: {
-        id: recipeId,
-      },
-    });
-    console.log("recipeID", response.data.recipe);
-    setSearchResults(response.data.recipe);
-    const imageSearchData = await imageSearchEngine(response.data.recipe.name);
-    setImageUrl(imageSearchData);
-    console.log(imageSearchData);
+    if (recipeId) {
+      const response = await HandleApi.serverGeneral.get("v1/recipes/recipes", {
+        params: {
+          id: recipeId,
+        },
+      });
+      console.log("recipeID", response.data.recipe);
+      setSearchResults(response.data.recipe);
+      const imageSearchData = await imageSearchEngine(
+        response.data.recipe.name
+      );
+      setImageUrl(imageSearchData);
+      console.log(imageSearchData);
+    }
   };
   useEffect(() => {
     searchRecipe();
-    console.log(searchResults);
+    console.log(menuUpdated);
   }, [updateFlag, recipeId]);
   return (
     <View style={{ flex: 1, backgroundColor: "#FDFDFD" }}>
@@ -86,7 +95,8 @@ const NewMenuScreen = ({ route }) => {
                 <TouchableOpacity
                   style={styles.btnAction}
                   onPress={() => {
-                    updateMealPlan();
+                    data ? updateMealPlan() : addNewMeal();
+
                     navigation.navigate("MenuScreen");
                   }}
                 >
@@ -114,10 +124,8 @@ const NewMenuScreen = ({ route }) => {
           <View>
             <View style={{ paddingHorizontal: 25, marginVertical: 15 }}>
               <MealTime
-                setData={setData}
                 selectedTime={selectedTime}
                 setSelectedTime={setSelectedTime}
-                data={data}
               ></MealTime>
             </View>
             <View style={{ paddingHorizontal: 25 }}>
@@ -154,7 +162,10 @@ const NewMenuScreen = ({ route }) => {
         </TouchableWithoutFeedback>
       </View>
       <View style={{ flex: 1 }}>
-        <SearchRecipe setRecipeId={setRecipeId}></SearchRecipe>
+        <SearchRecipe
+          setRecipeId={setRecipeId}
+          setType={setType}
+        ></SearchRecipe>
       </View>
     </View>
   );

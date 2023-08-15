@@ -14,7 +14,8 @@ import { ScrollView } from "react-native-gesture-handler";
 import { SwipeListView } from "react-native-swipe-list-view";
 import moment from "moment";
 import { useNavigation } from "@react-navigation/native";
-import { deleteMeal } from "../Services/SuggestMealPlan";
+import { deleteMeal, undoMeal } from "../Services/SuggestMealPlan";
+import { set } from "react-native-reanimated";
 
 const MenuEdit = ({
   data,
@@ -24,31 +25,11 @@ const MenuEdit = ({
   planDetails,
   updateFlag,
   setUpdateFlag,
+  menuUpdated,
+  setMenuUpdated,
 }) => {
   const [modalVisible, setModalVisible] = useState(false);
   const navigation = useNavigation();
-  // const MorningFood = planDetails
-  //   .filter((item) => {
-  //     const time = moment.utc(item.mealTime).utcOffset(0);
-  //     const hour = time.hours();
-  //     return hour >= 7 && hour < 12;
-  //   })
-  //   .sort((a, b) => moment(a.mealTime).diff(moment(b.mealTime)));
-  // // console.log(MorningFood);
-  // const AfternoonFood = planDetails
-  //   .filter((item) => {
-  //     const time = moment.utc(item.mealTime).utcOffset(0);
-  //     const hour = time.hours();
-  //     return hour >= 12 && hour < 18;
-  //   })
-  //   .sort((a, b) => moment(a.mealTime).diff(moment(b.mealTime)));
-  // const EverningFood = planDetails
-  //   .filter((item) => {
-  //     const time = moment.utc(item.mealTime).utcOffset(0);
-  //     const hour = time.hours();
-  //     return hour >= 18 && hour <= 24;
-  //   })
-  //   .sort((a, b) => moment(a.mealTime).diff(moment(b.mealTime)));
   const dataRecipe = (session) => {
     let menuItem = {};
     menuItem = planDetails
@@ -85,7 +66,10 @@ const MenuEdit = ({
   };
   const handleDelete = async (itemDeleted) => {
     const response = await deleteMeal(itemDeleted);
-    setUpdateFlag(updateFlag);
+    setUpdateFlag(!updateFlag);
+    setMenuUpdated(!menuUpdated);
+    setUndoItem(itemDeleted);
+    setModalVisible(true);
 
     setTimeout(() => {
       setModalVisible(false);
@@ -108,6 +92,8 @@ const MenuEdit = ({
               data: item,
               updateFlag: updateFlag,
               setUpdateFlag: setUpdateFlag,
+              menuUpdated: menuUpdated,
+              setMenuUpdated: setMenuUpdated,
             });
           }}
         >
@@ -121,14 +107,16 @@ const MenuEdit = ({
       <View></View>
     );
   };
-  const handleUndo = () => {
-    // Restore the item from undoItem and remove it from the undoItem state
-    setData((prevData) => [...prevData, undoItem]);
+  const handleUndo = async () => {
+    const undoDeletedRecipe = await undoMeal(undoItem);
+    setUpdateFlag(!updateFlag);
+    setMenuUpdated(!menuUpdated);
     setUndoItem(null);
     setModalVisible(false);
   };
   useEffect(() => {
-    console.log("updated");
+    console.log("updateeddd1");
+    console.log(planDetails);
   }, [data, updateFlag]);
   return (
     <View style={{ flex: 1 }}>

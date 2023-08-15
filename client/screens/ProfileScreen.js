@@ -9,9 +9,6 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const ProfileScreen = ({ navigation }) => {
   const [childInf, setChildInf] = useState();
-  AsyncStorage.getItem("childrenInf").then((value) => {
-    setChildInf(JSON.parse(value));
-  });
   const showAllItems = async () => {
     try {
       const keys = await AsyncStorage.getAllKeys();
@@ -27,6 +24,9 @@ const ProfileScreen = ({ navigation }) => {
     }
   };
   useEffect(() => {
+    AsyncStorage.getItem("childrenInf").then((value) => {
+      setChildInf(JSON.parse(value));
+    });
     // showAllItems();
   }, []);
   return (

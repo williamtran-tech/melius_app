@@ -6,9 +6,11 @@ import IconWithText from "./IconWithText";
 import HealthIndex from "./HealthIndex";
 import moment from "moment";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import UpdateHealth from "./UpdateHealth";
 
 const ChildrenInf = () => {
   const [childInf, setChildInf] = useState();
+
   useEffect(() => {
     AsyncStorage.getItem("userProfile").then((value) => {
       setChildInf(JSON.parse(value).kidProfile[0]);

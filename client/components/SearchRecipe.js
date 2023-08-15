@@ -12,7 +12,7 @@ import HandleApi from "../Services/HandleApi";
 import { imageSearchEngine } from "../Services/FoodSearching";
 import SubText from "./SubText";
 
-const SearchRecipe = ({ setRecipeId }) => {
+const SearchRecipe = ({ setRecipeId, setType }) => {
   const [searchResults, setSearchResults] = useState([]);
   const [searchText, setSearchText] = useState("");
   const debounceTimeoutRef = useRef(null);
@@ -88,6 +88,7 @@ const SearchRecipe = ({ setRecipeId }) => {
                   onPress={() => {
                     console.log(item.id);
                     setRecipeId(item.id);
+                    setType(item.type);
                   }}
                 >
                   <View style={styles.recipecontainer}>

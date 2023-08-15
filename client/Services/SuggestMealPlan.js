@@ -114,3 +114,57 @@ export const deleteMeal = async (id) => {
     // You can handle the error here
   }
 };
+export const undoMeal = async (id) => {
+  const value = await AsyncStorage.getItem("userProfile");
+  const kidId = JSON.parse(value)?.kidProfile[0].id;
+  console.log(kidId);
+  console.log(id);
+
+  try {
+    const response = await HandleApi.serverGeneral.patch(
+      `/v1/users/meal-plan/detail?id=${id}&kidId=${kidId}`
+    );
+    console.log("Undo Delete request successful:", response.data);
+  } catch (error) {
+    console.error("Error making delete request:", error);
+    // You can handle the error here
+  }
+};
+export const addNewMealPlan = async (mealTime, recipeId, type) => {
+  const value = await AsyncStorage.getItem("userProfile");
+  const kidId = JSON.parse(value)?.kidProfile[0].id;
+
+  const params = {
+    kidId: kidId,
+    mealTime: mealTime.format("YYYY-MM-DD HH:mm:ss"),
+    recipeId: recipeId,
+    type: "Main course",
+  };
+  console.log("New meal params:", params);
+
+  try {
+    const response = await HandleApi.serverGeneral.post(
+      `/v1/users/meal-plan/detail`,
+      params
+    );
+    console.log("Add new meal successful:", response.data);
+    // You can handle the response data here
+  } catch (error) {
+    console.error("Error making new meal request:", error);
+    console.error("Error response data:", error.response?.data);
+    // You can handle the error here
+  }
+};
+export const createMealPlan = async (kidId) => {
+  try {
+    const mealPlanResponse = await HandleApi.serverGeneral.post(
+      "v1/users/meal-plan",
+      {
+        kidId: kidId,
+      }
+    );
+  } catch (error) {
+    console.error(error);
+    // setLoading(false);
+  }
+};

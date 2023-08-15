@@ -71,6 +71,10 @@ const validationProfileChildSchema = yup.object().shape({
   weight: yup.number().required("Weight is required"),
   height: yup.number().required("Height is required"),
 });
+const validationChildRecordSchema = yup.object().shape({
+  weight: yup.number().required("Weight is required"),
+  height: yup.number().required("Height is required"),
+});
 export default {
   loginValidationSchema,
   registerValidationSchema,
@@ -79,4 +83,5 @@ export default {
   PasswordSettingSchema,
   EmailOrPhoneSchema,
   validationProfileChildSchema,
+  validationChildRecordSchema,
 };

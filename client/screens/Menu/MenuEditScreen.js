@@ -11,46 +11,14 @@ const MenuEditScreen = ({ route }) => {
     navigation,
     selectedDate,
     setSelectedDate,
-    planDetails,
     updateFlag,
     setUpdateFlag,
   } = route.params;
   // console.log("hello", planDetails);
 
-  const [data, setData] = useState([
-    {
-      id: 1,
-      food: "country french potato soup",
-      time: "2023-08-03T07:00:00.000Z",
-    },
-    {
-      id: 2,
-      food: "Noodles with tomato sauce with bruised meat",
-      time: "2023-07-30T08:00:00.000Z",
-    },
-    {
-      id: 3,
-      food: "creamy chicrken black bean tacos",
-      time: "2023-07-30T13:00:00.000Z",
-    },
-    {
-      id: 4,
-      food: "quick peach cobbler",
-      time: "2023-07-30T14:00:00.000Z",
-    },
-    {
-      id: 5,
-      food: "country french potato soup",
-      time: "2023-07-30T19:00:00.000Z",
-    },
-    {
-      id: 6,
-      food: "Noodles with tomato sauce with bruised meat",
-      time: "2023-07-30T20:00:00.000Z",
-    },
-  ]);
   const [undoItem, setUndoItem] = useState(null);
   const [mealPlan, setMealPlan] = useState();
+  const [menuUpdated, setMenuUpdated] = useState(false);
   const fetchMealPlan = async () => {
     try {
       const mealPlanData = await getMealPlan();
@@ -62,8 +30,8 @@ const MenuEditScreen = ({ route }) => {
   };
   useEffect(() => {
     fetchMealPlan();
-    console.log("updated");
-  }, [updateFlag]);
+    console.log("updated menu");
+  }, [updateFlag, menuUpdated]);
   return (
     <View style={{ flex: 1, backgroundColor: "#FDFDFD" }}>
       {selectedDate && (
@@ -84,8 +52,10 @@ const MenuEditScreen = ({ route }) => {
                   style={styles.btnAction}
                   onPress={() =>
                     navigation.navigate("NewMenuScreen", {
-                      listFood: data,
-                      setData: setData,
+                      updateFlag: updateFlag,
+                      setUpdateFlag: setUpdateFlag,
+                      menuUpdated: menuUpdated,
+                      setMenuUpdated: setMenuUpdated,
                     })
                   }
                 >
@@ -110,13 +80,13 @@ const MenuEditScreen = ({ route }) => {
       <View style={{ flex: 1 }}>
         {mealPlan && (
           <MenuEdit
-            data={data}
-            setData={setData}
             undoItem={undoItem}
             setUndoItem={setUndoItem}
             planDetails={mealPlan.planDetails}
             updateFlag={updateFlag}
             setUpdateFlag={setUpdateFlag}
+            menuUpdated={menuUpdated}
+            setMenuUpdated={setMenuUpdated}
           ></MenuEdit>
         )}
       </View>
