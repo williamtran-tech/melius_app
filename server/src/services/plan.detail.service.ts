@@ -1,8 +1,10 @@
 import { PlanDetail } from "../orm/models/plan.detail.model";
 import { Recipe } from "../orm/models/recipe.model";
 import HttpException from "../exceptions/HttpException";
+import RecipeService from "./recipe.service";
 
 export default class PlanDetailService {
+    public recipeService = new RecipeService();
     public async getPlanDetails(mealPlanId: number) {
         try {
             const planDetails = await PlanDetail.findAll({
@@ -16,6 +18,11 @@ export default class PlanDetailService {
                     attributes: ["id", "name", "cookTime", "nSteps", "nIngredients", "ingredients", "steps", "nutrition"],
                 }
             });
+
+            let calories = 0;
+            let fat = 0;
+            let carbohydrates = 0;
+            let protein = 0;
             
             const parsedPlanDetails = planDetails.map((planDetail: any) => {
                 if (planDetail.recipes !== null) {
@@ -26,6 +33,21 @@ export default class PlanDetailService {
                     const step = planDetail.recipes.steps;
                     const stringStep = step.replace(/'/g, '"');
                     const parsedStep = JSON.parse(stringStep);
+
+                    const nutritionData = planDetail.recipes.nutrition.replace(/'/g, '"');
+                    let nutritionArray: number[] = [];
+                    nutritionArray = JSON.parse(nutritionData);
+
+                    let nutrition = {
+                        'calories': nutritionArray[0],
+                        'totalFat': nutritionArray[1],
+                        'sugar': nutritionArray[2],
+                        'sodium': nutritionArray[3],
+                        'protein': nutritionArray[4],
+                        'saturatedFat': nutritionArray[5],
+                        'carbohydrates': nutritionArray[6]
+                    }
+                    const nutritionInGrams = this.recipeService.convertPDVToGrams(nutrition);
 
                     const parsedPlanDetail = {
                         id: planDetail.id,
@@ -42,7 +64,22 @@ export default class PlanDetailService {
                             ingredients: parsedIngre,
                             steps: parsedStep,
                         },
+                        nutrition: {
+                            'calories': nutritionInGrams.mealNutrientsInGrams["calories"],
+                            'totalFat': nutritionInGrams.mealNutrientsInGrams["totalFat"],
+                            'sugar': nutritionInGrams.mealNutrientsInGrams["sugar"],
+                            'sodium': nutritionInGrams.mealNutrientsInGrams["sodium"],
+                            'protein': nutritionInGrams.mealNutrientsInGrams["protein"],
+                            'saturatedFat': nutritionInGrams.mealNutrientsInGrams["saturatedFat"],
+                            'carbohydrates': nutritionInGrams.mealNutrientsInGrams["carbohydrates"]
+                        },
+                        servingSize: nutritionInGrams.servingSize,
                     }
+                    calories += nutritionInGrams.mealNutrientsInGrams["calories"];
+                    fat += nutritionInGrams.mealNutrientsInGrams["totalFat"];
+                    carbohydrates += nutritionInGrams.mealNutrientsInGrams["carbohydrates"];
+                    protein += nutritionInGrams.mealNutrientsInGrams["protein"];
+
                     return parsedPlanDetail;
                 } else {
                     const parsedPlanDetail = {
@@ -56,7 +93,13 @@ export default class PlanDetailService {
                     return parsedPlanDetail;
                 }
             });
-            return parsedPlanDetails;
+            const estimatedNutrition = {
+                'calories': Math.round(calories),
+                'fat': Math.round(fat),
+                'carbohydrates': Math.round(carbohydrates),
+                'protein': Math.round(protein),
+            }
+            return [parsedPlanDetails, estimatedNutrition];
         } catch (err) {
             console.log(err);
             throw err;
@@ -69,7 +112,8 @@ export default class PlanDetailService {
             const oldMeal = await PlanDetail.findOne({
                 where: {
                     session: session,
-                }
+                },
+                order: [["updatedAt", "DESC"]],
             });
 
             return oldMeal;
@@ -95,6 +139,7 @@ export default class PlanDetailService {
         }
     }
 
+    // Create Plan Details Template
     private async createPlanDetails(planDetails: any) {
         try {
             const createdPlanDetails = await PlanDetail.bulkCreate(planDetails);

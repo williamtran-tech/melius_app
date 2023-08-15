@@ -377,12 +377,13 @@ export default class UserController extends BaseController {
   public getMealPlan = async (req: express.Request, res: express.Response, next: express.NextFunction) => {
     try {
       const kidId = Number(req.query.kidId);
-      const [mealPlan, planDetails] = await this.mealPlanService.getMealPlan(kidId);
+      const [mealPlan, planDetails, estimatedNutrition] = await this.mealPlanService.getMealPlan(kidId);
 
       res.status(200).json({
         msg: "Get meal plan successfully",
         mealPlan: mealPlan,
         planDetails: planDetails,
+        estimatedNutrition: estimatedNutrition,
       });
     } catch (err) {
       next(err);

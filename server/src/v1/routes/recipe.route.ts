@@ -11,3 +11,6 @@ recipeRouter.get("/recipes-details", authMiddleware, recipeController.searchReci
 
 // Need to change this route uri
 recipeRouter.get("/recipes", authMiddleware, recipeController.searchRecipeById)
+
+// Fetch Recipe from Food.com
+recipeRouter.get("/fetch-recipes", authMiddleware, recipeController.fetchRecipes);
