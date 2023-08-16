@@ -197,9 +197,9 @@ export default class MealPlanService {
         throw new HttpException(404, "Meal plan not found - Create one if you haven't");
       }
 
-      const planDetails = await this.planDetailService.getPlanDetails(mealPlan.id);
+      const [planDetails, estimatedNutrition] = await this.planDetailService.getPlanDetails(mealPlan.id);
 
-      return [mealPlan, planDetails];
+      return [mealPlan, planDetails, estimatedNutrition];
     } catch (error) {
       throw error;
     } 

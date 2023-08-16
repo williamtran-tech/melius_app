@@ -14,7 +14,7 @@ export default class RecipeService {
   private SATURATED_FAT_BASE = 20;
   private CARBOHYDRATES_BASE = 275;
 
-  private convertPDVToGrams(mealNutrient: any) {
+  public convertPDVToGrams(mealNutrient: any) {
     var mealNutrientsInGrams = {
       calories: Number(mealNutrient.calories.toFixed(2)),
       totalFat: Number((mealNutrient.totalFat * this.TOTAL_FAT_BASE / 100).toFixed(2)),
@@ -36,7 +36,7 @@ export default class RecipeService {
       const idErrorRecipe: number[] = [];
       const recipes = await Recipe.findAll({
         limit: limit,
-        attributes: ["id", "name", "nSteps", "nIngredients", "ingredients", "steps"],
+        attributes: ["id", "name", "nSteps", "nIngredients", "ingredients", "steps", "nutrition", "cookTime"],
         order: sequelize.literal("rand()"),
       });
 
@@ -49,16 +49,34 @@ export default class RecipeService {
         const stringStep = step.replace(/'/g, '"');
         let stepsArray: string[] = [];
 
+        const nutritionData = recipe.nutrition.replace(/'/g, '"');
+        let nutritionArray: number[] = [];
+        
         ingredientsArray = JSON.parse(stringData);
         stepsArray = JSON.parse(stringStep);
+        nutritionArray = JSON.parse(nutritionData);
+
+        let nutrition = {
+          'calories': nutritionArray[0],
+          'totalFat': nutritionArray[1],
+          'sugar': nutritionArray[2],
+          'sodium': nutritionArray[3],
+          'protein': nutritionArray[4],
+          'saturatedFat': nutritionArray[5],
+          'carbohydrates': nutritionArray[6]
+        }
+        const {mealNutrientsInGrams, servingSize} = this.convertPDVToGrams(nutrition);
 
         return {
           id: recipe.id,
           name: recipe.name,
           nSteps: recipe.nSteps,
+          cookTime: recipe.cookTime,
           nIngredients: recipe.nIngredients,
           ingredients: ingredientsArray,
           steps: stepsArray,
+          servingSize: servingSize,
+          nutrition: mealNutrientsInGrams,
         };
       });
       return responseRecipes;
@@ -76,7 +94,7 @@ export default class RecipeService {
             [sequelize.Op.like]: `%${name}%`,
           },
         },
-        attributes: ["id", "name", "nSteps", "nIngredients", "ingredients", "steps"],
+        attributes: ["id", "name", "nSteps", "nIngredients", "ingredients", "steps", "nutrition", "cookTime"],
         limit: 5,
       });
 
@@ -89,16 +107,34 @@ export default class RecipeService {
         const stringStep = step.replace(/'/g, '"');
         let stepsArray: string[] = [];
 
+        const nutritionData = recipe.nutrition.replace(/'/g, '"');
+        let nutritionArray: number[] = [];
+        
         ingredientsArray = JSON.parse(stringData);
         stepsArray = JSON.parse(stringStep);
+        nutritionArray = JSON.parse(nutritionData);
+
+        let nutrition = {
+          'calories': nutritionArray[0],
+          'totalFat': nutritionArray[1],
+          'sugar': nutritionArray[2],
+          'sodium': nutritionArray[3],
+          'protein': nutritionArray[4],
+          'saturatedFat': nutritionArray[5],
+          'carbohydrates': nutritionArray[6]
+        }
+        const {mealNutrientsInGrams, servingSize} = this.convertPDVToGrams(nutrition);
 
         return {
           id: recipe.id,
           name: recipe.name,
           nSteps: recipe.nSteps,
+          cookTime: recipe.cookTime,
           nIngredients: recipe.nIngredients,
           ingredients: ingredientsArray,
           steps: stepsArray,
+          servingSize: servingSize,
+          nutrition: mealNutrientsInGrams,
         };
       });
 
@@ -113,7 +149,7 @@ export default class RecipeService {
       let meal: any;
       const recipe = await Recipe.findOne({
         where: { id: id },
-        attributes: ["id", "name", "nSteps", "nIngredients", "ingredients", "steps", "nutrition"],
+        attributes: ["id", "name", "nSteps", "nIngredients", "ingredients", "steps", "nutrition", "cookTime"],
       });
       
       if (recipe) {
@@ -126,12 +162,12 @@ export default class RecipeService {
         const stringStep = step.replace(/'/g, '"');
         let stepsArray: string[] = [];
 
-        ingredientsArray = JSON.parse(stringData);
-        stepsArray = JSON.parse(stringStep);
-
         const nutritionData = meal.nutrition.replace(/'/g, '"');
         let nutritionArray: number[] = [];
         nutritionArray = JSON.parse(nutritionData);
+        
+        ingredientsArray = JSON.parse(stringData);
+        stepsArray = JSON.parse(stringStep);
 
         let nutrition = {
           'calories': nutritionArray[0],
@@ -149,6 +185,7 @@ export default class RecipeService {
           id: recipe.id,
           name: recipe.name,
           nSteps: recipe.nSteps,
+          cookTime: recipe.cookTime,
           nIngredients: recipe.nIngredients,
           ingredients: ingredientsArray,
           steps: stepsArray,

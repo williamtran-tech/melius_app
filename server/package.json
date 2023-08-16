@@ -14,7 +14,9 @@
   "author": "william-tr4n",
   "license": "ISC",
   "dependencies": {
+    "axios": "^1.4.0",
     "bcrypt": "^5.1.0",
+    "cheerio": "^1.0.0-rc.12",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.0",
     "cookie-parser": "^1.4.6",
@@ -45,7 +47,9 @@
     "validator": "^13.9.0"
   },
   "devDependencies": {
+    "@types/axios": "^0.14.0",
     "@types/bcrypt": "^5.0.0",
+    "@types/cheerio": "^0.22.31",
     "@types/cookie-parser": "^1.4.3",
     "@types/cors": "^2.8.13",
     "@types/express": "^4.17.17",
