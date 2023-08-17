@@ -98,8 +98,8 @@ export default class RecipeController extends BaseController {
   }
 
   public async extractRecipeData(url: string): Promise<any> {
-    // const recipeUrl = 'https://www.food.com/recipe/vietnamese-beef-and-rice-noodle-soup-pho-28814?units=metric&scale=4-6';
-    const recipeUrl = url;
+    const recipeUrl = 'https://www.food.com/recipe/vietnamese-beef-and-rice-noodle-soup-pho-28814?units=metric&scale=4-6';
+    // const recipeUrl = url;
     const response = await axios.get(recipeUrl);
     const $ = cheerio.load(response.data);
 
@@ -129,26 +129,68 @@ export default class RecipeController extends BaseController {
     console.log('Directions:', directions);
   }
 
+  // public fetchRecipes = async (req: Request, res: Response, next: NextFunction) => {
+  //   try {
+  //     const baseUrl = 'https://www.food.com'; // Update with actual base URL
+  //     const mainPageUrl = `${baseUrl}/recipes`;
+
+  //     // Crawl recipe URLs
+  //     console.log('Crawling recipe URLs...');
+  //     const recipeUrls = await this.crawlRecipeUrls(mainPageUrl);
+  //     const recipeDataArray: any[] = [];
+
+  //     for (const url of recipeUrls) {
+  //       const recipeData = await this.extractRecipeData(`${baseUrl}${url}`);
+  //       recipeDataArray.push(recipeData);
+  //     }
+  //     console.log('Recipe URLs:', recipeUrls);
+
+  //     res.status(200).json({
+  //       msg: "Successfully get recipes",
+  //       // recipes: directions,
+  //       recipeUrls: recipeUrls,
+  //     });
+  //   } catch (err) {
+  //     next(err);
+  //   }
+  // };
+
   public fetchRecipes = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const baseUrl = 'https://www.food.com'; // Update with actual base URL
-      const mainPageUrl = `${baseUrl}/recipes`;
+      const recipeUrl = 'https://www.food.com/recipe/vietnamese-beef-and-rice-noodle-soup-pho-28814?units=metric&scale=4-6';
+    // const recipeUrl = url;
+    const response = await axios.get(recipeUrl);
+    const $ = cheerio.load(response.data);
 
-      // Crawl recipe URLs
-      console.log('Crawling recipe URLs...');
-      const recipeUrls = await this.crawlRecipeUrls(mainPageUrl);
-      const recipeDataArray: any[] = [];
+    // Extract recipe name
+    console.log('Extracting recipe name...');
+    const recipeName = $('h1.svelte-1muv3s8').text().trim();
+    console.log('Recipe Name:', recipeName);
 
-      for (const url of recipeUrls) {
-        const recipeData = await this.extractRecipeData(`${baseUrl}${url}`);
-        recipeDataArray.push(recipeData);
-      }
-      console.log('Recipe URLs:', recipeUrls);
+    // Extract ingredients
+    const ingredients: any[] = [];
+    $('ul.ingredient-list li').each((index, element) => {
+      const quantity = $(element).find('span.ingredient-quantity').text().trim();
+      const text = $(element).find('span.ingredient-text').text().trim();
+  
+      ingredients.push({ text, quantity });
+    });
+    // Text measurement name
+    // Quantity measurement value
+    console.log('Ingredients:', ingredients[0]['text']);
+
+    // Extract directions
+    const directions: string[] = [];
+    $('li.direction').each((index, element) => {
+      const step = $(element).text().trim();
+      directions.push(step);
+    });
+    console.log('Directions:', directions);
 
       res.status(200).json({
         msg: "Successfully get recipes",
-        // recipes: directions,
-        recipeUrls: recipeUrls,
+        recipes: directions,
+        ingredients: ingredients,
       });
     } catch (err) {
       next(err);

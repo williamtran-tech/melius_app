@@ -25,7 +25,7 @@ userRouter.post("/allergy", authMiddleware, checkKidIDMiddleware, userController
 
 // AVAILABLE INGREDIENTS
 // Add ingredient to available list of mother
-userRouter.post("/available-ingredients", authMiddleware, userController.addIngredientToAvailableList)
+userRouter.post("/available-ingredients", authMiddleware, userController.addIngredientsToAvailableList)
           .get("/available-ingredients", authMiddleware, userController.getAvailableIngredientList)
           .delete("/available-ingredients", authMiddleware, authorize(["User"]), userController.deleteAvailableIngredient)
           .patch("/available-ingredients", authMiddleware, authorize(["User"]), userController.undoDeleteAvailableIngredients);

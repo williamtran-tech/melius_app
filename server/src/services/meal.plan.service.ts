@@ -120,7 +120,6 @@ export default class MealPlanService {
   // 2. Estimated Nutrition of the meals
   public async createSuggestedMeals(MealPlanDTO: any) {
     try {
-      
       const { kidId, nMeal, duration } = MealPlanDTO;
       
       // Gather constraints of the meal plan
@@ -184,8 +183,13 @@ export default class MealPlanService {
     }
   }
 
-  public async getMealPlan(kidId: number) {
+  public async getMealPlan(kidId: number, mealTime?: any) {
     try {
+      const date = new Date(mealTime);
+      if (mealTime) {
+        // Get the ISO String date of 
+        console.log("Meal Time: ", date);
+      }
       const mealPlan = await MealPlan.findOne({
         where: { kidId: kidId },
         attributes: ["id", "energyTarget", "proteinTarget", "fatTarget", "carbTarget", "updatedAt"],
@@ -354,6 +358,7 @@ export default class MealPlanService {
     TOTAL_SATURATED_FAT: number = 0,
     TOTAL_SODIUM: number = 0;
 
+    // This is for filtering the available ingredients
     let numberOfMeals = (availableIngredients.length === 0) ? nMeal : nMeal-1 ;
 
     // Available Array for checking
@@ -365,7 +370,8 @@ export default class MealPlanService {
     
     let suggestedMeals: any = [];
     let suggestedMeal = await Recipe.findAll({
-      limit: numberOfMeals,
+      // limit: numberOfMeals,
+      limit: nMeal,
       order: Sequelize.literal("rand()"),
     });
     // push the suggested meals to the array
@@ -379,25 +385,27 @@ export default class MealPlanService {
       //   limit: nMeal - numberOfMeals,
       //   where: literal(`JSON_SEARCH(ingredients, 'one', '${availableArray[0]}', null, '$[*]')`)
       // });
-      let randomMeal = await Recipe.findOne({
-        limit: nMeal - numberOfMeals,
-        where: {
-          ingredients: {
-            [Op.like]: `%${availableArray[0]}%`
-          },
-        },
-        order: Sequelize.literal("rand()"),
-      });
       
-      if (randomMeal) {
-        suggestedMeals.push(randomMeal);
-      } else {
-        throw new HttpException(400, "No meals matched with the available ingredients");
-      }
+      // FILTER BY AVAILABLE INGREDIENTS
+      // let randomMeal = await Recipe.findOne({
+      //   limit: nMeal - numberOfMeals,
+      //   where: {
+      //     ingredients: {
+      //       [Op.like]: `%${availableArray[0]}%`
+      //     },
+      //   },
+      //   order: Sequelize.literal("rand()"),
+      // });
+      
+      // if (randomMeal) {
+      //   suggestedMeals.push(randomMeal);
+      // } else {
+      //   throw new HttpException(400, "No meals matched with the available ingredients");
+      // }
+    }
 
-      for (let i = 0; i < suggestedMeals.length; i++) {
-        console.log(`Meal ${i}: `, suggestedMeals[i].name);
-      }
+    for (let i = 0; i < suggestedMeals.length; i++) {
+      console.log(`Meal ${i}: `, suggestedMeals[i].name);
     }
 
     const responseMeals = suggestedMeals.map((meal: any) => {

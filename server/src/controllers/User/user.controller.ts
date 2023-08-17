@@ -259,6 +259,30 @@ export default class UserController extends BaseController {
     }
   };
 
+  public addIngredientsToAvailableList = async (req: express.Request, res: express.Response, next: express.NextFunction) => {
+    try {
+      const ingredientArrayInput = req.body.ingredientIds.split(",").map((Number));
+      // Using Set for unique ingredient ids
+      const ingredientArray = [...new Set(ingredientArrayInput)]
+      
+      const ingredientData = {
+        ingredientIds: ingredientArray,
+        userId: Number(req.userData.id),
+        dueTime: Number(req.body.dueTime) ? Number(req.body.dueTime) : 1,
+      }
+
+      const [ingredient, duplicateIngredients] = await this.availableIngredientService.addIngredientsToAvailableList(ingredientData);
+
+      res.status(200).json({
+        msg: "Successfully add ingredients to available list",
+        ingredient: ingredient,
+        duplicateIngredients: duplicateIngredients,
+      })
+    } catch (error) {
+      next(error);
+    }
+  }
+
   public getAvailableIngredientList = async (
     req: express.Request,
     res: express.Response,
@@ -348,6 +372,7 @@ export default class UserController extends BaseController {
         duration: Number(req.body.duration),
       };
 
+      // This only get the recipe information of the suggested meals include: recipeId, recipeName, servingSize, nutrition
       const [suggestedMeals, nutrientsTarget, estimatedNutrition] = await this.mealPlanService.createSuggestedMeals(mealPlanDTO);
 
       // Get the recipe ids - Put them into plan details
@@ -377,7 +402,8 @@ export default class UserController extends BaseController {
   public getMealPlan = async (req: express.Request, res: express.Response, next: express.NextFunction) => {
     try {
       const kidId = Number(req.query.kidId);
-      const [mealPlan, planDetails, estimatedNutrition] = await this.mealPlanService.getMealPlan(kidId);
+      const mealTime = req.query.date;
+      const [mealPlan, planDetails, estimatedNutrition] = await this.mealPlanService.getMealPlan(kidId, mealTime);
 
       res.status(200).json({
         msg: "Get meal plan successfully",

@@ -623,41 +623,103 @@ export default class PlanDetailService {
     // Insert Recipes into Plan Details
     public async insertRecipesIntoPlanDetails(mealPlanId: number, recipes: number[]) {
         try {
-           await PlanDetail.update(
-                {
-                    recipeId: recipes[0],
+            // Setup 
+            const meals = await PlanDetail.findAll({
+                where: {
+                    mealPlanId: mealPlanId,
+                    // It must have a date constraint here
                 },
-                {
-                    where: {
-                        mealPlanId: mealPlanId,
-                        session: "Morning",
-                        type: "Main course",
-                    },
-                });
+                order: [["mealTime", "DESC"]],
+            });
+            const nMeal = meals.length;
+            
+            // Maximum 6 meals per day
+            const mealObj: any = {
+                morning: [],
+                snack1: [],
+                noon: [],
+                snack2: [],
+                evening: [],
+                snack3: [],
+            }
+            // Getting meal type and session
+            meals.map((meal) => {
+                console.log("Meal: ", meal.recipeId);
+                if (meal.type === "Main course") {
+                    if (meal.session === "Morning") {
+                        mealObj.morning.push(meal);
+                    } else if (meal.session === "Noon") {
+                        mealObj.noon.push(meal);
+                    } else {
+                        mealObj.evening.push(meal);
+                    }
+                } else if (meal.type === "Side dish") {
+                    if (meal.session === "Morning") {
+                        mealObj.snack1.push(meal);
+                    } else if (meal.session === "Noon") {
+                        mealObj.snack2.push(meal);
+                    } else {
+                        mealObj.snack3.push(meal);
+                    }
+                }
+            });
 
-            await PlanDetail.update(
-                {
-                    recipeId: recipes[1],
-                },
-                {
-                    where: {
-                        mealPlanId: mealPlanId,
-                        session: "Noon",
-                        type: "Main course",
-                    },
-                });
+            // This filter is to remove empty meals
+            const nonEmptyMeals = Object.keys(mealObj).filter((meal) => {
+                return mealObj[meal].length > 0;
+            });
 
-            await PlanDetail.update(
-                {
-                    recipeId: recipes[2],
+            // Assert Plan Details
+            nonEmptyMeals.map(async (meal, index) => {
+                await PlanDetail.update({
+                    recipeId: recipes[index],
                 },
                 {
                     where: {
                         mealPlanId: mealPlanId,
-                        session: "Evening",
-                        type: "Main course",
+                        session: mealObj[meal][0].session,
+                        type: mealObj[meal][0].type,
                     },
                 });
+            });
+            
+
+            // Assert Plan Details
+        //    await PlanDetail.update(
+        //         {
+        //             recipeId: recipes[0],
+        //         },
+        //         {
+        //             where: {
+        //                 mealPlanId: mealPlanId,
+        //                 session: "Morning",
+        //                 type: "Main course",
+        //             },
+        //         });
+
+        //     await PlanDetail.update(
+        //         {
+        //             recipeId: recipes[1],
+        //         },
+        //         {
+        //             where: {
+        //                 mealPlanId: mealPlanId,
+        //                 session: "Noon",
+        //                 type: "Main course",
+        //             },
+        //         });
+
+        //     await PlanDetail.update(
+        //         {
+        //             recipeId: recipes[2],
+        //         },
+        //         {
+        //             where: {
+        //                 mealPlanId: mealPlanId,
+        //                 session: "Evening",
+        //                 type: "Main course",
+        //             },
+        //         });
 
             return true;
         } catch (err) {
