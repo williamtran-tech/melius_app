@@ -1,16 +1,27 @@
-import { StyleSheet, Text, View, TouchableOpacity, Image } from "react-native";
+import {
+  StyleSheet,
+  Text,
+  View,
+  TouchableOpacity,
+  Image,
+  ScrollView,
+  Modal,
+  ActivityIndicator,
+} from "react-native";
 import React, { useEffect } from "react";
 import { Camera, CameraType } from "expo-camera";
 import { useState } from "react";
 import NavigatorMenu from "../../components/NavigatorMenu";
 import { HandleImageApi } from "../../Services/IngredientScan";
 import * as ImageManipulator from "expo-image-manipulator";
+import SubText from "../../components/SubText";
 const ARScan = () => {
   const CameraType = Camera.Constants.Type;
   const [camera, setCamera] = useState(null);
   const [ingreRecognite, setIngreRecognite] = useState();
-
   const [type, setType] = useState(CameraType.back);
+  const [shooting, setShooting] = useState(true);
+  const [modalVisible, setModalVisible] = useState(false);
 
   useEffect(() => {
     // Request camera permissions when the component mounts
@@ -29,6 +40,7 @@ const ARScan = () => {
   }
   const takePicture = async () => {
     if (camera) {
+      setModalVisible(true);
       const image = await camera.takePictureAsync({
         quality: 1, // Adjust the quality as needed (0 to 1)
         format: Camera.Constants.Type.jpeg,
@@ -39,12 +51,64 @@ const ARScan = () => {
         { format: "jpeg", compress: 0.8 }
       );
       console.log(resizedPhoto);
+
       const ingredientList = await HandleImageApi(resizedPhoto.uri);
-      setIngreRecognite(ingredientList.segmentation_results);
+      if (ingreRecognite) {
+        const data = [
+          ...ingreRecognite,
+          ...ingredientList.segmentation_results
+            .filter((ingre) => {
+              return !ingreRecognite.some(
+                (item) => item.id === ingre.recognition_results[0].id
+              );
+            })
+            .map((ingre) => {
+              return {
+                id: ingre.recognition_results[0].id,
+                name: ingre.recognition_results[0].name,
+              };
+            }),
+        ];
+        setIngreRecognite(data);
+        setModalVisible(false);
+        setShooting(false);
+      } else {
+        const data = ingredientList.segmentation_results.map((ingre) => {
+          return {
+            id: ingre.recognition_results[0].id,
+            name: ingre.recognition_results[0].name,
+          };
+        });
+
+        setIngreRecognite(data);
+        setModalVisible(false);
+        setShooting(false);
+      }
+
+      // setIngreRecognite(data);
     }
+  };
+  const capitalizeFirstLetter = (str) => {
+    return str.charAt(0).toUpperCase() + str.slice(1);
   };
   return (
     <View style={{ flex: 1 }}>
+      <Modal visible={modalVisible} transparent={true}>
+        <View
+          style={{
+            flex: 1,
+            justifyContent: "center",
+            alignItems: "center",
+            backgroundColor: "rgba(69, 66, 67, 0.8)",
+          }}
+        >
+          <ActivityIndicator
+            size="large"
+            color="#518B1A"
+            style={styles.loader}
+          />
+        </View>
+      </Modal>
       <Camera style={styles.camera} type={type} ref={(ref) => setCamera(ref)}>
         <View style={{ paddingHorizontal: 25 }}>
           <NavigatorMenu
@@ -52,7 +116,6 @@ const ARScan = () => {
             navigationName="MenuScreen"
           ></NavigatorMenu>
         </View>
-
         <View
           style={{
             flex: 1,
@@ -60,36 +123,90 @@ const ARScan = () => {
             justifyContent: "flex-end",
           }}
         >
-          <TouchableOpacity
-            style={{
-              alignSelf: "center",
-              alignItems: "center",
-              height: 80,
-              width: 80,
-              justifyContent: "center",
-              //   backgroundColor: "#000",
-              borderRadius: 40,
-              backgroundColor: "#8CC840",
-              marginBottom: 5,
-            }}
-            onPress={() => takePicture()}
-          >
-            <Image
-              source={require("../../assets/icon/IconCamera.png")}
+          {shooting ? (
+            <TouchableOpacity
               style={{
-                height: 40,
-                width: 40,
-                resizeMode: "contain",
+                alignSelf: "center",
+                alignItems: "center",
+                height: 80,
+                width: 80,
+                justifyContent: "center",
+                //   backgroundColor: "#000",
+                borderRadius: 40,
+                backgroundColor: "#8CC840",
+                marginBottom: 5,
               }}
-            ></Image>
-          </TouchableOpacity>
-          {ingreRecognite &&
-            ingreRecognite.map((ingre, index) => {
-              console.log(
-                "ingredient1" + index + ingre.recognition_results[0].name
-              );
-            })}
+              onPress={() => takePicture()}
+            >
+              <Image
+                source={require("../../assets/icon/IconCamera.png")}
+                style={{
+                  height: 40,
+                  width: 40,
+                  resizeMode: "contain",
+                }}
+              ></Image>
+            </TouchableOpacity>
+          ) : (
+            <View style={styles.actionContainer}>
+              <TouchableOpacity
+                style={{ ...styles.keepAdding, backgroundColor: "#8CC840" }}
+                onPress={() => setShooting(true)}
+              >
+                <Image
+                  source={require("../../assets/icon/IconCamera.png")}
+                  style={{
+                    height: 20,
+                    width: 20,
+                    resizeMode: "contain",
+                  }}
+                ></Image>
+                <SubText style={{ color: "#FDFDFD", fontSize: 16 }}>
+                  Keep adding
+                </SubText>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={{ ...styles.keepAdding, backgroundColor: "#518B1A" }}
+              >
+                <SubText style={{ color: "#FDFDFD", fontSize: 16 }}>
+                  Finish
+                </SubText>
+              </TouchableOpacity>
+            </View>
+          )}
         </View>
+        {!shooting && (
+          <View
+            style={{
+              flex: 1,
+              backgroundColor: "#FDFDFD",
+              borderTopLeftRadius: 20,
+              borderTopRightRadius: 20,
+            }}
+          >
+            <ScrollView>
+              {ingreRecognite
+                .reduce((acc, ingre) => {
+                  if (!acc.some((item) => item.id === ingre.id)) {
+                    acc.push(ingre);
+                  }
+                  return acc;
+                }, [])
+                .map((ingre, index) => (
+                  <View style={styles.ingreContainer} key={ingre.id}>
+                    <View style={{ flex: 1 }}>
+                      <SubText>{capitalizeFirstLetter(ingre.name)}</SubText>
+                    </View>
+                    <TouchableOpacity>
+                      <View style={styles.btncontainer}>
+                        <SubText style={{ color: "#FF9600" }}>Delete</SubText>
+                      </View>
+                    </TouchableOpacity>
+                  </View>
+                ))}
+            </ScrollView>
+          </View>
+        )}
       </Camera>
     </View>
   );
@@ -103,5 +220,37 @@ const styles = StyleSheet.create({
   },
   text: {
     color: "#ffff",
+  },
+  ingreContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingHorizontal: 25,
+    paddingVertical: 5,
+    borderBottomColor: "#8CC840",
+    borderBottomWidth: 1,
+    gap: 10,
+  },
+  btncontainer: {
+    paddingVertical: 5,
+    paddingHorizontal: 10,
+    backgroundColor: "rgba(255, 150, 0, 0.20)",
+    borderRadius: 20,
+  },
+  actionContainer: {
+    alignItems: "center",
+    justifyContent: "center",
+    flexDirection: "row",
+    gap: 10,
+  },
+  keepAdding: {
+    flexDirection: "row",
+    alignItems: "center",
+    padding: 10,
+    justifyContent: "center",
+    //   backgroundColor: "#000",
+    borderRadius: 20,
+    marginBottom: 5,
+    gap: 10,
   },
 });
