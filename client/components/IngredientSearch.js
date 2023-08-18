@@ -10,8 +10,9 @@ import React, { useRef, useState } from "react";
 import HandleApi from "../Services/HandleApi";
 import SubText from "./SubText";
 
-const IngredientSearch = () => {
+const IngredientSearch = ({updateFlag, setUpdateFlag}) => {
   const [searchResults, setSearchResults] = useState([]);
+  const [ingreSelected, setIngreSelected] = useState([]);
   const [searchText, setSearchText] = useState("");
   const debounceTimeoutRef = useRef(null);
 
@@ -39,6 +40,10 @@ const IngredientSearch = () => {
     debounceTimeoutRef.current = setTimeout(() => {
       searchIngredient(text);
     }, 500);
+  };
+  const addNewIngredient = async (fdcId) => {
+    await findAndAdd(fdcId);
+    setUpdateFlag(!updateFlag)
   };
   return (
     <View style={styles.bottomSheetContent}>

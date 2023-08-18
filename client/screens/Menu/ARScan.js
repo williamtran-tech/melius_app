@@ -15,6 +15,8 @@ import NavigatorMenu from "../../components/NavigatorMenu";
 import { HandleImageApi } from "../../Services/IngredientScan";
 import * as ImageManipulator from "expo-image-manipulator";
 import SubText from "../../components/SubText";
+import { findListIngredient } from "../../Services/IngredientApi";
+import { useNavigation } from "@react-navigation/native";
 const ARScan = () => {
   const CameraType = Camera.Constants.Type;
   const [camera, setCamera] = useState(null);
@@ -22,7 +24,7 @@ const ARScan = () => {
   const [type, setType] = useState(CameraType.back);
   const [shooting, setShooting] = useState(true);
   const [modalVisible, setModalVisible] = useState(false);
-
+  const navigation = useNavigation();
   useEffect(() => {
     // Request camera permissions when the component mounts
     // requestCameraPermission();
@@ -67,18 +69,31 @@ const ARScan = () => {
                 id: ingre.recognition_results[0].id,
                 name: ingre.recognition_results[0].name,
               };
-            }),
+            })
+            .reduce((acc, ingre) => {
+              if (!acc.some((item) => item.id === ingre.id)) {
+                acc.push(ingre);
+              }
+              return acc;
+            }, []),
         ];
         setIngreRecognite(data);
         setModalVisible(false);
         setShooting(false);
       } else {
-        const data = ingredientList.segmentation_results.map((ingre) => {
-          return {
-            id: ingre.recognition_results[0].id,
-            name: ingre.recognition_results[0].name,
-          };
-        });
+        const data = ingredientList.segmentation_results
+          .map((ingre) => {
+            return {
+              id: ingre.recognition_results[0].id,
+              name: ingre.recognition_results[0].name,
+            };
+          })
+          .reduce((acc, ingre) => {
+            if (!acc.some((item) => item.id === ingre.id)) {
+              acc.push(ingre);
+            }
+            return acc;
+          }, []);
 
         setIngreRecognite(data);
         setModalVisible(false);
@@ -90,6 +105,17 @@ const ARScan = () => {
   };
   const capitalizeFirstLetter = (str) => {
     return str.charAt(0).toUpperCase() + str.slice(1);
+  };
+  const saveIngredientList = async () => {
+    setModalVisible(true);
+    const saveIngredient = await findListIngredient(ingreRecognite);
+    navigation.navigate("MotherIngredient");
+  };
+  const deleteIngredientById = (idToDelete) => {
+    const updatedIngreRecognite = ingreRecognite.filter(
+      (ingre) => ingre.id !== idToDelete
+    );
+    setIngreRecognite(updatedIngreRecognite);
   };
   return (
     <View style={{ flex: 1 }}>
@@ -167,6 +193,7 @@ const ARScan = () => {
               </TouchableOpacity>
               <TouchableOpacity
                 style={{ ...styles.keepAdding, backgroundColor: "#518B1A" }}
+                onPress={() => saveIngredientList()}
               >
                 <SubText style={{ color: "#FDFDFD", fontSize: 16 }}>
                   Finish
@@ -185,25 +212,20 @@ const ARScan = () => {
             }}
           >
             <ScrollView>
-              {ingreRecognite
-                .reduce((acc, ingre) => {
-                  if (!acc.some((item) => item.id === ingre.id)) {
-                    acc.push(ingre);
-                  }
-                  return acc;
-                }, [])
-                .map((ingre, index) => (
-                  <View style={styles.ingreContainer} key={ingre.id}>
-                    <View style={{ flex: 1 }}>
-                      <SubText>{capitalizeFirstLetter(ingre.name)}</SubText>
-                    </View>
-                    <TouchableOpacity>
-                      <View style={styles.btncontainer}>
-                        <SubText style={{ color: "#FF9600" }}>Delete</SubText>
-                      </View>
-                    </TouchableOpacity>
+              {ingreRecognite.map((ingre, index) => (
+                <View style={styles.ingreContainer} key={ingre.id}>
+                  <View style={{ flex: 1 }}>
+                    <SubText>{capitalizeFirstLetter(ingre.name)}</SubText>
                   </View>
-                ))}
+                  <TouchableOpacity
+                    onPress={() => deleteIngredientById(ingre.id)}
+                  >
+                    <View style={styles.btncontainer}>
+                      <SubText style={{ color: "#FF9600" }}>Delete</SubText>
+                    </View>
+                  </TouchableOpacity>
+                </View>
+              ))}
             </ScrollView>
           </View>
         )}
