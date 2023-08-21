@@ -382,6 +382,7 @@ export default class UserController extends BaseController {
       }
 
       const mealPlan = await this.mealPlanService.getMealPlanInfo(kidId);
+      console.log("Meal Plan Id: ", mealPlan!.id);
       await this.planDetailService.insertRecipesIntoPlanDetails(Number(mealPlan!.id), recipeIds);
       
       const [mealsPlan, planDetails] = await this.mealPlanService.getMealPlan(kidId);
@@ -399,11 +400,31 @@ export default class UserController extends BaseController {
     }
   };
 
+  public createSuggestedMealsBeta = async (req: express.Request, res: express.Response, next: express.NextFunction) => {
+    try {
+      // SETUP AVAILABLE INGREDIENTS
+      const availableIngredients = await this.availableIngredientService.getAvailableIngredientList(req.userData.id);
+      
+      // RECIPE SERVICE
+      const response = await this.recipeService.getRecipeByAvailableIngredients(availableIngredients);
+
+      res.status(200).json({
+        msg: "Get suggested meals based on Available Ingredients successfully",
+        recipes: response,
+      })
+    } catch (error) {
+      next(error);
+    }
+  }
+
   public getMealPlan = async (req: express.Request, res: express.Response, next: express.NextFunction) => {
     try {
       const kidId = Number(req.query.kidId);
-      const mealTime = req.query.date;
-      const [mealPlan, planDetails, estimatedNutrition] = await this.mealPlanService.getMealPlan(kidId, mealTime);
+      const dateString = req.query.date ;
+      const date = new Date(dateString as string);
+      console.log("Date: ", date);
+
+      const [mealPlan, planDetails, estimatedNutrition] = await this.mealPlanService.getMealPlan(kidId, date);
 
       res.status(200).json({
         msg: "Get meal plan successfully",

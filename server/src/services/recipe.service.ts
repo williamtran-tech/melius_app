@@ -3,6 +3,7 @@ import { Account } from "../orm/models/account.model";
 import { Health } from "../orm/models/health.model";
 import { Recipe } from "../orm/models/recipe.model";
 import sequelize from "sequelize";
+import { AvailableIngredient } from "../orm/models/available.ingredient.model";
 
 export default class RecipeService {
   constructor() {}
@@ -199,4 +200,36 @@ export default class RecipeService {
       throw error;
     }
   }
+  public async getRecipeByAvailableIngredients(availableIngredients: AvailableIngredient[]) {
+      try {
+          // Using Set for unique ingredient ids
+          const availableIngredientNames = new Set(availableIngredients.map(element => element.ingredient.name));
+  
+          console.log(availableIngredientNames);
+
+          // SETUP RECIPES
+          const recipes = await this.getRecipes(5);
+          // Create a map to store recipes based on the number of matching ingredients
+          const recipesByMatchingIngredients = new Map<number, any[]>();
+          recipes.forEach(recipe => {
+            const matchingIngredients = recipe.ingredients.filter(ingredient => availableIngredientNames.has(ingredient.split(" ")[0]));
+            const matchingCount = matchingIngredients.length;
+            console.log("Matching Ingredients: ", matchingIngredients);
+          
+            if (!recipesByMatchingIngredients.has(matchingCount)) {
+              recipesByMatchingIngredients.set(matchingCount, []);
+            } else {
+              recipesByMatchingIngredients.get(matchingCount)?.push(recipe);
+            }
+          
+          });
+          
+          console.log("Recipe by Matching Ingredients: ", recipesByMatchingIngredients.get(0));
+  
+          return recipes; // Return the filtered recipes
+      } catch (err) {
+          throw err;
+      }
+  }
+  
 }
