@@ -10,6 +10,7 @@ export const suggestMealPlan = async () => {
     const kidId = JSON.parse(value)?.kidProfile[0].id;
     console.log("OK", JSON.parse(value)?.kidProfile[0].id);
     if (kidId) {
+      //handle api get mealplan
       const response = await HandleApi.serverGeneral.post(
         "v1/users/suggested-meal-plan",
         {

@@ -20,7 +20,7 @@ export const HandleImageApi = async (data) => {
       "/v2/image/segmentation/complete/v1.0?language=eng",
       formData
     );
-    // console.log(response.data);
+    // console.log("id", response.data);
     return response.data;
   } catch (error) {
     console.error(error.data);

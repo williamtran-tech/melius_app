@@ -28,6 +28,7 @@ const MotherIngredients = ({ route }) => {
 
   const { navigation, selectedDate, setSelectedDate } = route.params;
   const [selectedItem, setSelectedItem] = useState([]);
+  const [updateFlag, setUpdateFlag] = useState(false);
   const [listItem, setListItem] = useState(IngredientIcon);
 
   const moveItemToWishlist = (item) => {
@@ -44,7 +45,7 @@ const MotherIngredients = ({ route }) => {
   };
   useEffect(() => {
     console.log(selectedItem);
-  }, [selectedItem]);
+  }, [selectedItem, updateFlag]);
 
   return (
     <View style={{ flex: 1, backgroundColor: "#FDFDFD" }}>
@@ -87,7 +88,7 @@ const MotherIngredients = ({ route }) => {
         enablePanDownToClose={true}
         initialSnap={0}
       >
-        <IngredientSearch></IngredientSearch>
+        <IngredientSearch updateFlag={updateFlag} setUpdateFlag={setUpdateFlag}></IngredientSearch>
       </BottomSheet>
     </View>
   );
