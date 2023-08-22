@@ -2,14 +2,20 @@ import { PlanDetail } from "../orm/models/plan.detail.model";
 import { Recipe } from "../orm/models/recipe.model";
 import HttpException from "../exceptions/HttpException";
 import RecipeService from "./recipe.service";
+import { Op } from "sequelize";
 
 export default class PlanDetailService {
     public recipeService = new RecipeService();
-    public async getPlanDetails(mealPlanId: number) {
+    public async getPlanDetails(mealPlanId: number, date?: Date) {
         try {
+            // Check the date value is valid 
+            const endDate = (date instanceof Date && !isNaN(date.getTime())) ? date?.setUTCHours(23, 59, 59) : new Date().setUTCHours(23, 59, 59);
+            // Reset the date to 00:00:00
+            date?.setUTCHours(0, 0, 0);
             const planDetails = await PlanDetail.findAll({
                 where: {
                   mealPlanId: mealPlanId,
+                  mealTime: (date instanceof Date && !isNaN(date.getTime())) ? {[Op.between]:[date, endDate]} : {[Op.between]:[new Date().setUTCHours(0, 0, 0), endDate]},
                 },
                 order: [["mealTime", "DESC"]],
                 attributes: ["id", "mealTime", "session", "type", "nutritionRange", "updatedAt"],
@@ -92,7 +98,7 @@ export default class PlanDetailService {
                     }
                     return parsedPlanDetail;
                 }
-            });
+            }) as any;
             const estimatedNutrition = {
                 'calories': Math.round(calories),
                 'fat': Math.round(fat),
@@ -101,7 +107,6 @@ export default class PlanDetailService {
             }
             return [parsedPlanDetails, estimatedNutrition];
         } catch (err) {
-            console.log(err);
             throw err;
         }
     }

@@ -90,7 +90,10 @@ export default class MealPlanService {
       // The mealPlan will return 2 values, the first value is the mealPlan object, the second value is the boolean value of whether the mealPlan is created or not
       const mealPlan = await MealPlan.findOrCreate({
         where: 
-        { kidId: kidId},
+        { 
+          kidId: kidId,
+          createdAt: new Date( new Date().setUTCHours(0,0,0,0)), 
+        },
         defaults: 
         {
         energyTarget: energy,
@@ -183,25 +186,34 @@ export default class MealPlanService {
     }
   }
 
-  public async getMealPlan(kidId: number, mealTime?: any) {
+  public async getMealPlan(kidId: number, date?: Date) {
     try {
-      const date = new Date(mealTime);
-      if (mealTime) {
-        // Get the ISO String date of 
-        console.log("Meal Time: ", date);
-      }
+      // Set wrapped Date like this b/c the set hours method returns a number
+      const sDate: Date = (date instanceof Date && !isNaN(date.getTime())) ? new Date(new Date(date).setUTCHours(0,0,0)) : new Date(new Date().setUTCHours(0,0,0,0));
+      
       const mealPlan = await MealPlan.findOne({
-        where: { kidId: kidId },
+        where: { 
+          kidId: kidId,
+          updatedAt: {
+            [Op.between]: [sDate, new Date(new Date(sDate).setUTCHours(23,59,59))],
+          }
+        },
         attributes: ["id", "energyTarget", "proteinTarget", "fatTarget", "carbTarget", "updatedAt"],
         order: [["updatedAt", "DESC"]],
       });
-      // This function should include the number of meals per day, the duration of the meal plan
 
+      // Meal Plan can be null in 2 cases: 
+      // 1. The kid has not created any meal plan yet
+      // 2. The kid has not create any meal plan in the given date
+
+      // If the case 2 occurs, the controller will create a new meal plan
+      // New Meal plan attributes will be the same as the latest meal plan
+      
       if (mealPlan === null) {
         throw new HttpException(404, "Meal plan not found - Create one if you haven't");
       }
 
-      const [planDetails, estimatedNutrition] = await this.planDetailService.getPlanDetails(mealPlan.id);
+      const [planDetails, estimatedNutrition] = await this.planDetailService.getPlanDetails(mealPlan.id, sDate);
 
       return [mealPlan, planDetails, estimatedNutrition];
     } catch (error) {
@@ -245,7 +257,7 @@ export default class MealPlanService {
 
       // Kid Meal plan ID has 2 cases occur: 
       // 1. The Kid Health is updated in the same day as the latest meal plan -> Update the meal plan
-      // 2. The Kid Health is created in the day as the latest meal plan -> Create new meal plan -> Create new meal plan details
+      // 2. The Kid Health is created in the same day as the latest meal plan -> Create new meal plan -> Create new meal plan details
 
       // 1. Controller run update health first -> update meal Plan
       // 2. if Health updated Date is not the same as the latest meal plan -> create new meal plan -> create new meal plan details
@@ -257,8 +269,9 @@ export default class MealPlanService {
       let mealPlanId = currMealPlan!.id;
 
       // Get the meals number per day of the old meal plan
-      const planDetails = await this.planDetailService.getPlanDetails(mealPlanId);
-      const nMeals = planDetails.length;
+      const [planDetails, estimatedNutrition] = await this.planDetailService.getPlanDetails(mealPlanId);
+      // PlanDetails.length: reference to the number of meals per day of the old meal plan || 3 for default (new meal plan)
+      const nMeals = planDetails.length || 3;
       const energy = Number(kidHealth.energy);
 
       // Calculate the recommended nutrients intake of the kid
@@ -275,7 +288,9 @@ export default class MealPlanService {
           fatTarget: nutrientsTarget.fatTarget,
           carbTarget: nutrientsTarget.carbTarget,
         }, {
-          where: { kidId: kidId },
+          where: { 
+            id: mealPlanId,
+          },
         });
         if (mealPlanId !== null) {
           // Update the meal plan details
@@ -294,9 +309,11 @@ export default class MealPlanService {
           // Take the number of meal plan details
 
           console.log("New Meal Plan: ", mealPlan.id)
-          // Create new meal plan details
+          console.log("Number of Meals: ", nMeals);
+
           // Create the Meal Plan Details
           const sessionNutrientRange = await this.planDetailService.generateMealPlanTemplate(nMeals, energy, mealPlan.id, true);
+          console.log("Session Nutrient Range: ", sessionNutrientRange)
       }
       return mealPlan;
     } catch (error) {
