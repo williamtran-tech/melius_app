@@ -25,15 +25,17 @@ const ARScan = () => {
   const [shooting, setShooting] = useState(true);
   const [modalVisible, setModalVisible] = useState(false);
   const navigation = useNavigation();
+  const [hasPermission, setHasPermission] = useState(null);
+
   useEffect(() => {
     // Request camera permissions when the component mounts
-    // requestCameraPermission();
+    requestCameraPermission();
   }, []);
 
-  //   const requestCameraPermission = async () => {
-  //     const { status } = await Camera.requestCameraPermissionsAsync();
-  //     setHasPermission(status === "granted");
-  //   };
+  const requestCameraPermission = async () => {
+    const { status } = await Camera.requestCameraPermissionsAsync();
+    setHasPermission(status === "granted");
+  };
 
   function toggleCameraType() {
     setType((current) =>
@@ -135,101 +137,110 @@ const ARScan = () => {
           />
         </View>
       </Modal>
-      <Camera style={styles.camera} type={type} ref={(ref) => setCamera(ref)}>
-        <View style={{ paddingHorizontal: 25 }}>
-          <NavigatorMenu
-            ScreenName="AR Scan"
-            navigationName="MenuScreen"
-          ></NavigatorMenu>
-        </View>
-        <View
-          style={{
-            flex: 1,
-            backgroundColor: "transparent",
-            justifyContent: "flex-end",
-          }}
+      {hasPermission ? (
+        <Camera
+          style={styles.camera}
+          type={Camera.Constants.Type.back}
+          ref={(ref) => setCamera(ref)}
+          setHasPermission={true}
         >
-          {shooting ? (
-            <TouchableOpacity
-              style={{
-                alignSelf: "center",
-                alignItems: "center",
-                height: 80,
-                width: 80,
-                justifyContent: "center",
-                //   backgroundColor: "#000",
-                borderRadius: 40,
-                backgroundColor: "#8CC840",
-                marginBottom: 5,
-              }}
-              onPress={() => takePicture()}
-            >
-              <Image
-                source={require("../../assets/icon/IconCamera.png")}
-                style={{
-                  height: 40,
-                  width: 40,
-                  resizeMode: "contain",
-                }}
-              ></Image>
-            </TouchableOpacity>
-          ) : (
-            <View style={styles.actionContainer}>
+          <View style={{ paddingHorizontal: 25 }}>
+            <NavigatorMenu
+              ScreenName="AR Scan"
+              navigationName="MenuScreen"
+            ></NavigatorMenu>
+          </View>
+          <View
+            style={{
+              flex: 1,
+              backgroundColor: "transparent",
+              justifyContent: "flex-end",
+            }}
+          >
+            {shooting ? (
               <TouchableOpacity
-                style={{ ...styles.keepAdding, backgroundColor: "#8CC840" }}
-                onPress={() => setShooting(true)}
+                style={{
+                  alignSelf: "center",
+                  alignItems: "center",
+                  height: 80,
+                  width: 80,
+                  justifyContent: "center",
+                  //   backgroundColor: "#000",
+                  borderRadius: 40,
+                  backgroundColor: "#8CC840",
+                  marginBottom: 5,
+                }}
+                onPress={() => takePicture()}
               >
                 <Image
                   source={require("../../assets/icon/IconCamera.png")}
                   style={{
-                    height: 20,
-                    width: 20,
+                    height: 40,
+                    width: 40,
                     resizeMode: "contain",
                   }}
                 ></Image>
-                <SubText style={{ color: "#FDFDFD", fontSize: 16 }}>
-                  Keep adding
-                </SubText>
               </TouchableOpacity>
-              <TouchableOpacity
-                style={{ ...styles.keepAdding, backgroundColor: "#518B1A" }}
-                onPress={() => saveIngredientList()}
-              >
-                <SubText style={{ color: "#FDFDFD", fontSize: 16 }}>
-                  Finish
-                </SubText>
-              </TouchableOpacity>
+            ) : (
+              <View style={styles.actionContainer}>
+                <TouchableOpacity
+                  style={{ ...styles.keepAdding, backgroundColor: "#8CC840" }}
+                  onPress={() => setShooting(true)}
+                >
+                  <Image
+                    source={require("../../assets/icon/IconCamera.png")}
+                    style={{
+                      height: 20,
+                      width: 20,
+                      resizeMode: "contain",
+                    }}
+                  ></Image>
+                  <SubText style={{ color: "#FDFDFD", fontSize: 16 }}>
+                    Keep adding
+                  </SubText>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={{ ...styles.keepAdding, backgroundColor: "#518B1A" }}
+                  onPress={() => saveIngredientList()}
+                >
+                  <SubText style={{ color: "#FDFDFD", fontSize: 16 }}>
+                    Finish
+                  </SubText>
+                </TouchableOpacity>
+              </View>
+            )}
+          </View>
+          {!shooting && (
+            <View
+              style={{
+                flex: 1,
+                backgroundColor: "#FDFDFD",
+                borderTopLeftRadius: 20,
+                borderTopRightRadius: 20,
+              }}
+            >
+              <ScrollView>
+                {ingreRecognite.map((ingre, index) => (
+                  <View style={styles.ingreContainer} key={ingre.id}>
+                    <View style={{ flex: 1 }}>
+                      <SubText>{capitalizeFirstLetter(ingre.name)}</SubText>
+                    </View>
+                    <TouchableOpacity
+                      onPress={() => deleteIngredientById(ingre.id)}
+                    >
+                      <View style={styles.btncontainer}>
+                        <SubText style={{ color: "#FF9600" }}>Delete</SubText>
+                      </View>
+                    </TouchableOpacity>
+                  </View>
+                ))}
+              </ScrollView>
             </View>
           )}
-        </View>
-        {!shooting && (
-          <View
-            style={{
-              flex: 1,
-              backgroundColor: "#FDFDFD",
-              borderTopLeftRadius: 20,
-              borderTopRightRadius: 20,
-            }}
-          >
-            <ScrollView>
-              {ingreRecognite.map((ingre, index) => (
-                <View style={styles.ingreContainer} key={ingre.id}>
-                  <View style={{ flex: 1 }}>
-                    <SubText>{capitalizeFirstLetter(ingre.name)}</SubText>
-                  </View>
-                  <TouchableOpacity
-                    onPress={() => deleteIngredientById(ingre.id)}
-                  >
-                    <View style={styles.btncontainer}>
-                      <SubText style={{ color: "#FF9600" }}>Delete</SubText>
-                    </View>
-                  </TouchableOpacity>
-                </View>
-              ))}
-            </ScrollView>
-          </View>
-        )}
-      </Camera>
+        </Camera>
+      ) : (
+        <Text>Camera permission not granted</Text>
+      )}
     </View>
   );
 };

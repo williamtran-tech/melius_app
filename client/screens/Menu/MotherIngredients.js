@@ -18,6 +18,8 @@ import Animated from "react-native-reanimated";
 import IngredientsList from "../../components/IngredientsList";
 import HandleApi from "../../Services/HandleApi";
 import IngredientSearch from "../../components/IngredientSearch";
+import AvailableIngredient from "../../components/AvailableIngredient";
+import { getAvailableIngredient } from "../../Services/IngredientApi";
 
 const MotherIngredients = ({ route }) => {
   const bottomSheetRef = useRef(0);
@@ -43,8 +45,14 @@ const MotherIngredients = ({ route }) => {
       prevList.filter((listItem) => listItem.name !== item.name)
     );
   };
+  const [ingredient, setingredient] = useState();
+  const handleGetIngredient = async () => {
+    const response = await getAvailableIngredient();
+    setingredient(response);
+  };
   useEffect(() => {
-    console.log(selectedItem);
+    console.log("mount");
+    handleGetIngredient();
   }, [selectedItem, updateFlag]);
 
   return (
@@ -74,13 +82,19 @@ const MotherIngredients = ({ route }) => {
         </View>
       )}
       <View style={{ flex: 1, marginVertical: 10, paddingHorizontal: 25 }}>
-        <IngredientsList
+        {ingredient && (
+          <AvailableIngredient ingredient={ingredient}></AvailableIngredient>
+        )}
+
+        {/* <IngredientsList
           selectedItem={selectedItem}
           listItem={listItem}
           deleteItemfromWishlist={deleteItemfromWishlist}
           moveItemToWishlist={moveItemToWishlist}
           handleSearchPress={handleSearchPress}
-        ></IngredientsList>
+          updateFlag={updateFlag}
+          setUpdateFlag={setUpdateFlag}
+        ></IngredientsList> */}
       </View>
       <BottomSheet
         ref={bottomSheetRef}
@@ -88,7 +102,10 @@ const MotherIngredients = ({ route }) => {
         enablePanDownToClose={true}
         initialSnap={0}
       >
-        <IngredientSearch updateFlag={updateFlag} setUpdateFlag={setUpdateFlag}></IngredientSearch>
+        <IngredientSearch
+          updateFlag={updateFlag}
+          setUpdateFlag={setUpdateFlag}
+        ></IngredientSearch>
       </BottomSheet>
     </View>
   );

@@ -50,8 +50,9 @@ export const findIngredient = async (ingreId) => {
 //findAndAdd list IngreID by FDCID
 export const findAndAdd = async (fdcId) => {
   try {
-    const ingreID = await findIngredient(ingreFdcID.fdcId);
-    const findIngre = await addNewIngredient(ingreID);
+    const ingreID = await findIngredient(fdcId);
+    console.log(ingreID.id);
+    const findIngre = await addNewIngredient(ingreID.id);
   } catch (error) {
     console.error(error);
   }

@@ -9,8 +9,9 @@ import {
 import React, { useRef, useState } from "react";
 import HandleApi from "../Services/HandleApi";
 import SubText from "./SubText";
+import { findAndAdd } from "../Services/IngredientApi";
 
-const IngredientSearch = ({updateFlag, setUpdateFlag}) => {
+const IngredientSearch = ({ updateFlag, setUpdateFlag }) => {
   const [searchResults, setSearchResults] = useState([]);
   const [ingreSelected, setIngreSelected] = useState([]);
   const [searchText, setSearchText] = useState("");
@@ -25,7 +26,7 @@ const IngredientSearch = ({updateFlag, setUpdateFlag}) => {
         },
       })
       .then((response) => {
-        console.log(response.data);
+        // console.log(response.data);
         setSearchResults(response.data.ingredientsList);
         // console.log(response.data.ingredientsList[1].category);
       })
@@ -42,8 +43,9 @@ const IngredientSearch = ({updateFlag, setUpdateFlag}) => {
     }, 500);
   };
   const addNewIngredient = async (fdcId) => {
+    console.log(fdcId);
     await findAndAdd(fdcId);
-    setUpdateFlag(!updateFlag)
+    setUpdateFlag(!updateFlag);
   };
   return (
     <View style={styles.bottomSheetContent}>
@@ -68,8 +70,11 @@ const IngredientSearch = ({updateFlag, setUpdateFlag}) => {
                   <View style={{ flex: 1 }}>
                     <SubText>{item.item.foods}</SubText>
                   </View>
-
-                  <TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={() => {
+                      addNewIngredient(item.item.fdcId);
+                    }}
+                  >
                     <View style={styles.btncontainer}>
                       <SubText style={{ color: "#518B1A" }}>Add</SubText>
                     </View>

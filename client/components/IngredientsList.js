@@ -9,6 +9,7 @@ import {
   ScrollView,
   FlatList,
 } from "react-native";
+import AvailableIngredient from "./AvailableIngredient";
 import HeaderText from "./HeaderText";
 import SubText from "./SubText";
 
@@ -18,7 +19,10 @@ const IngredientsList = ({
   deleteItemfromWishlist,
   moveItemToWishlist,
   handleSearchPress,
+  updateFlag,
+  setUpdateFlag,
 }) => {
+  useEffect(() => {}, []);
   return (
     <View style={{ flex: 1 }}>
       <View style={styles.selectedContainer}>
@@ -27,7 +31,7 @@ const IngredientsList = ({
         >
           Selected 7
         </SubText>
-        <FlatList
+        {/* <FlatList
           data={selectedItem}
           numColumns={5}
           contentContainerStyle={styles.contentContainer}
@@ -49,7 +53,8 @@ const IngredientsList = ({
             );
           }}
           keyExtractor={(item, index) => index.toString()}
-        />
+        /> */}
+        <AvailableIngredient></AvailableIngredient>
       </View>
       <View style={styles.ingredientContainer}>
         <View style={styles.searchbar}>
