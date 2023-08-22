@@ -404,7 +404,7 @@ export default class UserController extends BaseController {
     try {
       // SETUP AVAILABLE INGREDIENTS
       const availableIngredients = await this.availableIngredientService.getAvailableIngredientList(req.userData.id);
-      
+
       // RECIPE SERVICE
       const response = await this.recipeService.getRecipeByAvailableIngredients(availableIngredients);
 
