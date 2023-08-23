@@ -111,7 +111,7 @@ const ARScan = () => {
   const saveIngredientList = async () => {
     setModalVisible(true);
     const saveIngredient = await findListIngredient(ingreRecognite);
-    navigation.navigate("MotherIngredient");
+    navigation.navigate("MotherIngredients");
   };
   const deleteIngredientById = (idToDelete) => {
     const updatedIngreRecognite = ingreRecognite.filter(

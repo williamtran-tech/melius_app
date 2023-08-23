@@ -65,7 +65,7 @@ export const findListIngredient = async (listIngreName) => {
       const ingreFdcID = await getIngredient(ingre.name);
       //   console.log("ingreFdcID", ingreFdcID.fdcId);
       const ingreID = await findIngredient(ingreFdcID.fdcId);
-      //   console.log(ingreID.id);
+      console.log(ingreID.id);
       return ingreID.id;
     });
 
@@ -88,6 +88,21 @@ export const addNewIngredient = async (ingreId) => {
       }
     );
     console.log(addNewIngre.data);
+  } catch (error) {
+    console.error(error);
+  }
+};
+export const deleteIngredient = async (ingreId) => {
+  console.log(ingreId);
+  try {
+    const deleteIngre = await HandleApi.serverGeneral.delete(
+      "/v1/users/available-ingredients",
+      {
+        params: {
+          id: ingreId,
+        },
+      }
+    );
   } catch (error) {
     console.error(error);
   }

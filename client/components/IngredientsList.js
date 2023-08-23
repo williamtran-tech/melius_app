@@ -25,37 +25,6 @@ const IngredientsList = ({
   useEffect(() => {}, []);
   return (
     <View style={{ flex: 1 }}>
-      <View style={styles.selectedContainer}>
-        <SubText
-          style={{ color: "#8C8C8C", fontSize: 14, paddingVertical: 10 }}
-        >
-          Selected 7
-        </SubText>
-        {/* <FlatList
-          data={selectedItem}
-          numColumns={5}
-          contentContainerStyle={styles.contentContainer}
-          renderItem={({ item }) => {
-            return (
-              <View style={styles.itemContainer}>
-                <TouchableOpacity
-                  style={styles.iconContainer}
-                  onPress={() => deleteItemfromWishlist(item)}
-                >
-                  <Image
-                    source={item.source}
-                    style={styles.icon}
-                    resizeMode="contain"
-                  />
-                </TouchableOpacity>
-                <SubText style={styles.name}>{item.name}</SubText>
-              </View>
-            );
-          }}
-          keyExtractor={(item, index) => index.toString()}
-        /> */}
-        <AvailableIngredient></AvailableIngredient>
-      </View>
       <View style={styles.ingredientContainer}>
         <View style={styles.searchbar}>
           <HeaderText

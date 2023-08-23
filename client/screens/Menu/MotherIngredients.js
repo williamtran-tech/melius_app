@@ -81,21 +81,27 @@ const MotherIngredients = ({ route }) => {
           ></NavigatorMenu>
         </View>
       )}
-      <View style={{ flex: 1, marginVertical: 10, paddingHorizontal: 25 }}>
-        {ingredient && (
-          <AvailableIngredient ingredient={ingredient}></AvailableIngredient>
-        )}
+      <ScrollView>
+        <View style={{ flex: 1, marginVertical: 10, paddingHorizontal: 25 }}>
+          {ingredient && (
+            <AvailableIngredient
+              ingredient={ingredient}
+              setUpdateFlag={setUpdateFlag}
+              updateFlag={updateFlag}
+            ></AvailableIngredient>
+          )}
 
-        {/* <IngredientsList
-          selectedItem={selectedItem}
-          listItem={listItem}
-          deleteItemfromWishlist={deleteItemfromWishlist}
-          moveItemToWishlist={moveItemToWishlist}
-          handleSearchPress={handleSearchPress}
-          updateFlag={updateFlag}
-          setUpdateFlag={setUpdateFlag}
-        ></IngredientsList> */}
-      </View>
+          <IngredientsList
+            selectedItem={selectedItem}
+            listItem={listItem}
+            deleteItemfromWishlist={deleteItemfromWishlist}
+            moveItemToWishlist={moveItemToWishlist}
+            handleSearchPress={handleSearchPress}
+            updateFlag={updateFlag}
+            setUpdateFlag={setUpdateFlag}
+          ></IngredientsList>
+        </View>
+      </ScrollView>
       <BottomSheet
         ref={bottomSheetRef}
         snapPoints={["70%"]}
