@@ -1,9 +1,8 @@
-import { User } from "../orm/models/user.model";
-import { Account } from "../orm/models/account.model";
-import { Health } from "../orm/models/health.model";
 import { Recipe } from "../orm/models/recipe.model";
 import sequelize from "sequelize";
 import { AvailableIngredient } from "../orm/models/available.ingredient.model";
+import CombinationIngredientUtil from "../utils/combination.ingredient.util";
+import { cp } from "fs";
 
 export default class RecipeService {
   constructor() {}
@@ -14,6 +13,8 @@ export default class RecipeService {
   private PROTEIN_BASE = 50;
   private SATURATED_FAT_BASE = 20;
   private CARBOHYDRATES_BASE = 275;
+
+  public combinationIngredient = new CombinationIngredientUtil();
 
   public convertPDVToGrams(mealNutrient: any) {
     var mealNutrientsInGrams = {
@@ -202,31 +203,123 @@ export default class RecipeService {
   }
   public async getRecipeByAvailableIngredients(availableIngredients: AvailableIngredient[]) {
       try {
-          // Using Set for unique ingredient ids
+          // Using Set for unique ingredient names
           const availableIngredientNames = new Set(availableIngredients.map(element => element.ingredient.name));
-  
-          console.log(availableIngredientNames);
 
           // SETUP RECIPES
           const recipes = await this.getRecipes(5);
-          // Create a map to store recipes based on the number of matching ingredients
-          const recipesByMatchingIngredients = new Map<number, any[]>();
-          recipes.forEach(recipe => {
-            const matchingIngredients = recipe.ingredients.filter(ingredient => availableIngredientNames.has(ingredient.split(" ")[0]));
-            const matchingCount = matchingIngredients.length;
-            console.log("Matching Ingredients: ", matchingIngredients);
+
+          //  select id, name, ingredients from melius.recipes where ingredients like '%beef%' AND ingredients like '%pea%' limit 5;
+          // const recipesWithAvailableIngredients = await Recipe.findAll({
+          //     where: {
+          //       ingredients: {
+          //         [sequelize.Op.and]: availableIngredients.map(availableIngredient => {
+          //           return {
+          //               [sequelize.Op.like]: `%${availableIngredient.ingredient.name.split(",")[0]}%`
+          //           };
+          //         })
+          //       },
+          //     },
+          //     attributes: ["id", "name"]
+          // })
+
+          const ingredientsToSearch = ['Pork', 'Beef', 'Chicken', 'watermelon'];
+
+          // Combination of ingredients
+          const combinationIngredients = this.combinationIngredient.combinationIngredient(ingredientsToSearch);
+          console.log("Combination Ingredients: ", combinationIngredients);
           
-            if (!recipesByMatchingIngredients.has(matchingCount)) {
-              recipesByMatchingIngredients.set(matchingCount, []);
-            } else {
-              recipesByMatchingIngredients.get(matchingCount)?.push(recipe);
+
+          // Where condition preparation
+          // const whereConditions = {
+          //   ingredients: {
+          //     [sequelize.Op.or]: combinationIngredients.map(ingredients => {
+          //         return {
+          //           [sequelize.Op.and]: ingredients.split(",").map(ingredient => {
+          //             return {
+          //               [sequelize.Op.like]: `%${ingredient.toLowerCase()}%`
+          //             }
+          //           })
+          //       }
+          //     })
+          //   }
+          // };
+          // SELECT `id`, `name`, `ingredients` FROM `recipes` AS `Recipe` 
+          // WHERE ((`Recipe`.`ingredients` LIKE '\"%pork%\"') 
+          // OR (`Recipe`.`ingredients` LIKE '\"%beef%\"') 
+          // OR (`Recipe`.`ingredients` LIKE '\"%chicken%\"') 
+          // OR (`Recipe`.`ingredients` LIKE '\"%pork%\"' AND `Recipe`.`ingredients` LIKE '\"%beef%\"')
+          // OR (`Recipe`.`ingredients` LIKE '\"%pork%\"' AND `Recipe`.`ingredients` LIKE '\"%chicken%\"') 
+          // OR (`Recipe`.`ingredients` LIKE '\"%beef%\"' AND `Recipe`.`ingredients` LIKE '\"%chicken%\"') 
+          // OR (`Recipe`.`ingredients` LIKE '\"%pork%\"' AND `Recipe`.`ingredients` LIKE '\"%beef%\"' AND `Recipe`.`ingredients` LIKE '\"%chicken%\"')) LIMIT 2;
+
+          // Assuming Recipe is your Sequelize model for the recipes table
+          const categorizedResults: any = {};
+
+
+          // Loop through each ingredient
+          for (const ingredient of ingredientsToSearch) {
+            const whereConditions = {
+              ingredients: {
+                [sequelize.Op.like]: sequelize.fn('LOWER', `%${ingredient.toLowerCase()}%`)
+              }
+            };
+
+            const recipes = await Recipe.findAll({
+              attributes: ['id', 'name', 'ingredients'],
+              where: whereConditions,
+              limit: 3 // Limit to 3 recipes per ingredient
+            });
+
+            categorizedResults[ingredient] = recipes;
+          }
+
+          // Loop through each combination of ingredients
+          for (let i = 0; i < ingredientsToSearch.length - 1; i++) {
+            for (let j = i + 1; j < ingredientsToSearch.length; j++) {
+              const ingredientCombination = [ingredientsToSearch[i], ingredientsToSearch[j]];
+              const whereConditions = {
+                ingredients: {
+                  [sequelize.Op.and]: ingredientCombination.map(ingredient => ({
+                    [sequelize.Op.like]: sequelize.fn('LOWER', `%${ingredient.toLowerCase()}%`)
+                  }))
+                }
+              };
+
+              const recipes = await Recipe.findAll({
+                attributes: ['id', 'name', 'ingredients'],
+                where: whereConditions,
+                limit: 3 // Limit to 3 recipes per combination
+              });
+
+              categorizedResults[ingredientCombination.join(', ')] = recipes;
             }
+          }
+
+          // Print or process the categorized results
+          console.log('Recipes Categorized by Matched Ingredients:');
+          console.log(categorizedResults);
+
+          return categorizedResults; // Return the filtered recipes
+
+
+          // for (const ingredient of combinationIngredients) {
+          //   const recipes = await Recipe.findAll({
+          //     attributes: ['id', 'name', 'ingredients'],
+          //     where: whereConditions,
+          //     limit: 2
+          //   });
           
-          });
-          
-          console.log("Recipe by Matching Ingredients: ", recipesByMatchingIngredients.get(0));
+          //   if (recipes.length > 0) {
+          //     categorizedResults[ingredient] = recipes;
+          //   }
+          // }
+
+          // // Print or process the categorized results
+          // // console.log('Recipes Categorized by Matched Ingredients:');
+          // // console.log(categorizedResults);
   
-          return recipes; // Return the filtered recipes
+          // return categorizedResults; // Return the filtered recipes
       } catch (err) {
           throw err;
       }
