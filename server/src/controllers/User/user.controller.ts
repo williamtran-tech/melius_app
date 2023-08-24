@@ -235,30 +235,6 @@ export default class UserController extends BaseController {
   };
 
   // AVAILABLE INGREDIENTS FUNCTIONS
-  public addIngredientToAvailableList = async (
-    req: express.Request,
-    res: express.Response,
-    next: express.NextFunction
-  ) => {
-    try {
-      const ingredientData = {
-        ingredientId: Number(req.body.ingredientId),
-        userId: Number(req.userData.id),
-        dueTime: Number(req.body.dueTime) ? Number(req.body.dueTime) : 1,
-      };
-      const [ingredient, result] =
-        await this.availableIngredientService.addIngredientToAvailableList(
-          ingredientData
-        );
-      res.status(200).json({
-        msg: "Successfully add ingredient to available list",
-        ingredient: ingredient,
-      });
-    } catch (err) {
-      next(err);
-    }
-  };
-
   public addIngredientsToAvailableList = async (req: express.Request, res: express.Response, next: express.NextFunction) => {
     try {
       const ingredientArrayInput = req.body.ingredientIds.split(",").map((Number));
@@ -481,11 +457,17 @@ export default class UserController extends BaseController {
     try {
       const mealId = Number(req.query.id);
       const recipeId = Number(req.query.recipeId);
+      const mealPlan = await this.mealPlanService.getMealPlanInfo(Number(req.query.kidId));
+
+      // Date Time Format UTC 
+      this.dateTimeUtil.setUTCDateTime(req.query.mealTime as string);
+      let mealTime = this.dateTimeUtil.getUTCDateTime();
 
       const mealDTO = {
+        mealPlanId: Number(mealPlan!.id),
         mealId: mealId,
         recipeId: recipeId || null,
-        mealTime: req.query.mealTime || null,
+        mealTime: new Date(mealTime),
         type: req.query.type || null,
       }
       const updatedMeal = await this.planDetailService.updateMeal(mealDTO);
@@ -554,8 +536,8 @@ export default class UserController extends BaseController {
       let newMeal = {
         mealPlanId: Number(mealPlan!.id),
         recipeId: Number(req.body.recipeId),
-        mealTime: new Date(mealTime).toISOString().replace(/T/, ' ').substr(0, 19),
-        type: req.body.type,
+        mealTime: new Date(mealTime),
+        type: "",
       };
       let responseMeal;
 
@@ -597,15 +579,11 @@ export default class UserController extends BaseController {
 
         // Get the Main course of the Old meal in that session
         const oldMeal = await this.planDetailService.getPlanDetailsByMealTime(mealTime);
-        console.log("Old meal", oldMeal!.mealTime.getUTCHours() + ":" + oldMeal!.mealTime.getMinutes() + " " + oldMeal!.type + " " + oldMeal!.recipeId);
-        console.log("Old meal Nutrition Range: ", oldMeal!.nutritionRange);
 
         // Get the nutrition of the new meal
         const newMealNutrition = await this.recipeService.getRecipeById(newMeal.recipeId);
-        console.log("Calories: ", newMealNutrition!.nutrition.calories);
 
-        if (newMealNutrition!.nutrition.calories < Number(oldMeal?.nutritionRange[0])) {
-          console.log("New meal is less energy than the old meal");
+        if (newMealNutrition?.mealType === "Side dish") {
           // Insert new meal to side dish
           const sideDishMeal = {
             mealPlanId: Number(mealPlan!.id),
@@ -617,8 +595,14 @@ export default class UserController extends BaseController {
 
           responseMeal = await this.planDetailService.addMeal(sideDishMeal);
         } else {
-          console.log("New meal is greater energy than the old meal");
           // Update the new meal to the old meal
+          console.log("Update new meal to the old meal");
+          newMeal = {
+            mealPlanId: Number(mealPlan!.id),
+            recipeId: Number(req.body.recipeId),
+            mealTime: new Date(mealTime),
+            type: newMealNutrition!.mealType,
+          }
           const mealDTO = {
             mealId: oldMeal!.id,
             ...newMeal,

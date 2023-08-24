@@ -1,6 +1,7 @@
 export default class DateTime {
     public dateTime: Date | undefined;
     public setUTCDateTime(dateTime: string): void {
+        console.log("dateTime", dateTime)
         // Date Time Format UTC 
         let date = new Date(dateTime.split(" ")[0]);
         let time = dateTime.split(" ")[1];
