@@ -68,6 +68,7 @@ export default class RecipeService {
           'carbohydrates': nutritionArray[6]
         }
         const {mealNutrientsInGrams, servingSize} = this.convertPDVToGrams(nutrition);
+        const mealType = this.getMealType(nutrition, recipe.name);
 
         return {
           id: recipe.id,
@@ -79,6 +80,7 @@ export default class RecipeService {
           steps: stepsArray,
           servingSize: servingSize,
           nutrition: mealNutrientsInGrams,
+          mealType: mealType
         };
       });
       return responseRecipes;
@@ -126,6 +128,7 @@ export default class RecipeService {
           'carbohydrates': nutritionArray[6]
         }
         const {mealNutrientsInGrams, servingSize} = this.convertPDVToGrams(nutrition);
+        const mealType = this.getMealType(nutrition, recipe.name);
 
         return {
           id: recipe.id,
@@ -137,6 +140,7 @@ export default class RecipeService {
           steps: stepsArray,
           servingSize: servingSize,
           nutrition: mealNutrientsInGrams,
+          mealType: mealType
         };
       });
 
@@ -182,6 +186,8 @@ export default class RecipeService {
         };
 
         const {mealNutrientsInGrams, servingSize} = this.convertPDVToGrams(nutrition);
+
+        const mealType = this.getMealType(nutrition, recipe.name);
         
         return {
           id: recipe.id,
@@ -193,6 +199,7 @@ export default class RecipeService {
           steps: stepsArray,
           servingSize: servingSize,
           nutrition: mealNutrientsInGrams,
+          mealType: mealType
         };
       }
 
@@ -200,6 +207,84 @@ export default class RecipeService {
     } catch (error) {
       throw error;
     }
+  }
+
+  private getMealType (nutrition: any, mealName: string): string {
+    // If the meal name contains words specified in the list, return the meal type
+    const mealNameList = ["ice cream", "cake", "cookie", "pie", "smoothie", "tart", "pudding", "muffin", "brownie", "fudge", "candy"];
+
+    for (const name of mealNameList) {
+      if (mealName.toLowerCase().includes(name)) {
+        return "Side dish";
+      }
+    }
+
+    // The criteria is based on the %DV of meal plan for 2000 kcal diet
+    const criteria = {
+        'calories': [200, 300],
+        'totalFat': [10, 20],
+        'sugar': [10, 20],
+        'sodium': [10, 20],
+        'protein': [5, 10],
+        'saturatedFat': [10, 20],
+        'carbohydrates': [15, 30]
+    }
+    let score: number = 0;
+
+    // If the nutrient is less than the criteria, add 1 score
+    if (nutrition.calories < criteria.calories[0]) {
+        score += 1;
+    }
+    if (nutrition.totalFat < criteria.totalFat[0]) {
+        score += 1;
+    }
+    if (nutrition.sugar < criteria.sugar[0]) {
+        score += 1;
+    }
+    if (nutrition.sodium < criteria.sodium[0]) {
+        score += 1;
+    }
+    if (nutrition.protein < criteria.protein[0]) {
+        score += 1;
+    }
+    if (nutrition.saturatedFat < criteria.saturatedFat[0]) {
+        score += 1;
+    }
+    if (nutrition.carbohydrates < criteria.carbohydrates[0]) {
+        score += 1;
+    }
+
+    // If the nutrient is in the range of criteria, add 0.5 score
+    if (nutrition.calories > criteria.calories[0] && nutrition.calories < criteria.calories[1]) {
+        score += 0.5;
+    }
+    if (nutrition.totalFat > criteria.totalFat[0] && nutrition.totalFat < criteria.totalFat[1]) {
+        score += 0.5;
+    }
+    if (nutrition.sugar > criteria.sugar[0] && nutrition.sugar < criteria.sugar[1]) {
+        score += 0.5;
+    }
+    if (nutrition.sodium > criteria.sodium[0] && nutrition.sodium < criteria.sodium[1]) {
+        score += 0.5;
+    }
+    if (nutrition.protein > criteria.protein[0] && nutrition.protein < criteria.protein[1]) {
+        score += 0.5;
+    }
+    if (nutrition.saturatedFat > criteria.saturatedFat[0] && nutrition.saturatedFat < criteria.saturatedFat[1]) {
+        score += 0.5;
+    }
+    if (nutrition.carbohydrates > criteria.carbohydrates[0] && nutrition.carbohydrates < criteria.carbohydrates[1]) {
+        score += 0.5;
+    }
+
+    console.log("Score: ", score)
+    // Check the score to determine the meal type
+    // Max score is 7 | Min score is 0
+    if (score >= 4) {
+      return "Side dish";
+    }
+
+    return "Main course";
   }
   public async getRecipeByAvailableIngredients(availableIngredients: AvailableIngredient[]) {
       try {

@@ -3,9 +3,11 @@ import { Recipe } from "../orm/models/recipe.model";
 import HttpException from "../exceptions/HttpException";
 import RecipeService from "./recipe.service";
 import { Op } from "sequelize";
+import dateTimeUtil from "../utils/dateTime";
 
 export default class PlanDetailService {
     public recipeService = new RecipeService();
+    public dateTimeUtil = new dateTimeUtil();
     public async getPlanDetails(mealPlanId: number, date?: Date) {
         try {
             // Check the date value is valid 
@@ -766,6 +768,8 @@ export default class PlanDetailService {
 
     public async updateMeal(mealDTO: any) {
         try {
+            const session = this.timeConverter(mealDTO.mealTime.getUTCHours());
+
             // Find the meal details
             const mealDetail = await PlanDetail.findOne({
                 where: {
@@ -773,28 +777,50 @@ export default class PlanDetailService {
                 },
             });
 
+            // Auto change the main course of the Meal Plan
+            if (mealDTO.type === "Main course") {
+                // Find the Main course of that Meal Plan session
+                const mainCourse = await PlanDetail.findOne({
+                    where: {
+                        mealPlanId: mealDTO.mealPlanId,
+                        session: session,
+                        type: "Main course",
+                    },
+                });
+
+                // Update new recipe to the Main course
+                mainCourse?.update({
+                    recipeId: mealDTO.recipeId,
+                });
+
+                await mainCourse?.save();
+                return mainCourse;
+            }
+
             if (mealDetail) {
                 let mealTime: any;
                 let session: any;
+                
                 if (mealDTO.mealTime) {
                     // Get hour from meal time
-                    let date = new Date(mealDTO.mealTime.split(" ")[0]);
-                    let time = mealDTO.mealTime.split(" ")[1];
-                    mealTime = date.setUTCHours(time.split(":")[0], time.split(":")[1]);
-                    session = this.timeConverter(Number(time.split(":")[0]));
+                    const hour = mealDTO.mealTime.getUTCHours();
+                    session = this.timeConverter(hour);
                 }
 
+                // Get meal Nutrition Range
+                const mealNutritionRange = await this.recipeService.getRecipeById(mealDTO.recipeId);
                 await mealDetail.update({
                     recipeId: mealDTO.recipeId ? mealDTO.recipeId : mealDetail.recipeId,
                     mealTime: mealDTO.mealTime ? mealTime : mealDetail.mealTime,
                     session: session ? session : mealDetail.session,
-                    type: mealDTO.type ? mealDTO.type : mealDetail.type,
+                    type: mealDTO.type ? mealDTO.mealType : mealDetail.type,
+                    nutritionRange: [mealNutritionRange?.nutrition.calories, mealNutritionRange?.nutrition.calories],
                 });
 
                 await mealDetail.save();
                 return mealDetail;
+                
             }
-            return mealDetail;
         } catch (err) {
             console.log(err);
             throw err;
