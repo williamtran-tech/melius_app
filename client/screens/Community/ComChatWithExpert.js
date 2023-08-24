@@ -20,6 +20,8 @@ import {
   serverTimestamp,
   query,
   orderBy,
+  where,
+  getDocs,
 } from "firebase/firestore";
 
 import { db } from "../../Services/FirebaseChat";
@@ -48,20 +50,17 @@ const ComChatWithExpert = () => {
       role: "user",
       timestamp: serverTimestamp(),
     };
+    const conversationId = 1;
     try {
-      const collectionRef = collection(db, "hello");
+      const collectionRef = collection(db, "doctoc2", "user2", "message");
       const docRef = await addDoc(collectionRef, docData);
       console.log("Document written with ID:", docRef.id);
-      setMessages((prevMessages) => [
-        ...prevMessages,
-        { role: "user", content: message },
-      ]);
     } catch (error) {
       console.error("Error adding document:", error);
     }
   };
   const setupMessageListener = () => {
-    const messagesRef = collection(db, "hello");
+    const messagesRef = collection(db, "doctoc1", "user1", "message");
     const sortedMessagesQuery = query(messagesRef, orderBy("timestamp"));
 
     onSnapshot(
@@ -76,11 +75,48 @@ const ComChatWithExpert = () => {
       }
     );
   };
+  const getAllDoctorChatsWithUser = async (userId) => {
+    const doctorCollections = ["doctoc1", "doctoc2"]; // Replace with actual collection names
+    const allDoctorChats = [];
 
-  // setupMessageListener();
+    for (const collectionName of doctorCollections) {
+      const doctorCollectionRef = collection(db, collectionName);
+      const userChatsRef = collection(doctorCollectionRef, userId, "message");
+      const querySnapshot = await getDocs(userChatsRef);
+      const conversationsData = querySnapshot.docs.map((doc) => doc.data());
+
+      if (conversationsData.length > 0) {
+        allDoctorChats.push({
+          doctorId: collectionName,
+          conversations: conversationsData,
+        });
+      }
+    }
+
+    console.log("allDoctorChats:", allDoctorChats);
+  };
+  const getAllUserChatsWithDoctor = async (doctorId) => {
+    const allDoctorChats = [];
+    const doctorCollectionRef = collection(db, doctorId);
+
+    const querySnapshot = await getDocs(userChatsRef);
+    const allUserChats = querySnapshot.docs.map((userDoc) => {
+      const conversationsData = userDoc.data().message || []; // Assuming 'message' is the field for conversations
+      return {
+        userId: userDoc.id,
+        conversations: conversationsData,
+      };
+    });
+
+    console.log("allUserChats:", allUserChats);
+  };
+
   useEffect(() => {
     // existingMessages();
     setupMessageListener();
+    getAllDoctorChatsWithUser("user1");
+    getAllUserChatsWithDoctor("doctoc2");
+    // loadConversations();
   }, []);
 
   return (

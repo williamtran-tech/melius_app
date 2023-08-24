@@ -6,11 +6,13 @@ import SVGicon from "../assets/icon/SVGicon";
 import * as Font from "expo-font";
 import HeaderText from "./HeaderText";
 import { useTranslation } from "react-i18next";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const WelcomHeader = () => {
   const { t } = useTranslation();
   const Weather = SVGicon.Weather;
   const [fontLoaded, setFontLoaded] = useState(false);
+  const [name, setName] = useState();
   const currentDate = new Date();
   const options = {
     month: "long",
@@ -24,8 +26,23 @@ const WelcomHeader = () => {
     });
     setFontLoaded(true);
   };
-
+  const fetchData = async () => {
+    try {
+      const value = await AsyncStorage.getItem("userProfile");
+      console.log({ value });
+      if (value) {
+        const userProfile = JSON.parse(value);
+        // console.log("userProfile:", userProfile.kidProfile[0].healthRecord[0]);
+        // Check if the required data is available before setting the state
+        // setName(userProfile);
+        setName(userProfile.kidProfile[0].fullName.split(" ")[0]);
+      }
+    } catch (error) {
+      console.error("Error fetching userProfile from AsyncStorage:", error);
+    }
+  };
   useEffect(() => {
+    fetchData();
     loadFonts();
   }, []);
 
@@ -45,7 +62,9 @@ const WelcomHeader = () => {
             <Text style={styles.datetext}> {formattedDate}</Text>
           </View>
           <HeaderText style={styles.text}>{t("welcome")}</HeaderText>
-          <HeaderText style={styles.text}>Hello Mom</HeaderText>
+          <HeaderText style={styles.text}>
+            Hello {t("Mom")} {name && name}
+          </HeaderText>
         </View>
         <View>
           <Image
