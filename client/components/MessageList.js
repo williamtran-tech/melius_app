@@ -11,6 +11,7 @@ import React, { useEffect } from "react";
 const MessageList = ({ messages, type }) => {
   return (
     <FlatList
+      inverted
       data={messages}
       keyExtractor={(item, index) => index.toString()}
       renderItem={({ item }) => (
@@ -40,12 +41,50 @@ const MessageList = ({ messages, type }) => {
       )}
       contentContainerStyle={{ flexGrow: 1, justifyContent: "flex-end" }}
     />
+
+    // <View style={styles.messageContainer}>
+    //   <ScrollView alwaysBounce>
+    //     <View style={{ flex: 1, flexDirection: "column-reverse" }}>
+    //       {messages.map((message, index) => (
+    //         <View
+    //           style={
+    //             message.role == "system"
+    //               ? styles.messageContainerChatbot
+    //               : styles.messageContainerUser
+    //           }
+    //         >
+    //           <Image
+    //             style={styles.avatar}
+    //             source={
+    //               message.role == "system"
+    //                 ? require("../assets/images/AvatarChatbot.png")
+    //                 : require("../assets/images/Avatar.png")
+    //             }
+    //           />
+    //           <View
+    //             style={
+    //               type === "expert"
+    //                 ? stylesExpert[message.role]
+    //                 : styles[message.role]
+    //             }
+    //           >
+    //             <Text>{message.message}</Text>
+    //           </View>
+    //         </View>
+    //       ))}
+    //     </View>
+    //   </ScrollView>
+    // </View>
   );
 };
 
 export default MessageList;
 
 const styles = StyleSheet.create({
+  messageContainer: {
+    backgroundColor: "#000",
+    flex: 1,
+  },
   messageContainerChatbot: {
     borderRadius: 10,
     padding: 15,

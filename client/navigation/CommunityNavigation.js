@@ -10,6 +10,7 @@ import ComHome from "../screens/Community/ComHome";
 import HospitalScreen from "../screens/Community/HospitalScreen";
 import DoctorScreen from "../screens/Community/DoctorScreen";
 import ComChatWithExpert from "../screens/Community/ComChatWithExpert";
+import ListChatBox from "../screens/Community/ListChatBox";
 
 const CommunityNavigation = () => {
   const navigation = useNavigation();
@@ -56,42 +57,13 @@ const CommunityNavigation = () => {
           headerShown: false,
         }}
       />
-      {/* <Stack.Screen
-        name="MenuEditScreen"
-        component={MenuEditScreen}
-        initialParams={{
-          navigation: navigation,
-          selectedDate: selectedDate,
-          setSelectedDate: setSelectedDate,
-        }}
+      <Stack.Screen
+        name="ListChatBox"
+        component={ListChatBox}
         options={{
           headerShown: false,
         }}
       />
-      <Stack.Screen
-        name="NewMenuScreen"
-        component={NewMenuScreen}
-        initialParams={{
-          navigation: navigation,
-          selectedDate: selectedDate,
-          setSelectedDate: setSelectedDate,
-        }}
-        options={{
-          headerShown: false,
-        }}
-      />
-      <Stack.Screen
-        name="MotherIngredients"
-        component={MotherIngredients}
-        initialParams={{
-          navigation: navigation,
-          selectedDate: selectedDate,
-          setSelectedDate: setSelectedDate,
-        }}
-        options={{
-          headerShown: false,
-        }}
-      /> */}
     </Stack.Navigator>
   );
 };

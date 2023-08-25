@@ -64,7 +64,7 @@ const ExpertScreen = () => {
             <View style={{ alignItems: "center" }}>
               <TouchableOpacity
                 style={{ width: 64, height: 64 }}
-                onPress={() => navigation.navigate("ChatWithExpert")}
+                onPress={() => navigation.navigate("ListChatBox")}
               >
                 <Image
                   source={require("../../assets/icon/IconMessages.png")}

@@ -50,72 +50,57 @@ const ComChatWithExpert = () => {
       role: "user",
       timestamp: serverTimestamp(),
     };
-    const conversationId = 1;
     try {
-      const collectionRef = collection(db, "doctoc2", "user2", "message");
-      const docRef = await addDoc(collectionRef, docData);
-      console.log("Document written with ID:", docRef.id);
+      // const conversationRef = await addDoc(collection(db, "conversations"), {
+      //   participants: ["user2", "doctor1"],
+      // });
+      // const conversationId = conversationRef.id;
+      // console.log(conversationId);
+      const messagesRef = collection(
+        db,
+        "conversations",
+        "z7gnXzlHdFrjF1oqqvcU",
+        "messages"
+      );
+      await addDoc(messagesRef, docData);
     } catch (error) {
       console.error("Error adding document:", error);
     }
   };
   const setupMessageListener = () => {
-    const messagesRef = collection(db, "doctoc1", "user1", "message");
-    const sortedMessagesQuery = query(messagesRef, orderBy("timestamp"));
-
-    onSnapshot(
-      sortedMessagesQuery,
-      (querySnapshot) => {
-        const messages = querySnapshot.docs.map((doc) => doc.data());
-        setMessages(messages);
-        // Process the new messages
-      },
-      (error) => {
-        console.error("Error listening to messages:", error);
-      }
+    const messagesRef = collection(
+      db,
+      "conversations",
+      "z7gnXzlHdFrjF1oqqvcU",
+      "messages"
     );
-  };
-  const getAllDoctorChatsWithUser = async (userId) => {
-    const doctorCollections = ["doctoc1", "doctoc2"]; // Replace with actual collection names
-    const allDoctorChats = [];
-
-    for (const collectionName of doctorCollections) {
-      const doctorCollectionRef = collection(db, collectionName);
-      const userChatsRef = collection(doctorCollectionRef, userId, "message");
-      const querySnapshot = await getDocs(userChatsRef);
-      const conversationsData = querySnapshot.docs.map((doc) => doc.data());
-
-      if (conversationsData.length > 0) {
-        allDoctorChats.push({
-          doctorId: collectionName,
-          conversations: conversationsData,
-        });
-      }
-    }
-
-    console.log("allDoctorChats:", allDoctorChats);
-  };
-  const getAllUserChatsWithDoctor = async (doctorId) => {
-    const allDoctorChats = [];
-    const doctorCollectionRef = collection(db, doctorId);
-
-    const querySnapshot = await getDocs(userChatsRef);
-    const allUserChats = querySnapshot.docs.map((userDoc) => {
-      const conversationsData = userDoc.data().message || []; // Assuming 'message' is the field for conversations
-      return {
-        userId: userDoc.id,
-        conversations: conversationsData,
-      };
+    const sortedMessagesQuery = query(
+      messagesRef,
+      orderBy("timestamp", "desc")
+    );
+    const unsubscribe = onSnapshot(sortedMessagesQuery, (querySnapshot) => {
+      const messages = querySnapshot.docs.map((doc) => doc.data());
+      setMessages(messages);
     });
-
-    console.log("allUserChats:", allUserChats);
+  };
+  const getAllDoctorChatsWithUser = async () => {
+    // const conversationsRef = collection(db, "conversations");
+    // const userConversationsQuery = query(
+    //   conversationsRef,
+    //   where("participants", "array-contains", "doctor1")
+    // );
+    // const userConversationsSnapshot = await getDocs(userConversationsQuery);
+    // const userConversations = userConversationsSnapshot.docs.map((doc) => ({
+    //   id: doc.id,
+    //   ...doc.data(),
+    // }));
+    // console.log("User Conversations:", userConversations);
   };
 
   useEffect(() => {
     // existingMessages();
     setupMessageListener();
-    getAllDoctorChatsWithUser("user1");
-    getAllUserChatsWithDoctor("doctoc2");
+    getAllDoctorChatsWithUser();
     // loadConversations();
   }, []);
 
@@ -142,7 +127,7 @@ const ComChatWithExpert = () => {
           </HeaderText>
         </View>
         <View style={{ flex: 1 }}>
-          <MessageList messages={messages} type="expert" />
+          {messages && <MessageList messages={messages} type="expert" />}
         </View>
         <View>
           <ChatInput messages={messages} sendMessage={sendMessage}></ChatInput>
