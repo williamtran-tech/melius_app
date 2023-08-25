@@ -87,13 +87,6 @@ export default class AvailableIngredientService {
         }
       }
 
-      // Check if any ingredient is already in available list
-      const availableIngredients = await AvailableIngredient.findAll({
-        where: {
-          userId: availableIngredientDTO.userId,
-        }
-      });
-
       // Get each ingredient id and insert to available ingredient table
       for (let i = 0; i < availableIngredientDTO.ingredientIds.length; i++) {
         const [addedIngredient, result] = await AvailableIngredient.findOrCreate({
@@ -106,15 +99,29 @@ export default class AvailableIngredientService {
             ingredientId: availableIngredientDTO.ingredientIds[i],
             dueTime: availableIngredientDTO.dueTime,
           },
+          paranoid: false
         });
 
-        if (result === false) {
+        if (result === false && addedIngredient.deletedAt === null) {
           duplicatedIngredientIds.push(availableIngredientDTO.ingredientIds[i]);
         } else {
           ingredientIds.push(addedIngredient.ingredientId);
         }
+
+        // Check if the ingredient is soft deleted
+        if (addedIngredient.deletedAt !== null) {
+          // Delete the soft deleted ingredient
+          await addedIngredient.destroy({ force: true });
+          
+          await AvailableIngredient.create({
+            userId: availableIngredientDTO.userId,
+            ingredientId: availableIngredientDTO.ingredientIds[i],
+            dueTime: availableIngredientDTO.dueTime,
+          });
+        }
       }
       
+      // Get all ingredients added
       for (let i = 0; i < ingredientIds.length; i++) {
         let ingredient = await AvailableIngredient.findOne({
           where: {
@@ -126,6 +133,7 @@ export default class AvailableIngredientService {
         ingredients.push(ingredient);
       }
 
+      // Get all duplicated ingredients
       for (let i = 0; i < duplicatedIngredientIds.length; i++) {
         let ingredient = await AvailableIngredient.findOne({
           where: {

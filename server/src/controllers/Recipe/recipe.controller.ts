@@ -4,6 +4,7 @@ import RecipeService from "../../services/recipe.service";
 import USDAService from "../../services/usda.service";
 import axios from "axios";
 import cheerio from "cheerio";
+import natural from "natural";
 
 // Recipes Describe Data of nutrition
 // 'calories','total fat (PDV)','sugar (PDV)','sodium (PDV)','protein (PDV)','saturated fat (PDV)','carbohydrates (PDV)']] = df[['calories','total fat (PDV)','sugar (PDV)','sodium (PDV)','protein (PDV)','saturated fat (PDV)','carbohydrates (PDV)'
@@ -196,4 +197,5 @@ export default class RecipeController extends BaseController {
       next(err);
     }
   };
+
 }
