@@ -2,7 +2,7 @@ import { Recipe } from "../orm/models/recipe.model";
 import sequelize from "sequelize";
 import { AvailableIngredient } from "../orm/models/available.ingredient.model";
 import CombinationIngredientUtil from "../utils/combination.ingredient.util";
-import { cp } from "fs";
+import natural from "natural";
 
 export default class RecipeService {
   constructor() {}
@@ -289,122 +289,65 @@ export default class RecipeService {
   public async getRecipeByAvailableIngredients(availableIngredients: AvailableIngredient[]) {
       try {
           // Using Set for unique ingredient names
-          const availableIngredientNames = new Set(availableIngredients.map(element => element.ingredient.name));
-
-          // SETUP RECIPES
-          const recipes = await this.getRecipes(5);
-
-          //  select id, name, ingredients from melius.recipes where ingredients like '%beef%' AND ingredients like '%pea%' limit 5;
-          // const recipesWithAvailableIngredients = await Recipe.findAll({
-          //     where: {
-          //       ingredients: {
-          //         [sequelize.Op.and]: availableIngredients.map(availableIngredient => {
-          //           return {
-          //               [sequelize.Op.like]: `%${availableIngredient.ingredient.name.split(",")[0]}%`
-          //           };
-          //         })
-          //       },
-          //     },
-          //     attributes: ["id", "name"]
-          // })
-
-          const ingredientsToSearch = ['Pork', 'Beef', 'Chicken', 'watermelon'];
-
+          const availableIngredientNames = new Set(availableIngredients.map(element => element.ingredient.name.split(",")[0]));
+          console.log("Available Ingredient Names:", availableIngredientNames);
+          
+          const ingredientsToSearch = [...availableIngredientNames];
+          console.log("Ingredient to Search:", ingredientsToSearch);
+          
           // Combination of ingredients
           const combinationIngredients = this.combinationIngredient.combinationIngredient(ingredientsToSearch);
-          console.log("Combination Ingredients: ", combinationIngredients);
-          
-
-          // Where condition preparation
-          // const whereConditions = {
-          //   ingredients: {
-          //     [sequelize.Op.or]: combinationIngredients.map(ingredients => {
-          //         return {
-          //           [sequelize.Op.and]: ingredients.split(",").map(ingredient => {
-          //             return {
-          //               [sequelize.Op.like]: `%${ingredient.toLowerCase()}%`
-          //             }
-          //           })
-          //       }
-          //     })
-          //   }
-          // };
-          // SELECT `id`, `name`, `ingredients` FROM `recipes` AS `Recipe` 
-          // WHERE ((`Recipe`.`ingredients` LIKE '\"%pork%\"') 
-          // OR (`Recipe`.`ingredients` LIKE '\"%beef%\"') 
-          // OR (`Recipe`.`ingredients` LIKE '\"%chicken%\"') 
-          // OR (`Recipe`.`ingredients` LIKE '\"%pork%\"' AND `Recipe`.`ingredients` LIKE '\"%beef%\"')
-          // OR (`Recipe`.`ingredients` LIKE '\"%pork%\"' AND `Recipe`.`ingredients` LIKE '\"%chicken%\"') 
-          // OR (`Recipe`.`ingredients` LIKE '\"%beef%\"' AND `Recipe`.`ingredients` LIKE '\"%chicken%\"') 
-          // OR (`Recipe`.`ingredients` LIKE '\"%pork%\"' AND `Recipe`.`ingredients` LIKE '\"%beef%\"' AND `Recipe`.`ingredients` LIKE '\"%chicken%\"')) LIMIT 2;
 
           // Assuming Recipe is your Sequelize model for the recipes table
           const categorizedResults: any = {};
-
-
-          // Loop through each ingredient
-          for (const ingredient of ingredientsToSearch) {
-            const whereConditions = {
-              ingredients: {
-                [sequelize.Op.like]: sequelize.fn('LOWER', `%${ingredient.toLowerCase()}%`)
-              }
-            };
-
-            const recipes = await Recipe.findAll({
-              attributes: ['id', 'name', 'ingredients'],
-              where: whereConditions,
-              limit: 3 // Limit to 3 recipes per ingredient
-            });
-
-            categorizedResults[ingredient] = recipes;
-          }
+          
+          const listOfIngredients = combinationIngredients.map(ingredients => {
+            return ingredients.split(",");
+          })
+          console.log("List of Ingredients:", listOfIngredients);
 
           // Loop through each combination of ingredients
-          for (let i = 0; i < ingredientsToSearch.length - 1; i++) {
-            for (let j = i + 1; j < ingredientsToSearch.length; j++) {
-              const ingredientCombination = [ingredientsToSearch[i], ingredientsToSearch[j]];
-              const whereConditions = {
+          for (let i = 0; i < listOfIngredients.length; i++) {
+            const ingredientElement = listOfIngredients[i].map(ingredient => {
+              return ingredient;
+            })
+            console.log("Ingredient Combination:", ingredientElement);
+            const whereConditions = {
                 ingredients: {
-                  [sequelize.Op.and]: ingredientCombination.map(ingredient => ({
-                    [sequelize.Op.like]: sequelize.fn('LOWER', `%${ingredient.toLowerCase()}%`)
-                  }))
+                  [sequelize.Op.and]: ingredientElement.map(ingredients => {
+                      return {
+                        [sequelize.Op.and]: ingredients.split(",").map(ingredient => {
+                          return {
+                            [sequelize.Op.like]: `%${ingredient.toLowerCase()}%`
+                          }
+                        })
+                    }
+                  })
                 }
               };
+            console.log("Where Conditions:", whereConditions);
+            ingredientElement.forEach((element, index) => {
+              console.log(`Element ${index}:`, element);
+            });
 
-              const recipes = await Recipe.findAll({
-                attributes: ['id', 'name', 'ingredients'],
-                where: whereConditions,
-                limit: 3 // Limit to 3 recipes per combination
-              });
-
-              categorizedResults[ingredientCombination.join(', ')] = recipes;
-            }
-          }
-
-          // Print or process the categorized results
-          console.log('Recipes Categorized by Matched Ingredients:');
-          console.log(categorizedResults);
-
-          return categorizedResults; // Return the filtered recipes
-
-
-          // for (const ingredient of combinationIngredients) {
-          //   const recipes = await Recipe.findAll({
-          //     attributes: ['id', 'name', 'ingredients'],
-          //     where: whereConditions,
-          //     limit: 2
-          //   });
+            // const stemmer = natural.PorterStemmer;
           
-          //   if (recipes.length > 0) {
-          //     categorizedResults[ingredient] = recipes;
-          //   }
-          // }
+            // Get the Recipe contains the ingredient
+            // const availableIngredientList = availableIngredients.map(ingredient => {
+            //   return ingredient.ingredient.name;
+            // });
 
-          // // Print or process the categorized results
-          // // console.log('Recipes Categorized by Matched Ingredients:');
-          // // console.log(categorizedResults);
-  
-          // return categorizedResults; // Return the filtered recipes
+            // Check the similarity score between the ingredient and the recipe
+            // const similarity = natural.JaroWinklerDistance('pork',"pork cured", {});
+
+            const recipes = await Recipe.findAll({
+                    attributes: ['id', 'name', 'ingredients'],
+                    where: whereConditions,
+                    limit: 3 // Limit to 3 recipes per combination
+                  });
+            categorizedResults[ingredientElement.join(",")] = recipes;
+          }
+          return categorizedResults; // Return the filtered recipes
       } catch (err) {
           throw err;
       }

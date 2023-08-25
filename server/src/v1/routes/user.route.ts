@@ -37,7 +37,7 @@ userRouter.get("/meal-plan", authMiddleware, authorize(["User"]),checkKidIDMiddl
           .patch("/meal-plan", authMiddleware, authorize(["User"]),checkKidIDMiddleware,userController.undoDeleteMealPlan);
 
 userRouter.post("/suggested-meal-plan", authMiddleware, authorize(["User"]),checkKidIDMiddleware, userController.createSuggestedMeals);
-userRouter.post("/suggested-meal-plan/beta", authMiddleware, authorize(["User"]),checkKidIDMiddleware, userController.createSuggestedMealsBeta);
+userRouter.get("/suggested-meal-plan/beta", authMiddleware, authorize(["User"]),checkKidIDMiddleware, userController.createSuggestedMealsBeta);
 
 // Meal Details
 userRouter.delete("/meal-plan/detail", authMiddleware, authorize(["User"]),checkKidIDMiddleware,userController.deleteMeal)
