@@ -29,7 +29,9 @@ import moment from "moment";
 import { LinearGradient } from "expo-linear-gradient";
 import SubText from "../../components/SubText";
 import HeaderText from "../../components/HeaderText";
-const ComChatWithExpert = () => {
+const ComChatWithExpert = ({ route }) => {
+  const { chatId } = route.params;
+  console.log("cc", chatId);
   const [messages, setMessages] = useState([]);
   const [messages1, setMessages1] = useState();
   // const existingMessages = async () => {
@@ -56,24 +58,14 @@ const ComChatWithExpert = () => {
       // });
       // const conversationId = conversationRef.id;
       // console.log(conversationId);
-      const messagesRef = collection(
-        db,
-        "conversations",
-        "z7gnXzlHdFrjF1oqqvcU",
-        "messages"
-      );
+      const messagesRef = collection(db, "conversations", chatId, "messages");
       await addDoc(messagesRef, docData);
     } catch (error) {
       console.error("Error adding document:", error);
     }
   };
   const setupMessageListener = () => {
-    const messagesRef = collection(
-      db,
-      "conversations",
-      "z7gnXzlHdFrjF1oqqvcU",
-      "messages"
-    );
+    const messagesRef = collection(db, "conversations", chatId, "messages");
     const sortedMessagesQuery = query(
       messagesRef,
       orderBy("timestamp", "desc")

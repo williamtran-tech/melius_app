@@ -13,8 +13,10 @@ import {
   where,
 } from "firebase/firestore";
 import { db } from "../../Services/FirebaseChat";
+import { useNavigation } from "@react-navigation/native";
 
 const ListChatBox = () => {
+  const navigation = useNavigation();
   const [conversations, setConversations] = useState();
 
   const conversationsRef = collection(db, "conversations");
@@ -80,7 +82,15 @@ const ListChatBox = () => {
       <View style={styles.container}>
         {conversations &&
           conversations.map((message, index) => (
-            <TouchableOpacity key={index}>
+            <TouchableOpacity
+              key={index}
+              onPress={() => {
+                console.log(message.id);
+                navigation.navigate("ChatWithExpert", {
+                  chatId: message.id,
+                });
+              }}
+            >
               <View style={styles.messageItem}>
                 <Image
                   source={require("../../assets/images/imageDoctor.png")}
