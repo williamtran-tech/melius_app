@@ -9,6 +9,7 @@ import { MealPlan } from "../orm/models/meal.plan.model";
 import HealthService from "./health.service";
 import PlanDetailService from "./plan.detail.service";
 import { Op, literal } from "sequelize";
+import MealPlanDTO from "../DTOs/MealPlan/MealPlan.DTO";
 
 // Recipes Describe Data of nutrition
 // 'calories','total fat (PDV)','sugar (PDV)','sodium (PDV)','protein (PDV)','saturated fat (PDV)','carbohydrates (PDV)']] = df[['calories','total fat (PDV)','sugar (PDV)','sodium (PDV)','protein (PDV)','saturated fat (PDV)','carbohydrates (PDV)'
@@ -74,7 +75,7 @@ export default class MealPlanService {
   // Return: 
   // 1. Meal Plan Object
   // 2. Meal Plan Details Object (Nutrients Range)
-  public async createMealPlan(MealPlanDTO: any) {
+  public async createMealPlan(MealPlanDTO: MealPlanDTO) {
     try {
       // Get the kid data
       // Get the TDEE and RDA of the kid 
@@ -86,32 +87,32 @@ export default class MealPlanService {
       // Calculate the recommended nutrients intake of the kid
       const nutrientsTarget = this.calculateNutrients(energy!);
 
+      // Check current date with the date of the meal plan
+      if (MealPlanDTO.date instanceof Date && !isNaN(MealPlanDTO.date.getTime())) {
+        if (MealPlanDTO.date.getDate() < new Date().getDate()) {
+            throw new HttpException(400, "Invalid Date");
+        }
+      }
+
+      // Check if the plan details of the kid is already created or not
+      const [mealPlanDetailsExists, mealPlanId] = await this.planDetailService.getPlanDetailsByDate(MealPlanDTO.date);
+      if (mealPlanDetailsExists) {
+        throw new HttpException(400, "Meal plan details already exists");
+      }
+
       // Create the meal plan
-      // The mealPlan will return 2 values, the first value is the mealPlan object, the second value is the boolean value of whether the mealPlan is created or not
-      const mealPlan = await MealPlan.findOrCreate({
-        where: 
-        { 
-          kidId: kidId,
-          createdAt: new Date( new Date().setUTCHours(0,0,0,0)), 
-        },
-        defaults: 
-        {
+      const mealPlan = await MealPlan.create({
         energyTarget: energy,
         proteinTarget: nutrientsTarget.proteinTarget,
         fatTarget: nutrientsTarget.fatTarget,
         carbTarget: nutrientsTarget.carbTarget,
         kidId: kidId,
-        }
       });
 
-      if (mealPlan[1] === false) {
-        throw new HttpException(400, "Meal plan already exists");
-      }
-
       // Create the Meal Plan Details
-      const sessionNutrientRange = await this.planDetailService.generateMealPlanTemplate(numberOfMeals, energy, mealPlan[0].id, true);
+      const sessionNutrientRange = await this.planDetailService.generateMealPlanTemplate(numberOfMeals, energy, mealPlan.id, true, MealPlanDTO.date);
 
-      return [mealPlan[0], sessionNutrientRange];
+      return [mealPlan, sessionNutrientRange];
     } catch (err) {
       throw err;
     }
@@ -142,7 +143,7 @@ export default class MealPlanService {
       });
 
       // Get nutrients target of the kid
-      const nutrientsTarget = await this.getMealPlan(kidId);
+      const nutrientsTarget = await this.getMealPlan(kidId, MealPlanDTO.date);
 
       // Get the available ingredients of the mother
       const availableIngredients = await AvailableIngredient.findAll({
@@ -188,32 +189,25 @@ export default class MealPlanService {
 
   public async getMealPlan(kidId: number, date?: Date) {
     try {
+      // Meal Plan can be null in 2 cases: 
+      // 1. The kid has not created any meal plan yet
+      // 2. The kid has not create any meal plan in the given date
       // Set wrapped Date like this b/c the set hours method returns a number
       const sDate: Date = (date instanceof Date && !isNaN(date.getTime())) ? new Date(new Date(date).setUTCHours(0,0,0)) : new Date(new Date().setUTCHours(0,0,0,0));
+      // Check if meal plan Details exists or not
+      const [mealPlanDetailsExists, mealPlanId] = await this.planDetailService.getPlanDetailsByDate(sDate);
+      if (mealPlanDetailsExists === false) {
+        throw new HttpException(404, "Meal plan details not found - Create one if you haven't");
+      }
       
       const mealPlan = await MealPlan.findOne({
         where: { 
-          kidId: kidId,
-          updatedAt: {
-            [Op.between]: [sDate, new Date(new Date(sDate).setUTCHours(23,59,59))],
-          }
+          id: mealPlanId,
         },
         attributes: ["id", "energyTarget", "proteinTarget", "fatTarget", "carbTarget", "updatedAt"],
         order: [["updatedAt", "DESC"]],
       });
-
-      // Meal Plan can be null in 2 cases: 
-      // 1. The kid has not created any meal plan yet
-      // 2. The kid has not create any meal plan in the given date
-
-      // If the case 2 occurs, the controller will create a new meal plan
-      // New Meal plan attributes will be the same as the latest meal plan
-      
-      if (mealPlan === null) {
-        throw new HttpException(404, "Meal plan not found - Create one if you haven't");
-      }
-
-      const [planDetails, estimatedNutrition] = await this.planDetailService.getPlanDetails(mealPlan.id, sDate);
+      const [planDetails, estimatedNutrition] = await this.planDetailService.getPlanDetails(mealPlan!.id, sDate);
 
       return [mealPlan, planDetails, estimatedNutrition];
     } catch (error) {
@@ -221,10 +215,16 @@ export default class MealPlanService {
     } 
   }
 
-  public async getMealPlanInfo(kidId: number) {
+  public async getMealPlanInfo(kidId: number, date: Date) {
     try {
+      // Check if meal plan Details exists or not
+      const [mealPlanDetailsExists, mealPlanId] = await this.planDetailService.getPlanDetailsByDate(date);
+      if (mealPlanDetailsExists === false) {
+        throw new HttpException(404, "Meal plan details not found - Create one if you haven't");
+      }
+
       const mealPlan = await MealPlan.findOne({
-        where: { kidId: kidId },
+        where: { id: mealPlanId },
         attributes: ["id", "energyTarget", "proteinTarget", "fatTarget", "carbTarget", "updatedAt"],
         order: [["updatedAt", "DESC"]],
       });

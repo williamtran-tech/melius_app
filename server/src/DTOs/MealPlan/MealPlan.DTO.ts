@@ -1,4 +1,4 @@
-import { IsNumber, Max, Min, IsOptional } from "class-validator";
+import { IsNumber, Max, Min, IsOptional, IsDate } from "class-validator";
 
 class MealPlanDTO {
   @IsNumber()
@@ -11,12 +11,17 @@ class MealPlanDTO {
   @Max(5)
   public nMeal: number;
 
+  @IsDate()
+  public date: Date
+
   constructor(
     kidId: number,
     numberOfMeals: number,
+    date: Date
   ) {
     this.kidId = kidId;
     this.nMeal = numberOfMeals;
+    this.date = date;
   }
 }
 

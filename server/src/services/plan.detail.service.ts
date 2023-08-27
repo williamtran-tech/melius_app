@@ -8,6 +8,28 @@ import dateTimeUtil from "../utils/dateTime";
 export default class PlanDetailService {
     public recipeService = new RecipeService();
     public dateTimeUtil = new dateTimeUtil();
+
+    public async getPlanDetailsByDate(date: Date) {
+        try {
+            const begin = date.setUTCHours(0, 0, 0);
+            const end = date.setUTCHours(23, 59, 59);
+            const planDetails = await PlanDetail.findAll({
+                where: {
+                    mealTime: {
+                        [Op.between]:[begin, end]
+                    },
+                },
+                attributes: ["mealPlanId"]
+            });
+
+            if (planDetails.length > 0) {
+                return [true, planDetails[0].mealPlanId];
+            }
+            return [false, null];
+        } catch (err) {
+            throw err;
+        }
+    }
     public async getPlanDetails(mealPlanId: number, date?: Date) {
         try {
             // Check the date value is valid 
@@ -107,6 +129,7 @@ export default class PlanDetailService {
                 'carbohydrates': Math.round(carbohydrates),
                 'protein': Math.round(protein),
             }
+
             return [parsedPlanDetails, estimatedNutrition];
         } catch (err) {
             throw err;
@@ -389,7 +412,7 @@ export default class PlanDetailService {
     // - 35-40% of daily calories for lunch
     // - 5-10% of daily calories for an afternoon snack
     // - 15-20% of daily calories for dinner  
-    public async generateMealPlanTemplate(numberOfMeals: number, calories: number, mealPlanId: number, isNew: boolean) {
+    public async generateMealPlanTemplate(numberOfMeals: number, calories: number, mealPlanId: number, isNew: boolean, date?: Date) {
         try {
             console.log("Generate Meal Plan Template");
             let sessionNutrientRange = {};
@@ -400,7 +423,7 @@ export default class PlanDetailService {
                     const sBreakfast = Math.round(calories * 0.3);
                     const eBreakfast = Math.round(calories * 0.35);
                     mealPlanDetails.push({
-                        mealTime: new Date().setUTCHours(7, 30, 0),
+                        mealTime: date ? date.setUTCHours(7, 30, 0) : new Date().setUTCHours(7, 30, 0),
                         session: "Morning",
                         type: "Main course",
                         nutritionRange: [sBreakfast, eBreakfast],
@@ -410,7 +433,7 @@ export default class PlanDetailService {
                     const sLunch = Math.round(calories * 0.35);
                     const eLunch = Math.round(calories * 0.4);
                     mealPlanDetails.push({
-                        mealTime: new Date().setUTCHours(12, 0, 0),
+                        mealTime: date ? date.setUTCHours(12, 0, 0) : new Date().setUTCHours(12, 0, 0),
                         session: "Noon",
                         type: "Main course",
                         nutritionRange: [sLunch, eLunch],
@@ -420,7 +443,7 @@ export default class PlanDetailService {
                     const sDinner = Math.round(calories * 0.25);
                     const eDinner = Math.round(calories * 0.35);
                     mealPlanDetails.push({
-                        mealTime: new Date().setUTCHours(18, 0, 0),
+                        mealTime: date ? date.setUTCHours(18, 0, 0) : new Date().setUTCHours(18, 0, 0),
                         session: "Evening",
                         type: "Main course",
                         nutritionRange: [sDinner, eDinner],
@@ -440,7 +463,7 @@ export default class PlanDetailService {
                     const sBreakfast = Math.round(calories * 0.25);
                     const eBreakfast = Math.round(calories * 0.3);
                     mealPlanDetails.push({
-                        mealTime: new Date().setUTCHours(7, 30, 0),
+                        mealTime: date ? date.setUTCHours(7, 30, 0) : new Date().setUTCHours(7, 30, 0),
                         session: "Morning",
                         type: "Main course",
                         nutritionRange: [sBreakfast, eBreakfast],
@@ -449,7 +472,7 @@ export default class PlanDetailService {
                     const sSnack = Math.round(calories * 0.05);
                     const eSnack = Math.round(calories * 0.1);
                     mealPlanDetails.push({
-                        mealTime: new Date().setUTCHours(9, 0, 0),
+                        mealTime: date ? date.setUTCHours(9, 0, 0) : new Date().setUTCHours(9, 0, 0),
                         session: "Morning",
                         type: "Side dish",
                         nutritionRange: [sSnack, eSnack],
@@ -459,7 +482,7 @@ export default class PlanDetailService {
                     const sLunch = Math.round(calories * 0.35);
                     const eLunch = Math.round(calories * 0.4);
                     mealPlanDetails.push({
-                        mealTime: new Date().setUTCHours(12, 0, 0),
+                        mealTime: date ? date.setUTCHours(12, 0, 0) : new Date().setUTCHours(12, 0, 0),
                         session: "Noon",
                         type: "Main course",
                         nutritionRange: [sLunch, eLunch],
@@ -469,7 +492,7 @@ export default class PlanDetailService {
                     const sDinner = Math.round(calories * 0.25);
                     const eDinner = Math.round(calories * 0.3);
                     mealPlanDetails.push({
-                        mealTime: new Date().setUTCHours(18, 0, 0),
+                        mealTime: date ? date.setUTCHours(18, 0, 0) : new Date().setUTCHours(18, 0, 0),
                         session: "Evening",
                         type: "Main course",
                         nutritionRange: [sLunch, eLunch],
@@ -489,7 +512,7 @@ export default class PlanDetailService {
                     const sBreakfast = Math.round(calories * 0.25);
                     const eBreakfast = Math.round(calories * 0.3);
                     mealPlanDetails.push({
-                        mealTime: new Date().setUTCHours(7, 30, 0),
+                        mealTime: date ? date.setUTCHours(7, 30, 0) : new Date().setUTCHours(7, 30, 0),
                         session: "Morning",
                         type: "Main course",
                         nutritionRange: [sBreakfast, eBreakfast],
@@ -499,7 +522,7 @@ export default class PlanDetailService {
                     const sSnack1 = Math.round(calories * 0.05);
                     const eSnack1 = Math.round(calories * 0.1);
                     mealPlanDetails.push({
-                        mealTime: new Date().setUTCHours(9, 0, 0),
+                        mealTime: date ? date.setUTCHours(9, 0, 0) : new Date().setUTCHours(9, 0, 0),
                         session: "Morning",
                         type: "Main course",
                         nutritionRange: [sSnack1, eSnack1],
@@ -509,7 +532,7 @@ export default class PlanDetailService {
                     const sLunch = Math.round(calories * 0.35);
                     const eLunch = Math.round(calories * 0.4);
                     mealPlanDetails.push({
-                        mealTime: new Date().setUTCHours(12, 0, 0),
+                        mealTime: date ? date.setUTCHours(12, 0, 0) : new Date().setUTCHours(12, 0, 0),
                         session: "Noon",
                         type: "Main course",
                         nutritionRange: [sLunch, eLunch],
@@ -519,7 +542,7 @@ export default class PlanDetailService {
                     const sSnack2 = Math.round(calories * 0.05);
                     const eSnack2 = Math.round(calories * 0.1);
                     mealPlanDetails.push({
-                        mealTime: new Date().setUTCHours(15, 0, 0),
+                        mealTime: date ? date.setUTCHours(15, 0, 0) : new Date().setUTCHours(15, 0, 0),
                         session: "Noon",
                         type: "Main course",
                         nutritionRange: [sSnack2, eSnack2],
@@ -529,7 +552,7 @@ export default class PlanDetailService {
                     const sDinner = Math.round(calories * 0.15);
                     const eDinner = Math.round(calories * 0.20);
                     mealPlanDetails.push({
-                        mealTime: new Date().setUTCHours(18, 0, 0),
+                        mealTime: date ? date.setUTCHours(18, 0, 0) : new Date().setUTCHours(18, 0, 0),
                         session: "Evening",
                         type: "Main course",
                         nutritionRange: [sDinner, eDinner],
@@ -549,7 +572,7 @@ export default class PlanDetailService {
                     const sBreakfast = Math.round(calories * 0.25);
                     const eBreakfast = Math.round(calories * 0.3);
                     mealPlanDetails.push({
-                        mealTime: new Date().setUTCHours(7, 30, 0),
+                        mealTime: date ? date.setUTCHours(7, 30, 0) : new Date().setUTCHours(7, 30, 0),
                         session: "Morning",
                         type: "Main course",
                         nutritionRange: [sBreakfast, eBreakfast],
@@ -559,7 +582,7 @@ export default class PlanDetailService {
                     const sSnack1 = Math.round(calories * 0.05);
                     const eSnack1 = Math.round(calories * 0.1);
                     mealPlanDetails.push({
-                        mealTime: new Date().setUTCHours(9, 0, 0),
+                        mealTime: date ? date.setUTCHours(9, 0, 0) : new Date().setUTCHours(9, 0, 0),
                         session: "Morning",
                         type: "Main course",
                         nutritionRange: [sSnack1, eSnack1],
@@ -569,7 +592,7 @@ export default class PlanDetailService {
                     const sLunch = Math.round(calories * 0.35);
                     const eLunch = Math.round(calories * 0.4);
                     mealPlanDetails.push({
-                        mealTime: new Date().setUTCHours(12, 0, 0),
+                        mealTime: date ? date.setUTCHours(12, 0, 0) : new Date().setUTCHours(12, 0, 0),
                         session: "Noon",
                         type: "Main course",
                         nutritionRange: [sLunch, eLunch],
@@ -579,7 +602,7 @@ export default class PlanDetailService {
                     const sSnack2 = Math.round(calories * 0.05);
                     const eSnack2 = Math.round(calories * 0.1);
                     mealPlanDetails.push({
-                        mealTime: new Date().setUTCHours(15, 0, 0),
+                        mealTime: date ? date.setUTCHours(15, 0, 0) : new Date().setUTCHours(15, 0, 0),
                         session: "Noon",
                         type: "Main course",
                         nutritionRange: [sSnack2, eSnack2],
@@ -589,7 +612,7 @@ export default class PlanDetailService {
                     const sDinner = Math.round(calories * 0.15);
                     const eDinner = Math.round(calories * 0.20);
                     mealPlanDetails.push({
-                        mealTime: new Date().setUTCHours(18, 0, 0),
+                        mealTime: date ? date.setUTCHours(18, 0, 0) : new Date().setUTCHours(18, 0, 0),
                         session: "Evening",
                         type: "Main course",
                         nutritionRange: [sDinner, eDinner],
@@ -598,7 +621,7 @@ export default class PlanDetailService {
                     const sSnack3 = Math.round(calories * 0.05);
                     const eSnack3 = Math.round(calories * 0.1);
                     mealPlanDetails.push({
-                        mealTime: new Date().setUTCHours(20, 0, 0),
+                        mealTime: date ? date.setUTCHours(20, 0, 0) : new Date().setUTCHours(20, 0, 0),
                         session: "Noon",
                         type: "Main course",
                         nutritionRange: [sSnack3, eSnack3],
@@ -628,17 +651,21 @@ export default class PlanDetailService {
     }
 
     // Insert Recipes into Plan Details
-    public async insertRecipesIntoPlanDetails(mealPlanId: number, recipes: number[]) {
+    public async insertRecipesIntoPlanDetails(mealPlanId: number, recipes: number[], date?: Date) {
         try {
             // Setup 
+            const begin = date ? date.setUTCHours(0, 0, 0) : new Date().setUTCHours(0, 0, 0);
+            const end = date ? date.setUTCHours(23, 59, 59) : new Date().setUTCHours(23, 59, 59);
             const meals = await PlanDetail.findAll({
                 where: {
                     mealPlanId: mealPlanId,
+                    mealTime: {
+                        [Op.between]:[begin, end]
+                    }
                     // It must have a date constraint here
                 },
                 order: [["mealTime", "DESC"]],
             });
-            const nMeal = meals.length;
             
             // Maximum 6 meals per day
             const mealObj: any = {
@@ -689,44 +716,6 @@ export default class PlanDetailService {
                     },
                 });
             });
-            
-
-            // Assert Plan Details
-        //    await PlanDetail.update(
-        //         {
-        //             recipeId: recipes[0],
-        //         },
-        //         {
-        //             where: {
-        //                 mealPlanId: mealPlanId,
-        //                 session: "Morning",
-        //                 type: "Main course",
-        //             },
-        //         });
-
-        //     await PlanDetail.update(
-        //         {
-        //             recipeId: recipes[1],
-        //         },
-        //         {
-        //             where: {
-        //                 mealPlanId: mealPlanId,
-        //                 session: "Noon",
-        //                 type: "Main course",
-        //             },
-        //         });
-
-        //     await PlanDetail.update(
-        //         {
-        //             recipeId: recipes[2],
-        //         },
-        //         {
-        //             where: {
-        //                 mealPlanId: mealPlanId,
-        //                 session: "Evening",
-        //                 type: "Main course",
-        //             },
-        //         });
 
             return true;
         } catch (err) {
