@@ -315,10 +315,13 @@ export default class UserController extends BaseController {
     try {
       const kidId = Number(req.body.kidId);
       const numberOfMeals = Number(req.body.nMeal);
-      
+      this.dateTimeUtil.setUTCDateTime(req.body.date);
+      const date = this.dateTimeUtil.getUTCDateTime();
+
       const mealPlanDTO: MealPlanDTO = {
         kidId: kidId,
         nMeal: numberOfMeals,
+        date: date ? date : new Date(),
       };
 
       const [mealPlan, mealPlanTemplate] = await this.mealPlanService.createMealPlan(mealPlanDTO);
@@ -340,12 +343,15 @@ export default class UserController extends BaseController {
   ) => {
     try {
       const kidId = Number(req.body.kidId);
+      this.dateTimeUtil.setUTCDateTime(req.body.date);
+      const date = this.dateTimeUtil.getUTCDateTime();
       // Refactor this DTO later
       const mealPlanDTO = {
         userId: Number(req.userData.id),
         kidId: kidId,
         nMeal: Number(req.body.nMeal),
         duration: Number(req.body.duration),
+        date: date
       };
 
       // This only get the recipe information of the suggested meals include: recipeId, recipeName, servingSize, nutrition
@@ -357,11 +363,11 @@ export default class UserController extends BaseController {
         recipeIds.push(suggestedMeals[i].id);
       }
 
-      const mealPlan = await this.mealPlanService.getMealPlanInfo(kidId);
+      const mealPlan = await this.mealPlanService.getMealPlanInfo(kidId, date);
       console.log("Meal Plan Id: ", mealPlan!.id);
-      await this.planDetailService.insertRecipesIntoPlanDetails(Number(mealPlan!.id), recipeIds);
+      await this.planDetailService.insertRecipesIntoPlanDetails(Number(mealPlan!.id), recipeIds, date);
       
-      const [mealsPlan, planDetails] = await this.mealPlanService.getMealPlan(kidId);
+      const [mealsPlan, planDetails] = await this.mealPlanService.getMealPlan(kidId, date);
       res.status(200).json({
         msg: "Create suggested meals successfully",
         suggestedMeals: suggestedMeals,
@@ -457,11 +463,11 @@ export default class UserController extends BaseController {
     try {
       const mealId = Number(req.query.id);
       const recipeId = Number(req.query.recipeId);
-      const mealPlan = await this.mealPlanService.getMealPlanInfo(Number(req.query.kidId));
-
       // Date Time Format UTC 
       this.dateTimeUtil.setUTCDateTime(req.query.mealTime as string);
       let mealTime = this.dateTimeUtil.getUTCDateTime();
+      const mealPlan = await this.mealPlanService.getMealPlanInfo(Number(req.query.kidId), mealTime);
+
 
       const mealDTO = {
         mealPlanId: Number(mealPlan!.id),
@@ -527,11 +533,11 @@ export default class UserController extends BaseController {
     try {
       // Check the meal plan is exist or not
       const kidId = Number(req.body.kidId);
-      const mealPlan = await this.mealPlanService.getMealPlanInfo(kidId);
-
       // Date Time Format UTC 
       this.dateTimeUtil.setUTCDateTime(req.body.mealTime);
       let mealTime = this.dateTimeUtil.getUTCDateTime();
+      const mealPlan = await this.mealPlanService.getMealPlanInfo(kidId, mealTime);
+
 
       let newMeal = {
         mealPlanId: Number(mealPlan!.id),

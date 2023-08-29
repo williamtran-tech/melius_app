@@ -304,14 +304,14 @@ export default class RecipeService {
           const listOfIngredients = combinationIngredients.map(ingredients => {
             return ingredients.split(",");
           })
-          console.log("List of Ingredients:", listOfIngredients);
+          // console.log("List of Ingredients:", listOfIngredients);
 
           // Loop through each combination of ingredients
           for (let i = 0; i < listOfIngredients.length; i++) {
             const ingredientElement = listOfIngredients[i].map(ingredient => {
               return ingredient;
             })
-            console.log("Ingredient Combination:", ingredientElement);
+
             const whereConditions = {
                 ingredients: {
                   [sequelize.Op.and]: ingredientElement.map(ingredients => {
@@ -325,10 +325,10 @@ export default class RecipeService {
                   })
                 }
               };
-            console.log("Where Conditions:", whereConditions);
-            ingredientElement.forEach((element, index) => {
-              console.log(`Element ${index}:`, element);
-            });
+            // console.log("Where Conditions:", whereConditions);
+            // ingredientElement.forEach((element, index) => {
+            //   console.log(`Element ${index}:`, element);
+            // });
 
             // const stemmer = natural.PorterStemmer;
           
