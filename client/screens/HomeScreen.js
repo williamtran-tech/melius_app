@@ -28,15 +28,16 @@ const HomeScreen = () => {
         if (error) {
           console.error(error);
         } else {
-          HandleApi.serverGeneral
-            .get("/v1/auth/logout")
-            .then((response) => {
-              console.log(response.data);
-              navigation.replace("Auth");
-            })
-            .catch((error) => {
-              console.error(error.data);
-            });
+          navigation.replace("Auth");
+          // HandleApi.serverGeneral
+          //   .get("/v1/auth/logout")
+          //   .then((response) => {
+          //     console.log(response.data);
+          //     navigation.replace("Auth");
+          //   })
+          //   .catch((error) => {
+          //     console.error(error.data);
+          //   });
         }
       });
     }

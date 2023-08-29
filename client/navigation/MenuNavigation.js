@@ -15,7 +15,7 @@ import MenuDetail from "../screens/Menu/MenuDetail";
 const MenuNavigation = () => {
   const navigation = useNavigation();
   const [selectedDate, setSelectedDate] = useState(
-    moment().format("DD-MM-YYYY")
+    moment().format("YYYY-MM-DD")
   );
   const [selectedIngredient, setSelectedIngredient] = useState();
   useEffect(() => {

@@ -9,30 +9,35 @@ import ProjectNutrition from "../../components/ProjectNutrition";
 import Menu from "../../components/Menu";
 import {
   suggestMealPlan,
+  SuggestMealPlanByDate,
   updateMealPlan,
 } from "../../Services/SuggestMealPlan";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import Loader from "../../components/Loader";
 const MenuScreen = ({ route }) => {
   const [activeTab, setActiveTab] = useState("daily");
   const [updateFlag, setUpdateFlag] = useState(false);
+  const [loading, setLoading] = useState(false);
   const { navigation, selectedDate, setSelectedDate } = route.params;
   const handleTabPress = (tab) => {
     setActiveTab(tab);
   };
 
   const [mealPlan, setMealPlan] = useState();
+  const [DateMeal, setDateMeal] = useState(moment().format("YYYY-MM-DD"));
   const fetchMealPlan = async () => {
     try {
-      const mealPlanData = await updateMealPlan();
-
+      const mealPlanData = await SuggestMealPlanByDate(DateMeal);
       setMealPlan(mealPlanData);
+      setLoading(false);
+      // console.log(mealPlanData);
     } catch (error) {
       console.error("Error fetching meal plan:", error);
     }
   };
   useEffect(() => {
     fetchMealPlan();
-  }, [updateFlag]);
+  }, [updateFlag, DateMeal]);
   const currentDate = moment().format("dddd, MMMM D");
   const renderCalendar = () => {
     switch (activeTab) {
@@ -48,16 +53,18 @@ const MenuScreen = ({ route }) => {
         // console.log(selectedDate);
         return (
           <WeekCalendar
-            selectedDate={selectedDate}
-            setSelectedDate={setSelectedDate}
+            selectedDate={DateMeal}
+            setSelectedDate={setDateMeal}
             fetchMealPlan={fetchMealPlan}
+            setLoading={setLoading}
           ></WeekCalendar>
         );
       case "month":
         return (
           <MonthCalendar
-            selectedDate={selectedDate}
-            setSelectedDate={setSelectedDate}
+            selectedDate={DateMeal}
+            setSelectedDate={setDateMeal}
+            setLoading={setLoading}
           ></MonthCalendar>
         );
       default:
@@ -141,6 +148,7 @@ const MenuScreen = ({ route }) => {
           ></Menu>
         )}
       </View>
+      <Loader loading={loading}></Loader>
     </View>
   );
 };

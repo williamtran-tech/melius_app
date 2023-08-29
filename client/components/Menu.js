@@ -32,14 +32,14 @@ const Menu = ({
         if (item.mealTime) {
           const time = moment.utc(item.mealTime).utcOffset(0);
           const hour = time.hours();
-          console.log("here", hour);
+          // console.log("here", hour);
           if (session == "morning") return hour >= 7 && hour < 12;
           else if (session == "noon") return hour >= 12 && hour < 18;
           else if (session == "everning") return hour >= 18 && hour <= 24;
         }
       })
       .sort((a, b) => moment(a.mealTime).diff(moment(b.mealTime)));
-    console.log(menuItem);
+    // console.log(menuItem);
     return menuItem?.map(
       (item) =>
         item.recipe && (

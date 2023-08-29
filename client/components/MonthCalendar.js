@@ -2,7 +2,7 @@ import HeaderText from "../components/HeaderText";
 import { Calendar } from "react-native-calendars";
 import moment from "moment";
 import { useEffect, useState } from "react";
-const MonthCalendar = ({ selectedDate, setSelectedDate }) => {
+const MonthCalendar = ({ selectedDate, setSelectedDate, setLoading }) => {
   const CustomHeader = ({ month }) => {
     return (
       <HeaderText style={{ fontSize: 20, color: "#8CC840" }}>
@@ -12,19 +12,22 @@ const MonthCalendar = ({ selectedDate, setSelectedDate }) => {
   };
 
   const [formatDate, setFormatDate] = useState(
-    moment(selectedDate, "DD-MM-YYYY").format("YYYY-MM-DD")
+    moment(selectedDate).format("YYYY-MM-DD")
   );
+  console.log("formatDate:", formatDate);
   useEffect(() => {
-    setFormatDate(moment(selectedDate, "DD-MM-YYYY").format("YYYY-MM-DD"));
-    console.log(selectedDate);
-  }, [selectedDate]);
+    // setFormatDate(moment(selectedDate, "DD-MM-YYYY").format("YYYY-MM-DD"));
+    console.log(formatDate);
+  }, []);
   return (
     <Calendar
       current={moment().format("YYYY-MM-DD")}
       renderHeader={(date) => <CustomHeader month={date.toString("MMMM")} />}
       onDayPress={(day) => {
-        setSelectedDate(moment(day.dateString).format("DD-MM-YYYY"));
-        // console.log(moment(day.dateString).format("DD-MM-YYYY"));
+        setSelectedDate(moment(day.dateString).format("YYYY-MM-DD"));
+        setFormatDate(moment(day.dateString).format("YYYY-MM-DD"));
+        console.log(moment(day.dateString).format("YYYY-MM-DD"));
+        setLoading(true);
       }}
       markedDates={{
         [formatDate]: { selected: true, selectedColor: "#FED800" },

@@ -3,20 +3,24 @@ import moment from "moment";
 import HandleApi from "./HandleApi";
 import axios from "axios";
 
-export const suggestMealPlan = async () => {
+export const suggestMealPlan = async (date) => {
+  const dateTime = date ? date : moment().format("YYYY-MM-DD");
+
   try {
+    console.log("dateTime:", date);
     const value = await AsyncStorage.getItem("userProfile");
-    console.log(JSON.parse(value)?.mealPlan);
+    console.log("mealPlan", JSON.parse(value));
     const kidId = JSON.parse(value)?.kidProfile[0].id;
-    console.log("OK", JSON.parse(value)?.kidProfile[0].id);
+    console.log("kidId", JSON.parse(value)?.kidProfile[0].id);
     if (kidId) {
       //handle api get mealplan
       const response = await HandleApi.serverGeneral.post(
         "v1/users/suggested-meal-plan",
         {
-          kidId,
+          kidId: kidId,
           nMeal: 3,
           duration: 1,
+          date: dateTime,
         }
       );
       const data = {
@@ -34,7 +38,9 @@ export const suggestMealPlan = async () => {
     console.error("Error fetching meal plan:", error);
   }
 };
-export const getMealPlan = async () => {
+export const getMealPlan = async (date) => {
+  const dateTime = date ? date : moment().format("YYYY-MM-DD").toString();
+  console.log("getMealPlan dateTime:", dateTime);
   try {
     const value = await AsyncStorage.getItem("userProfile");
     // console.log(JSON.parse(value)?.mealPlan);
@@ -43,6 +49,7 @@ export const getMealPlan = async () => {
     const response = await HandleApi.serverGeneral.get(`v1/users/meal-plan`, {
       params: {
         kidId: kidId,
+        date: dateTime,
       },
     });
     return response.data;
@@ -65,6 +72,36 @@ export const updateMealPlan = async () => {
       // console.log(MealPlan);
       return MealPlan;
     }
+  } catch (error) {
+    console.error("Error fetching meal plan:", error);
+  }
+};
+export const SuggestMealPlanByDate = async (date) => {
+  const dateTime = date ? date : moment().format("YYYY-MM-DD");
+  console.log(dateTime);
+  try {
+    const MealPlanByDate = await createMealPlanByDate(dateTime);
+    console.log("status:", MealPlanByDate);
+    if (MealPlanByDate === 400) {
+      console.log("400");
+      const MealPlan = await getMealPlan(dateTime);
+      return MealPlan;
+    } else {
+      const mealPlanData = await suggestMealPlan(dateTime);
+      const MealPlan = await getMealPlan(dateTime);
+      return MealPlan;
+      // console.log("200");
+    }
+    // if (!mealPlanDate.isSame(moment(), "day") || !mealPlanDate || !value) {
+    //   const mealPlanData = await suggestMealPlan();
+    //   const MealPlan = await getMealPlan();
+    //   return MealPlan;
+    // } else {
+    //   const mealPlanData = JSON.parse(value);
+    //   const MealPlan = await getMealPlan();
+    //   // console.log(MealPlan);
+    //   return MealPlan;
+    // }
   } catch (error) {
     console.error("Error fetching meal plan:", error);
   }
@@ -167,5 +204,29 @@ export const createMealPlan = async (kidId) => {
   } catch (error) {
     console.error(error);
     // setLoading(false);
+  }
+};
+export const createMealPlanByDate = async (date) => {
+  const dateTime = date ? date : moment().format("YYYY-MM-DD").toString();
+  console.log("createMealPlanByDate:", dateTime);
+  try {
+    const value = await AsyncStorage.getItem("userProfile");
+    // console.log(JSON.parse(value)?.mealPlan);
+    const kidId = JSON.parse(value)?.kidProfile[0].id;
+    const mealPlanResponse = await HandleApi.serverGeneral.post(
+      "v1/users/meal-plan",
+      {
+        kidId: kidId,
+        nMeal: 3,
+        date: dateTime,
+      }
+    );
+    return mealPlanResponse.status;
+  } catch (error) {
+    if (error.response) {
+      // console.error("API Error Response", error.response.status);
+      // console.error("API Error Data:", error.response.data);
+      return error.response.status;
+    }
   }
 };
