@@ -15,6 +15,7 @@ import AvailableIngredientService from "../../services/available.ingredient.serv
 import RecipeService from "../../services/recipe.service";
 
 import dateTimeUtil from "../../utils/dateTime";
+import MealPlanData from "../../interfaces/MealPlan/MealPlanData.interface";
 export default class UserController extends BaseController {
   constructor() {
     super();
@@ -121,13 +122,15 @@ export default class UserController extends BaseController {
       };
 
       // Update Health Record
-      const [kidHealth, isNew] = await this.healthService.updateHealthRecord(kidData);
+      const [kidHealth, isNew, energy] = await this.healthService.updateHealthRecord(kidData);
 
       let updatedMealPlan;
-      // Check if the kid has a meal plan
-      if (await this.mealPlanService.checkMealPlanExist(kidId)) {
+      const [mealPlanDetailsExists, mealPlanData] = await this.mealPlanService.checkMealPlanExist(kidId);
+      // Check if the kid has any meal plan in the future
+      if (mealPlanDetailsExists ) {
+        console.log("Update the meal plan of the kid");
         // Update the Meal Plan of the kid
-        updatedMealPlan = await this.mealPlanService.updateMealPlan(kidData.kidId, isNew);
+        updatedMealPlan = await this.mealPlanService.updateMealPlan(kidData.kidId, isNew, energy, mealPlanData as MealPlanData);
       }
       res.status(200).json({
         msg: "Update kid health successfully",
@@ -402,9 +405,12 @@ export default class UserController extends BaseController {
   public getMealPlan = async (req: express.Request, res: express.Response, next: express.NextFunction) => {
     try {
       const kidId = Number(req.query.kidId);
-      const dateString = req.query.date ;
-      const date = new Date(dateString as string);
-      console.log("Date: ", date);
+      const dateString = req.query.date;
+      let date = new Date();
+      if (req.query.date) {
+        this.dateTimeUtil.setUTCDateTime(req.query.date as string);
+        date = this.dateTimeUtil.getUTCDateTime();
+      }
 
       const [mealPlan, planDetails, estimatedNutrition] = await this.mealPlanService.getMealPlan(kidId, date);
 
@@ -473,7 +479,7 @@ export default class UserController extends BaseController {
         mealPlanId: Number(mealPlan!.id),
         mealId: mealId,
         recipeId: recipeId || null,
-        mealTime: new Date(mealTime),
+        mealTime: mealTime,
         type: req.query.type || null,
       }
       const updatedMeal = await this.planDetailService.updateMeal(mealDTO);

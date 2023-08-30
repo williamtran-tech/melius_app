@@ -4,20 +4,29 @@ import HttpException from "../exceptions/HttpException";
 import RecipeService from "./recipe.service";
 import { Op } from "sequelize";
 import dateTimeUtil from "../utils/dateTime";
+import { MealPlan } from "../orm/models/meal.plan.model";
+import MealPlanData from "../interfaces/MealPlan/MealPlanData.interface";
 
 export default class PlanDetailService {
     public recipeService = new RecipeService();
     public dateTimeUtil = new dateTimeUtil();
 
-    public async getPlanDetailsByDate(date: Date) {
+    public async getPlanDetailsByDate(date: Date, kidId: number) {
         try {
-            const begin = date.setUTCHours(0, 0, 0);
-            const end = date.setUTCHours(23, 59, 59);
+            const thisDate = new Date(date);
+            const begin = thisDate.setUTCHours(0, 0, 0);
+            const end = thisDate.setUTCHours(23, 59, 59);
             const planDetails = await PlanDetail.findAll({
                 where: {
                     mealTime: {
                         [Op.between]:[begin, end]
                     },
+                },
+                include: {
+                    model: MealPlan,
+                    where: {
+                        kidId: kidId,
+                    }
                 },
                 attributes: ["mealPlanId"]
             });
@@ -26,6 +35,51 @@ export default class PlanDetailService {
                 return [true, planDetails[0].mealPlanId];
             }
             return [false, null];
+        } catch (err) {
+            throw err;
+        }
+    }
+
+    // Get Plan Details in the future from current date
+    public async getPlanDetailsInFuture(kidId: number): Promise<[boolean, object]> {
+        try {
+            const thisDate = new Date();
+            const begin = thisDate.setUTCHours(0, 0, 0);
+            const end = thisDate.setFullYear(thisDate.getFullYear() + 1);
+            const planDetails = await PlanDetail.findAll({
+                where: {
+                    mealTime: {
+                        [Op.between]:[begin, end]
+                    },
+                },
+                include: {
+                    model: MealPlan,
+                    where: {
+                        kidId: kidId,
+                    }
+                },
+                attributes: ["id","mealPlanId"]
+            });
+            // Create a Record to store Meal Plan Id and Plan Detail Ids
+            const mealPlanData: MealPlanData = {};
+
+            for (const planDetail of planDetails) {
+                const mealPlanId = planDetail.mealPlanId;
+            
+                if (!mealPlanData[mealPlanId]) {
+                    mealPlanData[mealPlanId] = [];
+                }
+            
+                // Check if the planDetail's ID is not already in the array
+                if (!mealPlanData[mealPlanId].includes(planDetail.id)) {
+                    mealPlanData[mealPlanId].push(planDetail.id);
+                }
+            }
+
+            if (planDetails.length > 0) {
+                return [true, mealPlanData];
+            }
+            return [false, {}];
         } catch (err) {
             throw err;
         }
@@ -800,7 +854,7 @@ export default class PlanDetailService {
                 const mealNutritionRange = await this.recipeService.getRecipeById(mealDTO.recipeId);
                 await mealDetail.update({
                     recipeId: mealDTO.recipeId ? mealDTO.recipeId : mealDetail.recipeId,
-                    mealTime: mealDTO.mealTime ? mealTime : mealDetail.mealTime,
+                    mealTime: mealDTO.mealTime ? mealDTO.mealTime : mealDetail.mealTime,
                     session: session ? session : mealDetail.session,
                     type: mealDTO.type ? mealDTO.mealType : mealDetail.type,
                     nutritionRange: [mealNutritionRange?.nutrition.calories, mealNutritionRange?.nutrition.calories],

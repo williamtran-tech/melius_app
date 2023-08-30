@@ -6,10 +6,13 @@ export default class DateTime {
         // Date Time Format UTC 
         if (dateTime) {
             let date = new Date(dateTime.split(" ")[0]);
-            if (dateTime.split(" ")[1] ) {
+            if (dateTime.split(" ")[1]) {
                 let time = dateTime.split(" ")[1];
                 hours = Number(time.split(":")[0]);
                 minutes = Number(time.split(":")[1]);
+            } else {
+                hours = new Date().getUTCHours();
+                minutes = new Date().getUTCMinutes();
             }
             let mealTime = new Date(date).setUTCHours(hours, minutes, 0, 0);
             

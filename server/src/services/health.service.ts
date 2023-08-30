@@ -125,7 +125,6 @@ export default class HealthService {
         where: { kidId: kidData.kidId },
         order: [["createdAt", "DESC"]],
       });
-
       const tdeeParams = {
         weight: kidData.weight,
         height: kidData.height,
@@ -134,7 +133,6 @@ export default class HealthService {
         PAL: kidData.PAL ? kidData.PAL : 1.2,
       };
       const tdee = this.calculateTDEE(tdeeParams);
-
       const RDA = this.rdaCalculator(kidData.weight);
       let healthRecord = {};
 
@@ -174,7 +172,7 @@ export default class HealthService {
         healthRecord = rowAffected;
       }
 
-      return [healthRecord, isNew];
+      return [healthRecord, isNew, tdee];
     } catch (err) {
       throw err;
     }
