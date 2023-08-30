@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import HeaderText from "../../components/HeaderText";
 import ExpertScreen from "./ExpertScreen";
 import { LinearGradient } from "expo-linear-gradient";
+import CommunityScreen from "./CommunityScreen";
 
 const ComHome = () => {
   const [activeTab, setActiveTab] = useState("Expert");
@@ -15,12 +16,7 @@ const ComHome = () => {
         // console.log(selectedDate);
         return <ExpertScreen></ExpertScreen>;
       case "Community":
-      //    return (
-      //      <MonthCalendar
-      //        selectedDate={selectedDate}
-      //        setSelectedDate={setSelectedDate}
-      //      ></MonthCalendar>
-      //    );
+        return <CommunityScreen></CommunityScreen>;
       default:
         return null;
     }
