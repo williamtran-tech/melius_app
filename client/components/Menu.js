@@ -20,6 +20,7 @@ const Menu = ({
   mealPlan,
   updateFlag,
   setUpdateFlag,
+  DateMeal,
 }) => {
   const { planDetails } = mealPlan;
   const [listIngre, setListIngre] = useState(IngredientIcon);
@@ -85,6 +86,7 @@ const Menu = ({
                 planDetails: planDetails,
                 updateFlag: updateFlag,
                 setUpdateFlag: setUpdateFlag,
+                DateMeal: DateMeal,
               })
             }
           >

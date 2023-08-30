@@ -27,6 +27,7 @@ const MenuEdit = ({
   setUpdateFlag,
   menuUpdated,
   setMenuUpdated,
+  DateMeal,
 }) => {
   const [modalVisible, setModalVisible] = useState(false);
   const navigation = useNavigation();
@@ -94,6 +95,7 @@ const MenuEdit = ({
               setUpdateFlag: setUpdateFlag,
               menuUpdated: menuUpdated,
               setMenuUpdated: setMenuUpdated,
+              DateMeal: DateMeal,
             });
           }}
         >

@@ -115,12 +115,13 @@ export const patchUpdateMealPlan = async (id, mealTime, recipeId) => {
     id: id,
     kidId: kidId,
     mealTime: mealTime,
+    recipeId: recipeId,
   };
-
+  console.log("dataToUpdate", dataToUpdate);
   const params = {
     id: id,
     kidId: kidId,
-    mealTime: mealTime.format("YYYY-MM-DD HH:mm:ss"),
+    mealTime: mealTime,
     recipeId: recipeId,
   };
   console.log("params:", params);
@@ -174,7 +175,7 @@ export const addNewMealPlan = async (mealTime, recipeId, type) => {
 
   const params = {
     kidId: kidId,
-    mealTime: mealTime.format("YYYY-MM-DD HH:mm:ss"),
+    mealTime: mealTime,
     recipeId: recipeId,
     type: "Main course",
   };

@@ -20,22 +20,21 @@ import SearchRecipe from "../../components/SearchRecipe";
 import { imageSearchEngine } from "../../Services/FoodSearching";
 import HandleApi from "../../Services/HandleApi";
 import HeaderText from "../../components/HeaderText";
+import { useNavigation } from "@react-navigation/native";
 
 const NewMenuScreen = ({ route }) => {
   const {
-    navigation,
-    selectedDate,
-    setSelectedDate,
-    setData,
     data,
     updateFlag,
     setUpdateFlag,
     menuUpdated,
     setMenuUpdated,
+    DateMeal,
   } = route.params;
   const [selectedTime, setSelectedTime] = useState(
     data ? moment.utc(data.mealTime).utcOffset(0) : moment()
   );
+  const navigation = useNavigation();
   const [recipeImages, setRecipeImages] = useState({});
   const [searchResults, setSearchResults] = useState([]);
   const [recipeId, setRecipeId] = useState(data && data.recipe.id);
@@ -46,19 +45,33 @@ const NewMenuScreen = ({ route }) => {
     return str.charAt(0).toUpperCase() + str.slice(1);
   };
   const updateMealPlan = async () => {
+    const combinedDateTime = moment(
+      `${DateMeal} ${moment(selectedTime).format("HH:mm:ss")}`,
+      "YYYY-MM-DD HH:mm:ss"
+    ).format("YYYY-MM-DD HH:mm:ss");
+    console.log("combinedDateTime:", combinedDateTime);
+
     const hanldeUpdate = await patchUpdateMealPlan(
       data && data.id,
-      selectedTime,
+      combinedDateTime,
       recipeId
     );
     setUpdateFlag(!updateFlag);
     setMenuUpdated(!menuUpdated);
+    navigation.goBack();
   };
 
   const addNewMeal = async () => {
-    await addNewMealPlan(selectedTime, recipeId, type);
+    const combinedDateTime = moment(
+      `${DateMeal} ${moment(selectedTime).format("HH:mm:ss")}`,
+      "YYYY-MM-DD HH:mm:ss"
+    ).format("YYYY-MM-DD HH:mm:ss");
+    console.log("combinedDateTime:", combinedDateTime);
+
+    await addNewMealPlan(combinedDateTime, recipeId, type);
     setUpdateFlag(!updateFlag);
     setMenuUpdated(!menuUpdated);
+    navigation.goBack();
   };
 
   const searchRecipe = async (value) => {
@@ -79,14 +92,15 @@ const NewMenuScreen = ({ route }) => {
   };
   useEffect(() => {
     searchRecipe();
+    console.log("DateMeal", DateMeal);
     console.log(menuUpdated);
   }, [updateFlag, recipeId]);
   return (
     <View style={{ flex: 1, backgroundColor: "#FDFDFD" }}>
-      {selectedDate && (
+      {DateMeal && (
         <View style={{ paddingHorizontal: 25 }}>
           <NavigatorMenu
-            Date={selectedDate}
+            Date={moment(DateMeal, "YYYY-MM-DD").format("DD-MM-YYYY")}
             ScreenName="Add"
             navigationName="MenuScreen"
             navigation={navigation}
@@ -96,8 +110,6 @@ const NewMenuScreen = ({ route }) => {
                   style={styles.btnAction}
                   onPress={() => {
                     data ? updateMealPlan() : addNewMeal();
-
-                    navigation.navigate("MenuScreen");
                   }}
                 >
                   <SubText style={{ fontSize: 14, color: "#518B1A" }}>

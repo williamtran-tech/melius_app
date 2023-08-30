@@ -5,6 +5,7 @@ import SubText from "../../components/SubText";
 import ProjectNutrition from "../../components/ProjectNutrition";
 import MenuEdit from "../../components/MenuEdit";
 import { getMealPlan } from "../../Services/SuggestMealPlan";
+import moment from "moment";
 
 const MenuEditScreen = ({ route }) => {
   const {
@@ -13,15 +14,16 @@ const MenuEditScreen = ({ route }) => {
     setSelectedDate,
     updateFlag,
     setUpdateFlag,
+    DateMeal,
   } = route.params;
-  // console.log("hello", planDetails);
+  console.log("hello", DateMeal);
 
   const [undoItem, setUndoItem] = useState(null);
   const [mealPlan, setMealPlan] = useState();
   const [menuUpdated, setMenuUpdated] = useState(false);
   const fetchMealPlan = async () => {
     try {
-      const mealPlanData = await getMealPlan();
+      const mealPlanData = await getMealPlan(DateMeal);
 
       setMealPlan(mealPlanData);
     } catch (error) {
@@ -34,10 +36,10 @@ const MenuEditScreen = ({ route }) => {
   }, [updateFlag, menuUpdated]);
   return (
     <View style={{ flex: 1, backgroundColor: "#FDFDFD" }}>
-      {selectedDate && (
+      {DateMeal && (
         <View style={{ paddingHorizontal: 25 }}>
           <NavigatorMenu
-            Date={selectedDate}
+            Date={moment(DateMeal, "YYYY-MM-DD").format("DD-MM-YYYY")}
             ScreenName="Edit"
             navigationName="MenuScreen"
             navigation={navigation}
@@ -53,6 +55,7 @@ const MenuEditScreen = ({ route }) => {
                   onPress={() =>
                     navigation.navigate("NewMenuScreen", {
                       updateFlag: updateFlag,
+                      DateMeal: DateMeal,
                       setUpdateFlag: setUpdateFlag,
                       menuUpdated: menuUpdated,
                       setMenuUpdated: setMenuUpdated,
@@ -87,6 +90,7 @@ const MenuEditScreen = ({ route }) => {
             setUpdateFlag={setUpdateFlag}
             menuUpdated={menuUpdated}
             setMenuUpdated={setMenuUpdated}
+            DateMeal={DateMeal}
           ></MenuEdit>
         )}
       </View>

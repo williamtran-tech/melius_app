@@ -17,7 +17,7 @@ import Loader from "../../components/Loader";
 const MenuScreen = ({ route }) => {
   const [activeTab, setActiveTab] = useState("daily");
   const [updateFlag, setUpdateFlag] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const { navigation, selectedDate, setSelectedDate } = route.params;
   const handleTabPress = (tab) => {
     setActiveTab(tab);
@@ -77,7 +77,10 @@ const MenuScreen = ({ route }) => {
       <View>
         <View style={styles.headerTab}>
           <TouchableOpacity
-            onPress={() => handleTabPress("daily")}
+            onPress={() => {
+              handleTabPress("daily");
+              setDateMeal(moment().format("YYYY-MM-DD"));
+            }}
             style={
               activeTab === "daily"
                 ? {
@@ -140,7 +143,7 @@ const MenuScreen = ({ route }) => {
         {mealPlan && (
           <Menu
             navigation={navigation}
-            selectedDate={selectedDate}
+            DateMeal={DateMeal}
             setSelectedDate={setSelectedDate}
             mealPlan={mealPlan}
             updateFlag={updateFlag}
