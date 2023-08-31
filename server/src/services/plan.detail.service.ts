@@ -41,6 +41,7 @@ export default class PlanDetailService {
     }
 
     // Get Plan Details in the future from current date
+    // Return [result, mealPlanData] -> MealPlanData is a Record of Meal Plan Id and Plan Detail Ids
     public async getPlanDetailsInFuture(kidId: number): Promise<[boolean, object]> {
         try {
             const thisDate = new Date();

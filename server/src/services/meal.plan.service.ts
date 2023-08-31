@@ -11,6 +11,7 @@ import PlanDetailService from "./plan.detail.service";
 import { Op, literal } from "sequelize";
 import MealPlanDTO from "../DTOs/MealPlan/MealPlan.DTO";
 import MealPlanData from "../interfaces/MealPlan/MealPlanData.interface";
+import chalk from "chalk";
 
 // Recipes Describe Data of nutrition
 // 'calories','total fat (PDV)','sugar (PDV)','sodium (PDV)','protein (PDV)','saturated fat (PDV)','carbohydrates (PDV)']] = df[['calories','total fat (PDV)','sugar (PDV)','sodium (PDV)','protein (PDV)','saturated fat (PDV)','carbohydrates (PDV)'
@@ -265,32 +266,42 @@ export default class MealPlanService {
 
       const mealPlanIds: number[] = Object.keys(mealPlanData).map(Number);
       console.log("Meal Plan Ids:", mealPlanIds);
+      let planDetailIds: number[] = [];
+      for (const mealPlanId of mealPlanIds) {
+        const planDetails = mealPlanData[mealPlanId];
+        planDetailIds.push(...planDetails);
+      }
+      console.log("Plan Detail Ids:", planDetailIds);
       let nMeals;
 
       // PlanDetails.length: reference to the number of meals per day of the old meal plan || 3 for default (new meal plan)
       // Access IDs inside each key
       for (const mealPlanId of mealPlanIds) {
+        console.log(chalk.blue("Meal Plan Id:", mealPlanId));
         // isNew is true if the health has a new record
         nMeals = mealPlanData[mealPlanId].length ? mealPlanData[mealPlanId].length : 3;
         if (!isNew) {
           // Update the Meal Plan
           // Update will contain 2 values, the first value is the number of rows updated, the second value is the updated mealPlan object
-          console.log("[MealPlan] Update Meal Plan");
+          console.log(chalk.blue("[MealPlan] Update Meal Plan", mealPlanId));
           mealPlan = await MealPlan.update({
             energyTarget: energy,
             proteinTarget: nutrientsTarget.proteinTarget,
             fatTarget: nutrientsTarget.fatTarget,
             carbTarget: nutrientsTarget.carbTarget,
-          }, {
+          }, 
+          {
             where: { 
               id: mealPlanId,
             },
           });
-          if (nMeals !== null) {
-            // Update the meal plan details
-            const updatedMealPlanDetails = await this.planDetailService.generateMealPlanTemplate(nMeals, energy, mealPlanId, false);
-          }
+          
+          // Update the meal plan details
+          const updatedMealPlanDetails = await this.planDetailService.generateMealPlanTemplate(nMeals, energy, mealPlanId, false);
+          
         } else {
+            console.log(chalk.blue("Create new Meal Plan"));
+            console.log(chalk.blue("Number of Meals: ", nMeals));
             // Create new Meal Plan
             mealPlan = await MealPlan.create({
               energyTarget: energy,
@@ -299,19 +310,16 @@ export default class MealPlanService {
               carbTarget: nutrientsTarget.carbTarget,
               kidId: kidId,
             });
-            // Get the latest meal plan details
-            // Take the number of meal plan details
 
-            console.log("New Meal Plan: ", mealPlan.id)
-            console.log("Number of Meals: ", nMeals);
+            console.log(chalk.blue("Meal Plan: ", mealPlan.id));
 
             // Create the Meal Plan Details
             const sessionNutrientRange = await this.planDetailService.generateMealPlanTemplate(nMeals, energy, mealPlan.id, true);
-            console.log("Session Nutrient Range: ", sessionNutrientRange)
         }
       }
       return mealPlan;
     } catch (error) {
+      console.log(chalk.red(error));
       throw error;
     }
   }

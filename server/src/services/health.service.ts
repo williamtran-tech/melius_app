@@ -8,6 +8,7 @@ import moment from "moment";
 import KidHealthDTO from "../DTOs/Kid/KidHealthData.DTO";
 import HttpException from "../exceptions/HttpException";
 import MealPlanService from "./meal.plan.service";
+import chalk from "chalk";
 
 export default class HealthService {
   public calculateBMI(kidData: any): number {
@@ -117,14 +118,23 @@ export default class HealthService {
 
   public async updateHealthRecord(kidData: KidHealthDTO): Promise<any> {
     try {
-      const ageInMonth = this.ageCalculator(kidData.DOB, "months");
       const age = this.ageCalculator(kidData.DOB, "years");
       let BMI;
+      let isChanged = false;
       let isNew = false;
       const latestHealthRecord = await Health.findOne({
         where: { kidId: kidData.kidId },
         order: [["createdAt", "DESC"]],
       });
+
+      if (latestHealthRecord) {
+        // Check if the latest health record is the same as the incoming data
+        if (latestHealthRecord.weight == kidData.weight && latestHealthRecord.height == kidData.height) {
+          console.log(chalk.red("Nothing Changed - Not update Health Record"));
+          return [latestHealthRecord, isChanged, latestHealthRecord.tdee];
+        }
+      }
+
       const tdeeParams = {
         weight: kidData.weight,
         height: kidData.height,
@@ -140,6 +150,7 @@ export default class HealthService {
 
       let updatedDate = latestHealthRecord!.createdAt.toJSON().slice(0, 10);
       if (moment().diff(updatedDate, "days") >= 1) {
+        console.log(chalk.blue("Create new Health Record"));
         // Create new health record
         healthRecord = await Health.create({
           weight: kidData.weight,
@@ -151,9 +162,11 @@ export default class HealthService {
         });
 
         isNew = true;
+        isChanged = true;
       } else {
         // Update health record 
         // Update return the number of rows affected
+        console.log(chalk.blue("[HealthService] Update Health Record"));
         let [rowAffected] = await Health.update(
           {
             weight: kidData.weight,
@@ -169,10 +182,19 @@ export default class HealthService {
             },
           }
         );
-        healthRecord = rowAffected;
+        let updatedHealthRecord = await Health.findOne({
+          where: {
+            kidId: kidData.kidId,
+          },
+          order: [["updatedAt", "DESC"]],
+        });
+        healthRecord = updatedHealthRecord!;
+        console.log(chalk.red("Row updated Real:", rowAffected));
+        
+        isChanged = true;
       }
 
-      return [healthRecord, isNew, tdee];
+      return [healthRecord, isChanged, tdee, isNew];
     } catch (err) {
       throw err;
     }
