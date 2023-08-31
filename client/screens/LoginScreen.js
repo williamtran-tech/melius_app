@@ -27,6 +27,7 @@ import HandleApi from "../Services/HandleApi";
 
 import { API_URL, API_KEY } from "@env";
 import { getUserProfile } from "../Services/RetrieveNutritionProfile";
+import { SuggestMealPlanByDate } from "../Services/SuggestMealPlan";
 
 const LoginScreen = ({ navigation }) => {
   const [userEmail, setUserEmail] = useState("");
@@ -65,11 +66,11 @@ const LoginScreen = ({ navigation }) => {
       console.log(authorizationCookie);
       const userProfile = await getUserProfile();
       console.log("id", userProfile.kidProfile[0].id);
-      const mealplan = await HandleApi.serverGeneral.get(
-        `/v1/users/meal-plan?kidId=${userProfile.kidProfile[0].id}`
-      );
-      await AsyncStorage.setItem("mealPlan", JSON.stringify(mealplan.data));
-      console.log("oke nha:", userProfile.kidProfile[0].id);
+      const mealPlan = await SuggestMealPlanByDate();
+      // const mealplan = await HandleApi.serverGeneral.get(
+      //   `/v1/users/meal-plan?kidId=${userProfile.kidProfile[0].id}`
+      // );
+      await AsyncStorage.setItem("mealPlan", JSON.stringify(mealPlan));
       if (authorizationCookie) {
         await AsyncStorage.setItem("Authentication", authorizationCookie);
         setLoading(false);

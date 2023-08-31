@@ -8,6 +8,7 @@ import { useNavigation } from "@react-navigation/native";
 import ProfileScreen from "../screens/ProfileScreen";
 import MenuNavigation from "../navigation/MenuNavigation";
 import CommunityNavigation from "./CommunityNavigation";
+import DiaryNavigation from "./DiaryNavigation";
 const Tab = createBottomTabNavigator();
 
 function BottomNavigation() {
@@ -101,7 +102,7 @@ function BottomNavigation() {
       />
       <Tab.Screen
         name="Diary"
-        component={SettingsScreen}
+        component={DiaryNavigation}
         listeners={{
           focus: () => setSelectedTab("Diary"), // Set the selected tab as "Setting" when it is focused
         }}

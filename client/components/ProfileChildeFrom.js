@@ -19,7 +19,10 @@ import HandleApi from "../Services/HandleApi";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation } from "@react-navigation/native";
 import { getUserProfile } from "../Services/RetrieveNutritionProfile";
-import { suggestMealPlan } from "../Services/SuggestMealPlan";
+import {
+  suggestMealPlan,
+  SuggestMealPlanByDate,
+} from "../Services/SuggestMealPlan";
 const ProfileChildeFrom = () => {
   const navigation = useNavigation();
   const handleSubmit = async (values) => {
@@ -30,20 +33,17 @@ const ProfileChildeFrom = () => {
       );
       await AsyncStorage.setItem("childrenInf", JSON.stringify(response.data));
 
-      const userProfile = await getUserProfile();
-      console.log(userProfile);
-      console.log(response.data.child.id);
-      const mealPlanResponse = await HandleApi.serverGeneral.post(
-        "v1/users/meal-plan",
-        {
-          kidId: userProfile.kidProfile[0].id,
-        }
-      );
-      await suggestMealPlan();
-      const mealplan = await HandleApi.serverGeneral.get(
-        `/v1/users/meal-plan?kidId=${userProfile.kidProfile[0].id}`
-      );
-      await AsyncStorage.setItem("mealPlan", JSON.stringify(mealplan.data));
+      // const userProfile = await getUserProfile();
+      // console.log(userProfile);
+      // console.log(response.data.child.id);
+      // const mealPlanResponse = await HandleApi.serverGeneral.post(
+      //   "v1/users/meal-plan",
+      //   {
+      //     kidId: userProfile.kidProfile[0].id,
+      //   }
+      // );
+      const mealPlan = await SuggestMealPlanByDate();
+      await AsyncStorage.setItem("mealPlan", JSON.stringify(mealPlan));
       console.log("oke nha:", response.data.child.id);
       navigation.replace("BottomNavigation");
     } catch (error) {
