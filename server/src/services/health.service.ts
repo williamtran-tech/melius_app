@@ -121,7 +121,6 @@ export default class HealthService {
       const age = this.ageCalculator(kidData.DOB, "years");
       let BMI;
       let isChanged = false;
-      let isNew = false;
       const latestHealthRecord = await Health.findOne({
         where: { kidId: kidData.kidId },
         order: [["createdAt", "DESC"]],
@@ -130,7 +129,7 @@ export default class HealthService {
       if (latestHealthRecord) {
         // Check if the latest health record is the same as the incoming data
         if (latestHealthRecord.weight == kidData.weight && latestHealthRecord.height == kidData.height) {
-          console.log(chalk.red("Nothing Changed - Not update Health Record"));
+          console.log(chalk.blue("Nothing Changed - Not update Health Record"));
           return [latestHealthRecord, isChanged, latestHealthRecord.tdee];
         }
       }
@@ -161,7 +160,6 @@ export default class HealthService {
           rda: RDA,
         });
 
-        isNew = true;
         isChanged = true;
       } else {
         // Update health record 
@@ -189,12 +187,12 @@ export default class HealthService {
           order: [["updatedAt", "DESC"]],
         });
         healthRecord = updatedHealthRecord!;
-        console.log(chalk.red("Row updated Real:", rowAffected));
+        console.log(chalk.red("Row updated:", rowAffected));
         
         isChanged = true;
       }
 
-      return [healthRecord, isChanged, tdee, isNew];
+      return [healthRecord, isChanged, tdee];
     } catch (err) {
       throw err;
     }
