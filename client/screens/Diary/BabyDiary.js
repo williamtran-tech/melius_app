@@ -3,8 +3,42 @@ import React from "react";
 import HeaderText from "../../components/HeaderText";
 import SubText from "../../components/SubText";
 import IconWithText from "../../components/IconWithText";
+import { Svg, Path } from "react-native-svg";
+import * as shape from "d3-shape";
 
 const BabyDiary = () => {
+  const createHalfDonutPath = (percentage) => {
+    const radius = 50; // Adjust the radius as needed
+    const centerX = 100; // Adjust the X-coordinate as needed
+    const centerY = 100; // Adjust the Y-coordinate as needed
+
+    // Calculate the angle for the given percentage
+    const angle = (Math.PI * 50) / 100;
+
+    // Define the starting and ending points of the arc
+    const startX = centerX + radius * Math.cos(angle + -270);
+    const startY = centerY - radius * Math.sin(angle + -270);
+    const endX = centerX + radius * Math.cos(-angle + -270);
+    const endY = centerY - radius * Math.sin(-angle + -270);
+
+    // Create the path data string
+    const pathData = `M ${startX} ${startY} A ${radius} ${radius} 0 1 0 ${endX} ${endY} L ${centerX} ${centerY} Z`;
+
+    return pathData;
+  };
+
+  const HalfDonutChart = ({ percentage }) => {
+    const path = createHalfDonutPath(percentage);
+
+    return (
+      <View>
+        <Svg width="200" height="200">
+          <Path d={path} fill="blue" />
+          <Path d={path} fill="red" />
+        </Svg>
+      </View>
+    );
+  };
   return (
     <View>
       <View style={styles.InfContainer}>
@@ -12,7 +46,7 @@ const BabyDiary = () => {
           <View style={styles.avatarContainer}>
             <Image
               source={{
-                uri: "https://i2-prod.mirror.co.uk/incoming/article7569057.ece/ALTERNATES/s1200b/successkid.jpg",
+                uri: "https://i2-prod.mirror.co.uk/incoming/article756-27057.ece/ALTERNATES/s1200b/successkid.jpg",
               }}
               style={styles.avatar}
             ></Image>
@@ -34,7 +68,9 @@ const BabyDiary = () => {
           ></IconWithText>
         </View>
       </View>
-      <View></View>
+      <View>
+        <HalfDonutChart percentage={60} />
+      </View>
       <View></View>
     </View>
   );

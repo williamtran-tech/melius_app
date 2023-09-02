@@ -52,7 +52,6 @@ const ProfileChildeFrom = () => {
       // setLoading(false);
     }
   };
-
   return (
     <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
       <View style={styles.container}>
