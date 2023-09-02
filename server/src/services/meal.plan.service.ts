@@ -11,6 +11,7 @@ import PlanDetailService from "./plan.detail.service";
 import { Op, literal } from "sequelize";
 import MealPlanDTO from "../DTOs/MealPlan/MealPlan.DTO";
 import MealPlanData from "../interfaces/MealPlan/MealPlanData.interface";
+import chalk from "chalk";
 
 // Recipes Describe Data of nutrition
 // 'calories','total fat (PDV)','sugar (PDV)','sodium (PDV)','protein (PDV)','saturated fat (PDV)','carbohydrates (PDV)']] = df[['calories','total fat (PDV)','sugar (PDV)','sodium (PDV)','protein (PDV)','saturated fat (PDV)','carbohydrates (PDV)'
@@ -158,7 +159,7 @@ export default class MealPlanService {
 
       let suggestedMeals: any;
       let estimatedNutrition: any;
-      let next = false;
+      let res = false;
       let count = 0;
       let limit = 10;
       do {
@@ -167,11 +168,11 @@ export default class MealPlanService {
         // 1. The meal should match with the kid's allergies
         // A function to check the meal is match the constraints or not - Allergies, Nutrients Target, Available Ingredients
         const [flag, message] = this.checkMealConstraints(suggestedMeals, kidAllergies, nutrientsTarget, availableIngredients);
-        next = flag;
+        res = flag;
         count++;
-        console.log("Next: ", next);
-        console.log("Count: ", count);
-      } while (!next || count >= limit) 
+        console.log(chalk.blue("Next: ", res));
+        console.log(chalk.blue("Count: ", count));
+      } while (!res || count >= limit) 
 
       return [suggestedMeals, nutrientsTarget, estimatedNutrition];
     
@@ -249,7 +250,7 @@ export default class MealPlanService {
     }
   }
 
-  public async updateMealPlan(kidId: number, isNew: boolean, energy: number, mealPlanData: MealPlanData) {
+  public async updateMealPlan(energy: number, mealPlanData: MealPlanData) {
     try {
       // Get updated [latest] health record 
 
@@ -265,53 +266,43 @@ export default class MealPlanService {
 
       const mealPlanIds: number[] = Object.keys(mealPlanData).map(Number);
       console.log("Meal Plan Ids:", mealPlanIds);
+      let planDetailIds: number[] = [];
+      for (const mealPlanId of mealPlanIds) {
+        const planDetails = mealPlanData[mealPlanId];
+        planDetailIds.push(...planDetails);
+      }
+      console.log("Plan Detail Ids:", planDetailIds);
       let nMeals;
 
       // PlanDetails.length: reference to the number of meals per day of the old meal plan || 3 for default (new meal plan)
       // Access IDs inside each key
       for (const mealPlanId of mealPlanIds) {
+        console.log(chalk.blue("Meal Plan Id:", mealPlanId));
         // isNew is true if the health has a new record
         nMeals = mealPlanData[mealPlanId].length ? mealPlanData[mealPlanId].length : 3;
-        if (!isNew) {
-          // Update the Meal Plan
-          // Update will contain 2 values, the first value is the number of rows updated, the second value is the updated mealPlan object
-          console.log("[MealPlan] Update Meal Plan");
-          mealPlan = await MealPlan.update({
-            energyTarget: energy,
-            proteinTarget: nutrientsTarget.proteinTarget,
-            fatTarget: nutrientsTarget.fatTarget,
-            carbTarget: nutrientsTarget.carbTarget,
-          }, {
-            where: { 
-              id: mealPlanId,
-            },
-          });
-          if (nMeals !== null) {
-            // Update the meal plan details
-            const updatedMealPlanDetails = await this.planDetailService.generateMealPlanTemplate(nMeals, energy, mealPlanId, false);
-          }
-        } else {
-            // Create new Meal Plan
-            mealPlan = await MealPlan.create({
-              energyTarget: energy,
-              proteinTarget: nutrientsTarget.proteinTarget,
-              fatTarget: nutrientsTarget.fatTarget,
-              carbTarget: nutrientsTarget.carbTarget,
-              kidId: kidId,
-            });
-            // Get the latest meal plan details
-            // Take the number of meal plan details
 
-            console.log("New Meal Plan: ", mealPlan.id)
-            console.log("Number of Meals: ", nMeals);
-
-            // Create the Meal Plan Details
-            const sessionNutrientRange = await this.planDetailService.generateMealPlanTemplate(nMeals, energy, mealPlan.id, true);
-            console.log("Session Nutrient Range: ", sessionNutrientRange)
-        }
+        // Update the Meal Plan
+        // Update will contain 2 values, the first value is the number of rows updated, the second value is the updated mealPlan object
+        console.log(chalk.blue("[MealPlan] Update Meal Plan", mealPlanId));
+        mealPlan = await MealPlan.update({
+          energyTarget: energy,
+          proteinTarget: nutrientsTarget.proteinTarget,
+          fatTarget: nutrientsTarget.fatTarget,
+          carbTarget: nutrientsTarget.carbTarget,
+        }, 
+        {
+          where: { 
+            id: mealPlanId,
+          },
+        });
+        
+        // Update the meal plan details
+        await this.planDetailService.generateMealPlanTemplate(nMeals, energy, mealPlanId, false);
+        
       }
       return mealPlan;
     } catch (error) {
+      console.log(chalk.red(error));
       throw error;
     }
   }
@@ -361,6 +352,7 @@ export default class MealPlanService {
   }
 
   private async generateSuggestedMeal(nMeal: number, availableIngredients?: any) {
+    console.log(chalk.bgYellow("Generate suggested meals"));
     // Get random meals based on quantity of user input to the form 
     var TOTAL_CALORIES: number = 0,
     TOTAL_FAT: number = 0,
@@ -378,7 +370,7 @@ export default class MealPlanService {
       // Get the first word of the ingredient name
       return availableIngredient.ingredient.name.split(",")[0].toLowerCase();
     });
-    console.log("Available Array: ", availableArray);
+    console.log(chalk.yellow("Available Array: ", availableArray));
     
     let suggestedMeals: any = [];
     let suggestedMeal = await Recipe.findAll({
@@ -414,10 +406,6 @@ export default class MealPlanService {
       // } else {
       //   throw new HttpException(400, "No meals matched with the available ingredients");
       // }
-    }
-
-    for (let i = 0; i < suggestedMeals.length; i++) {
-      console.log(`Meal ${i}: `, suggestedMeals[i].name);
     }
 
     const responseMeals = suggestedMeals.map((meal: any) => {
@@ -496,9 +484,9 @@ export default class MealPlanService {
           return allergy.ingredient.name.split(",")[0].toLowerCase();
       });
 
+      console.log(chalk.blue("Allergies Array: ", allergiesArray));
       const responseMeals = meals.map((meal: any, index: number) => {
-        console.log("Allergies Array: ", allergiesArray);
-        console.log("Meal Ingredients: ", meal.ingredients);
+        // console.log("Meal Ingredients: ", meal.ingredients);
         
         // Check if the meal contains any ingredients that the kid is allergic to
         const containsAllergies = meal.ingredients.some((ingredient: string) => 

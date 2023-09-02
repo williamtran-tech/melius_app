@@ -6,6 +6,7 @@ import { Op } from "sequelize";
 import dateTimeUtil from "../utils/dateTime";
 import { MealPlan } from "../orm/models/meal.plan.model";
 import MealPlanData from "../interfaces/MealPlan/MealPlanData.interface";
+import chalk from "chalk";
 
 export default class PlanDetailService {
     public recipeService = new RecipeService();
@@ -41,6 +42,7 @@ export default class PlanDetailService {
     }
 
     // Get Plan Details in the future from current date
+    // Return [result, mealPlanData] -> MealPlanData is a Record of Meal Plan Id and Plan Detail Ids
     public async getPlanDetailsInFuture(kidId: number): Promise<[boolean, object]> {
         try {
             const thisDate = new Date();
@@ -468,7 +470,7 @@ export default class PlanDetailService {
     // - 15-20% of daily calories for dinner  
     public async generateMealPlanTemplate(numberOfMeals: number, calories: number, mealPlanId: number, isNew: boolean, date?: Date) {
         try {
-            console.log("Generate Meal Plan Template");
+            console.log(chalk.bgYellow("Generate Meal Plan Template"));
             let sessionNutrientRange = {};
             let mealPlanDetails = [];
             switch(numberOfMeals) {
@@ -693,7 +695,6 @@ export default class PlanDetailService {
                     }
                 }
             if (isNew) {
-                console.log("Meal Plan Details: ", mealPlanDetails);
                 await this.createPlanDetails(mealPlanDetails);
             } else {
                 await this.updatePlanDetails(mealPlanId, mealPlanDetails);
@@ -707,6 +708,7 @@ export default class PlanDetailService {
     // Insert Recipes into Plan Details
     public async insertRecipesIntoPlanDetails(mealPlanId: number, recipes: number[], date?: Date) {
         try {
+            console.log(chalk.bgYellow("Insert Recipes into Plan Details"));
             // Setup 
             const begin = date ? date.setUTCHours(0, 0, 0) : new Date().setUTCHours(0, 0, 0);
             const end = date ? date.setUTCHours(23, 59, 59) : new Date().setUTCHours(23, 59, 59);
@@ -732,7 +734,7 @@ export default class PlanDetailService {
             }
             // Getting meal type and session
             meals.map((meal) => {
-                console.log("Meal: ", meal.recipeId);
+                console.log(chalk.yellow("Meal: ", meal.recipeId));
                 if (meal.type === "Main course") {
                     if (meal.session === "Morning") {
                         mealObj.morning.push(meal);

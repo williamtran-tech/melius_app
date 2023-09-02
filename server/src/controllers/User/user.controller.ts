@@ -1,21 +1,23 @@
 import express, { NextFunction } from "express";
 import { BaseController } from "../abstractions/base.controller";
 import HttpException from "../../exceptions/HttpException";
-import jwt from "jsonwebtoken";
-import DecodedUserToken from "../../interfaces/Auth/DecodedUserToken.interface";
+
 import UserService from "../../services/user.service";
 import HealthService from "../../services/health.service";
-import KidHealthDTO from "../../DTOs/Kid/KidHealthData.DTO";
 import IngredientService from "../../services/ingredient.service";
 import MealPlanService from "../../services/meal.plan.service";
 import PlanDetailService from "../../services/plan.detail.service";
-import MealPlanDTO from "../../DTOs/MealPlan/MealPlan.DTO";
 import AllergyService from "../../services/allergy.service";
 import AvailableIngredientService from "../../services/available.ingredient.service";
 import RecipeService from "../../services/recipe.service";
 
+import KidHealthDTO from "../../DTOs/Kid/KidHealthData.DTO";
+import MealPlanDTO from "../../DTOs/MealPlan/MealPlan.DTO";
+
 import dateTimeUtil from "../../utils/dateTime";
+
 import MealPlanData from "../../interfaces/MealPlan/MealPlanData.interface";
+import chalk from "chalk";
 export default class UserController extends BaseController {
   constructor() {
     super();
@@ -110,6 +112,7 @@ export default class UserController extends BaseController {
     next: NextFunction
   ) => {
     try {
+      console.log(chalk.bgBlue("Update Child Health"));
       const kidId = Number(req.body.kidId);
       const kidInfo = await this.userService.getKidProfile(kidId);
       const kidData: KidHealthDTO = {
@@ -122,20 +125,20 @@ export default class UserController extends BaseController {
       };
 
       // Update Health Record
-      const [kidHealth, isNew, energy] = await this.healthService.updateHealthRecord(kidData);
-
-      let updatedMealPlan;
-      const [mealPlanDetailsExists, mealPlanData] = await this.mealPlanService.checkMealPlanExist(kidId);
-      // Check if the kid has any meal plan in the future
-      if (mealPlanDetailsExists ) {
-        console.log("Update the meal plan of the kid");
-        // Update the Meal Plan of the kid
-        updatedMealPlan = await this.mealPlanService.updateMealPlan(kidData.kidId, isNew, energy, mealPlanData as MealPlanData);
+      const [kidHealth, isChanged, energy] = await this.healthService.updateHealthRecord(kidData);
+      
+      if (isChanged) {
+        const [mealPlanDetailsExists, mealPlanData] = await this.mealPlanService.checkMealPlanExist(kidId);
+        // Check if the kid has any meal plan in the future
+        if (mealPlanDetailsExists ) {
+          console.log("Update the meal plan of the kid");
+          // Update the Meal Plan of the kid
+          await this.mealPlanService.updateMealPlan(energy, mealPlanData as MealPlanData);
+        }
       }
       res.status(200).json({
         msg: "Update kid health successfully",
         kidHealth: kidHealth,
-        updatedMealPlan: updatedMealPlan,
       });
     } catch (error) {
       next(error);
@@ -316,6 +319,7 @@ export default class UserController extends BaseController {
   // MEAL PLAN FUNCTIONS
   public createMealPlan = async (req: express.Request, res: express.Response, next: express.NextFunction) => {
     try {
+      console.log(chalk.bgBlue("Create Meal Plan"));
       const kidId = Number(req.body.kidId);
       const numberOfMeals = Number(req.body.nMeal);
       this.dateTimeUtil.setUTCDateTime(req.body.date);
@@ -345,6 +349,7 @@ export default class UserController extends BaseController {
     next: express.NextFunction
   ) => {
     try {
+      console.log(chalk.bgBlue("Create & Insert Suggested Meals"));
       const kidId = Number(req.body.kidId);
       this.dateTimeUtil.setUTCDateTime(req.body.date);
       const date = this.dateTimeUtil.getUTCDateTime();
@@ -367,7 +372,8 @@ export default class UserController extends BaseController {
       }
 
       const mealPlan = await this.mealPlanService.getMealPlanInfo(kidId, date);
-      console.log("Meal Plan Id: ", mealPlan!.id);
+      
+      console.log(chalk.blue("Meal Plan Id: ", mealPlan!.id));
       await this.planDetailService.insertRecipesIntoPlanDetails(Number(mealPlan!.id), recipeIds, date);
       
       const [mealsPlan, planDetails] = await this.mealPlanService.getMealPlan(kidId, date);
