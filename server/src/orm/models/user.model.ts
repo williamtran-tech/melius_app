@@ -18,6 +18,7 @@ import { Ingredient } from "./ingredient.model";
 import { AvailableIngredient } from "./available.ingredient.model";
 import { Role } from "./role.model";
 import { UserRole } from "./user.role.model";
+import { Post } from "./post.model";
 
 @Table({
   tableName: "users",
@@ -101,4 +102,10 @@ export class User extends Model {
     foreignKey: "parentId",
   })
   parent!: User[];
+
+  @HasMany(() => Post, {
+    onDelete: "CASCADE",
+  })
+  posts!: Post[];
+
 }

@@ -3,6 +3,7 @@ import sequelize from "sequelize";
 import { AvailableIngredient } from "../orm/models/available.ingredient.model";
 import CombinationIngredientUtil from "../utils/combination.ingredient.util";
 import natural from "natural";
+import chalk from "chalk";
 
 export default class RecipeService {
   constructor() {}
@@ -290,14 +291,16 @@ export default class RecipeService {
       try {
           // Using Set for unique ingredient names
           const availableIngredientNames = new Set(availableIngredients.map(element => element.ingredient.name.split(",")[0]));
-          console.log("Available Ingredient Names:", availableIngredientNames);
           
           const ingredientsToSearch = [...availableIngredientNames];
-          console.log("Ingredient to Search:", ingredientsToSearch);
+          console.log(chalk.yellow("Ingredient to Search:", ingredientsToSearch));
           
           // Combination of ingredients
           const combinationIngredients = this.combinationIngredient.combinationIngredient(ingredientsToSearch);
-
+          console.log(chalk.bgGreenBright("Combination Ingredients"));
+          for (const ingre of combinationIngredients) {
+              console.log(chalk.greenBright(ingre));
+          }
           // Assuming Recipe is your Sequelize model for the recipes table
           const categorizedResults: any = {};
           

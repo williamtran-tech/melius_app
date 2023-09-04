@@ -734,7 +734,6 @@ export default class PlanDetailService {
             }
             // Getting meal type and session
             meals.map((meal) => {
-                console.log(chalk.yellow("Meal: ", meal.recipeId));
                 if (meal.type === "Main course") {
                     if (meal.session === "Morning") {
                         mealObj.morning.push(meal);
@@ -761,6 +760,7 @@ export default class PlanDetailService {
 
             // Assert Plan Details
             nonEmptyMeals.map(async (meal, index) => {
+                console.log(chalk.yellow("Meal: ", recipes[index]));
                 await PlanDetail.update({
                     recipeId: recipes[index],
                 },

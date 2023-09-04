@@ -12,6 +12,11 @@ import { Role } from "./role.model";
 import { UserRole } from "./user.role.model";
 import { MealPlan } from "./meal.plan.model";
 import { PlanDetail } from "./plan.detail.model";
+import { Post } from "./post.model";
+import { View } from "./view.model";
+import { React } from "./react.model";
+import { Comment } from "./comment.model";
+import { Topic } from "./topic.model";
 
 const env = process.env.NODE_ENV || "development";
 const config = require(path.resolve("dist/src/configs/database.config"))[env];
@@ -31,6 +36,11 @@ const sequelize = new Sequelize(config.database, config.username, config.passwor
         Ingredient,
         AvailableIngredient,
         Allergy,
+        Post,
+        View,
+        React,
+        Comment,
+        Topic
       ],
       pool: {
         max: 20,
