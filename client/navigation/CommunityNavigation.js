@@ -11,6 +11,7 @@ import HospitalScreen from "../screens/Community/HospitalScreen";
 import DoctorScreen from "../screens/Community/DoctorScreen";
 import ComChatWithExpert from "../screens/Community/ComChatWithExpert";
 import ListChatBox from "../screens/Community/ListChatBox";
+import PostDetail from "../screens/Community/PostDetail";
 
 const CommunityNavigation = () => {
   const navigation = useNavigation();
@@ -60,6 +61,13 @@ const CommunityNavigation = () => {
       <Stack.Screen
         name="ListChatBox"
         component={ListChatBox}
+        options={{
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen
+        name="PostDetail"
+        component={PostDetail}
         options={{
           headerShown: false,
         }}
