@@ -1,3 +1,5 @@
+import chalk from "chalk";
+
 export default class CombinationIngredientUtil {
     public combinationIngredient (ingredients: string[]): string[] {
         const combinationIngredients: string[] = [];

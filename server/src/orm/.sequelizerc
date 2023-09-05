@@ -6,24 +6,3 @@ module.exports = {
   "seeders-path": path.resolve("seeders"),
   "migrations-path": path.resolve("migrations"),
 };
-
-// const path = require("path");
-
-// // config: path.resolve("../../dist/src/database/config/config.ts")
-// console.log(
-//   "config:",
-//   path.resolve("../../dist/src/database/config/config.js")
-// );
-// module.exports = {
-//   config: path.resolve("../..", "dist", "database", "config", "config.js"),
-//   "models-path": path.resolve("", "models"),
-//   "migrations-source-path": path.resolve("", "migrations"),
-//   "migrations-compiled-path": path.resolve(
-//     "../..",
-//     "dist",
-//     "database",
-//     "migrations"
-//   ),
-//   //   "seeders-source-path": path.resolve("", "seeders"),
-//   //   "seeders-compiled-path": path.resolve("../..", "dist", "database", "seeders"),
-// };
