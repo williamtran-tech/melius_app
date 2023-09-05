@@ -8,9 +8,13 @@ import {
     ForeignKey,
     BelongsTo,
     Unique,
+    HasMany,
+    BelongsToMany,
   } from "sequelize-typescript";
 import { User } from "./user.model";
 import { Topic } from "./topic.model";
+import { TagPostRels } from "./tag.post.rel.model";
+import { Tag } from "./tag.model";
 
   @Table({
     tableName: "posts",
@@ -69,5 +73,8 @@ import { Topic } from "./topic.model";
         foreignKey: 'topicId',
     })
     topic!: Topic;
+
+    @BelongsToMany(() => Tag, () => TagPostRels)
+    tags!: Tag[];
   }
   

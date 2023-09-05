@@ -25,10 +25,10 @@ import {
     })
     id!: number;
     @Column({
-        type: DataType.INTEGER,
+        type: DataType.BOOLEAN,
         allowNull: true,
       })
-    views!: number;
+    view!: boolean;
 
     @ForeignKey(() => Post)
     @Column({

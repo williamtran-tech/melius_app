@@ -17,6 +17,9 @@ import { View } from "./view.model";
 import { React } from "./react.model";
 import { Comment } from "./comment.model";
 import { Topic } from "./topic.model";
+import { Tag } from "./tag.model";
+import { TagPostRels } from "./tag.post.rel.model";
+import { CommentReact } from "./comment.react.model";
 
 const env = process.env.NODE_ENV || "development";
 const config = require(path.resolve("dist/src/configs/database.config"))[env];
@@ -36,11 +39,14 @@ const sequelize = new Sequelize(config.database, config.username, config.passwor
         Ingredient,
         AvailableIngredient,
         Allergy,
-        Post,
         View,
         React,
         Comment,
-        Topic
+        Topic,
+        Tag,
+        CommentReact,
+        Post,
+        TagPostRels,
       ],
       pool: {
         max: 20,
