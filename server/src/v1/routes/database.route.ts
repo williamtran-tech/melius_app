@@ -13,6 +13,9 @@ import { React } from "../../orm/models/react.model";
 import { TagPostRels } from "../../orm/models/tag.post.rel.model";
 import { Tag } from "../../orm/models/tag.model";
 import { Topic } from "../../orm/models/topic.model";
+
+import aws from "aws-sdk";
+import dotenv from "dotenv";
 export const databaseRouter = Router();
 
 databaseRouter.post("/create-models", async (req, res) => {
@@ -95,3 +98,35 @@ databaseRouter.get("/all-posts", async (req, res) => {
         });
   }
 });
+
+databaseRouter.get("/all-images",async (req, res) => {
+  try {
+    dotenv.config();
+    
+    const s3 = new aws.S3({
+      accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+      region: process.env.AWS_REGION,
+      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+    });
+
+    // Upload new file to S3
+    const uploadRes = await s3.upload({
+      Bucket: process.env.AWS_BUCKET_NAME!,
+      Body: "Yo wassup",
+      // File path in S3 bucket stored as Key
+      Key: "handbooks/test.txt",
+    }).promise();
+
+    console.log(uploadRes);
+    // Download file from S3
+
+    res.status(200).json({
+      msg: "Upload object successfully",
+    });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({
+      msg: "Internal server error",
+    });
+  }
+})
