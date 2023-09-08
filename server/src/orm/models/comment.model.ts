@@ -8,9 +8,11 @@ import {
     ForeignKey,
     BelongsTo,
     Unique,
+    HasMany,
   } from "sequelize-typescript";
   import { User } from "./user.model";
   import { Post } from "./post.model";
+  import { CommentReact } from "./comment.react.model";
   
   @Table({
     tableName: "comments",
@@ -38,11 +40,14 @@ import {
         })
     isAnonymous!: boolean;
 
+    @ForeignKey(() => CommentReact)
     @Column({
         type: DataType.INTEGER,
         allowNull: true,
     })
-    nLikes!: number;
+    commentReactionId!: number;
+    @HasMany(() => CommentReact)
+    commentReaction!: CommentReact[];
 
     @ForeignKey(() => Post)
     @Column({

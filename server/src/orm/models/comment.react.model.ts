@@ -8,15 +8,17 @@ import {
     ForeignKey,
     BelongsTo,
     Unique,
+    HasMany,
   } from "sequelize-typescript";
   import { User } from "./user.model";
   import { Post } from "./post.model";
+  import { Comment } from "./comment.model";
   
   @Table({
-    tableName: "reacts",
+    tableName: "comment_reacts",
     timestamps: true,
   })
-  export class React extends Model {
+  export class CommentReact extends Model {
     @PrimaryKey
     @AutoIncrement
     @Column({
@@ -25,36 +27,28 @@ import {
       primaryKey: true,
     })
     id!: number;
-
     @Column({
         type: DataType.BOOLEAN,
         allowNull: true,
       })
     isLike!: boolean;
 
-    @Column({
-        type: DataType.BOOLEAN,
-        allowNull: true,
-      })
-    isDislike!: boolean;
 
-    @ForeignKey(() => Post)
+    @ForeignKey(() => Comment)
+    @Column({
+        type: DataType.INTEGER,
+        allowNull: true,
+    })
+    commentId!: number;
+    @BelongsTo(() => Comment)
+    comment!: Comment;
+
+    @ForeignKey(() => User)
     @Column({
         type: DataType.INTEGER,
         allowNull: false,
     })
-    postId!: number;
-
-    @BelongsTo(() => Post)
-    post!: Post;
-  
-    @ForeignKey(() => User)
-    @Column({
-      type: DataType.INTEGER,
-      allowNull: false,
-    })
     userId!: number;
-  
     @BelongsTo(() => User)
     user!: User;
   }
