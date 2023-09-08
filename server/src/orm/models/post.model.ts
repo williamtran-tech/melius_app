@@ -15,6 +15,10 @@ import { User } from "./user.model";
 import { Topic } from "./topic.model";
 import { TagPostRels } from "./tag.post.rel.model";
 import { Tag } from "./tag.model";
+import { PostImage } from "./post.images.model";
+import { Comment } from "./comment.model";
+import { React } from "./react.model";
+import { View } from "./view.model";
 
   @Table({
     tableName: "posts",
@@ -36,12 +40,6 @@ import { Tag } from "./tag.model";
       allowNull: false,
     })
     content!: string;
-  
-    @Column({
-      type: DataType.STRING,
-      allowNull: true,
-    })
-    filePath!: string;
   
     @Column({
       type: DataType.BOOLEAN,
@@ -76,5 +74,26 @@ import { Tag } from "./tag.model";
 
     @BelongsToMany(() => Tag, () => TagPostRels)
     tags!: Tag[];
+
+    @HasMany(() => PostImage, {
+      onDelete: "CASCADE",
+    })
+    images!: PostImage[];
+
+    @HasMany(() => Comment, {
+      foreignKey: 'postId',
+      onDelete: "CASCADE",
+    })
+    comments!: Comment[];
+
+    @HasMany(() => React, {
+      onDelete: "CASCADE",
+    })
+    reacts!: React[];
+
+    @HasMany(() => View, {
+      onDelete: "CASCADE",
+    })
+    views!: View[];
   }
   

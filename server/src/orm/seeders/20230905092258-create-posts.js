@@ -29,9 +29,35 @@ module.exports = {
       ],
       {}
     );
+
+    // Insert Image for Post
+    await queryInterface.bulkInsert(
+      "post_images",
+      [
+        {
+          postId: 1,
+          imagePath: "test1.jpg",
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+        {
+          postId: 2,
+          imagePath: "test2.jpg",
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+        {
+          postId: 3,
+          imagePath: "test3.jpg",
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        }
+      ]
+    );
   },
 
   down: async (queryInterface, Sequelize) => {
-    await queryInterface.bulkInsert("posts", null, {});
+    await queryInterface.bulkDelete("posts", null, {});
+    await queryInterface.bulkDelete("post_images", null, {});
   },
 };

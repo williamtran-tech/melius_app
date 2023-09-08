@@ -20,6 +20,7 @@ import { Topic } from "./topic.model";
 import { Tag } from "./tag.model";
 import { TagPostRels } from "./tag.post.rel.model";
 import { CommentReact } from "./comment.react.model";
+import { PostImage } from "./post.images.model";
 
 const env = process.env.NODE_ENV || "development";
 const config = require(path.resolve("dist/src/configs/database.config"))[env];
@@ -47,6 +48,7 @@ const sequelize = new Sequelize(config.database, config.username, config.passwor
         CommentReact,
         Post,
         TagPostRels,
+        PostImage
       ],
       pool: {
         max: 20,
