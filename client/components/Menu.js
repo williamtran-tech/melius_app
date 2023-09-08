@@ -21,6 +21,8 @@ const Menu = ({
   updateFlag,
   setUpdateFlag,
   DateMeal,
+  refreshMealPlan,
+  setLoading,
 }) => {
   const { planDetails } = mealPlan;
   const [listIngre, setListIngre] = useState(IngredientIcon);
@@ -71,6 +73,7 @@ const Menu = ({
   const capitalizeFirstLetter = (str) => {
     return str.charAt(0).toUpperCase() + str.slice(1);
   };
+
   useEffect(() => {}, [updateFlag]);
   return (
     <View style={{ flex: 1 }}>
@@ -79,19 +82,30 @@ const Menu = ({
           <HeaderText style={{ color: "#518B1A", fontSize: 18 }}>
             BEE's menu !
           </HeaderText>
-          <TouchableOpacity
-            style={styles.updatebtn}
-            onPress={() =>
-              navigation.navigate("MenuEditScreen", {
-                planDetails: planDetails,
-                updateFlag: updateFlag,
-                setUpdateFlag: setUpdateFlag,
-                DateMeal: DateMeal,
-              })
-            }
-          >
-            <SubText style={styles.updateText}>Edit</SubText>
-          </TouchableOpacity>
+          <View style={styles.action}>
+            <TouchableOpacity
+              style={styles.refreshbtn}
+              onPress={() => {
+                refreshMealPlan();
+                setLoading(true);
+              }}
+            >
+              <SubText style={styles.refreshText}>↻</SubText>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.updatebtn}
+              onPress={() =>
+                navigation.navigate("MenuEditScreen", {
+                  planDetails: planDetails,
+                  updateFlag: updateFlag,
+                  setUpdateFlag: setUpdateFlag,
+                  DateMeal: DateMeal,
+                })
+              }
+            >
+              <SubText style={styles.updateText}>Edit</SubText>
+            </TouchableOpacity>
+          </View>
         </View>
         <ScrollView>
           <View style={styles.section}>
@@ -179,6 +193,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 25,
   },
   updateText: { color: "#518B1A", fontSize: 14 },
+  refreshText: {
+    color: "#518B1A",
+    fontSize: 30,
+    // transform: [{ rotate: "90deg" }],
+  },
   updatebtn: {
     width: 50,
     height: 30,
@@ -194,6 +213,14 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     shadowOpacity: 1,
     elevation: 2,
+  },
+  refreshbtn: {
+    // width: 50,
+    // height: 30,
+    // backgroundColor: "rgba(140, 200, 64, 0.2)",
+    justifyContent: "center",
+    alignItems: "center",
+    justifyContent: "center",
   },
   section: {
     flexDirection: "row",
@@ -265,5 +292,10 @@ const styles = StyleSheet.create({
   },
   name: {
     fontSize: 8,
+  },
+  action: {
+    flexDirection: "row",
+    gap: 20,
+    alignItems: "center",
   },
 });

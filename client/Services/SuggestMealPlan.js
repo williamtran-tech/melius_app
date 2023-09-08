@@ -106,6 +106,17 @@ export const SuggestMealPlanByDate = async (date) => {
     console.error("Error fetching meal plan:", error);
   }
 };
+export const RefreshMealPlanByDate = async (date) => {
+  const dateTime = date ? date : moment().format("YYYY-MM-DD");
+  console.log(dateTime);
+  try {
+    const mealPlanData = await suggestMealPlan(dateTime);
+    const MealPlan = await getMealPlan(dateTime);
+    return MealPlan;
+  } catch (error) {
+    console.error("Error fetching meal plan:", error);
+  }
+};
 export const patchUpdateMealPlan = async (id, mealTime, recipeId) => {
   const value = await AsyncStorage.getItem("userProfile");
   // console.log(JSON.parse(value)?.mealPlan);

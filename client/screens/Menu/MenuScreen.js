@@ -8,6 +8,7 @@ import moment from "moment";
 import ProjectNutrition from "../../components/ProjectNutrition";
 import Menu from "../../components/Menu";
 import {
+  RefreshMealPlanByDate,
   suggestMealPlan,
   SuggestMealPlanByDate,
   updateMealPlan,
@@ -28,6 +29,16 @@ const MenuScreen = ({ route }) => {
   const fetchMealPlan = async () => {
     try {
       const mealPlanData = await SuggestMealPlanByDate(DateMeal);
+      setMealPlan(mealPlanData);
+      setLoading(false);
+      // console.log(mealPlanData);
+    } catch (error) {
+      console.error("Error fetching meal plan:", error);
+    }
+  };
+  const refreshMealPlan = async () => {
+    try {
+      const mealPlanData = await RefreshMealPlanByDate(DateMeal);
       setMealPlan(mealPlanData);
       setLoading(false);
       // console.log(mealPlanData);
@@ -148,6 +159,8 @@ const MenuScreen = ({ route }) => {
             mealPlan={mealPlan}
             updateFlag={updateFlag}
             setUpdateFlag={setUpdateFlag}
+            refreshMealPlan={refreshMealPlan}
+            setLoading={setLoading}
           ></Menu>
         )}
       </View>
