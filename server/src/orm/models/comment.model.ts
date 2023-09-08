@@ -46,8 +46,6 @@ import {
         allowNull: true,
     })
     commentReactionId!: number;
-    @HasMany(() => CommentReact)
-    commentReaction!: CommentReact[];
 
     @ForeignKey(() => Post)
     @Column({
@@ -55,7 +53,9 @@ import {
         allowNull: false,
     })
     postId!: number;
-    @BelongsTo(() => Post)
+    @BelongsTo(() => Post, {
+      foreignKey: 'postId'
+    })
     post!: Post;
 
     @ForeignKey(() => Comment)
@@ -65,9 +65,16 @@ import {
     })
     parentId!: number;
     @BelongsTo(() => Comment, {
-        foreignKey: 'parentId',
+      foreignKey: 'parentId',
+      as: 'parentComment'
     })
     parent!: Comment[];
+    @HasMany(() => Comment, {
+      foreignKey: 'parentId',
+      onDelete: "CASCADE",
+      as: 'replies'
+    })
+    comments!: Comment[];
   
     @ForeignKey(() => User)
     @Column({
@@ -78,5 +85,10 @@ import {
   
     @BelongsTo(() => User)
     user!: User;
+    
+    @HasMany(() => CommentReact, {
+      onDelete: "CASCADE",
+    })
+    commentReacts!: CommentReact[];
   }
   

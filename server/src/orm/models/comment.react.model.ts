@@ -33,7 +33,6 @@ import {
       })
     isLike!: boolean;
 
-
     @ForeignKey(() => Comment)
     @Column({
         type: DataType.INTEGER,

@@ -237,7 +237,13 @@ class AuthenticationService {
     }
   }
 
-  public async hashPassword(password: string) {
+  /** 
+  * Hash Password function
+  * @description: This function is used to hash password
+  *  @param: {password: string} password
+  *  @return: hashed password
+  */
+  public async hashPassword(password: string): Promise<string> {
     try {
       const hashedPassword = await bcrypt.hash(password, 10);
       return hashedPassword;
