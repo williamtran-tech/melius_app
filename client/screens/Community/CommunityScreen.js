@@ -1,13 +1,25 @@
 import { StyleSheet, Text, TouchableOpacity, View, Image } from "react-native";
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import HeaderText from "../../components/HeaderText";
 import SubText from "../../components/SubText";
 import { ScrollView } from "react-native-gesture-handler";
 import Comment from "../../components/Comment";
 import Post from "../../components/Post";
+import BottomSheetModal from "@gorhom/bottom-sheet";
+import NewPostForm from "../../components/NewPostForm";
 
 const CommunityScreen = () => {
   const [activeTag, setActiveTag] = useState("all");
+  const bottomSheetRef = useRef(null);
+
+  const handleNewPostPress = () => {
+    console.log(bottomSheetRef.current); // Add this line
+
+    if (bottomSheetRef.current) {
+      bottomSheetRef.current.expand();
+    }
+  };
+  const handleClosePress = () => bottomSheetRef.current.close();
   return (
     <View>
       <View style={styles.categoryContainer}>
@@ -33,7 +45,12 @@ const CommunityScreen = () => {
         </TouchableOpacity>
       </View>
       <View style={styles.actionContainer}>
-        <TouchableOpacity style={styles.addBtn}>
+        <TouchableOpacity
+          style={styles.addBtn}
+          onPress={() => {
+            handleNewPostPress();
+          }}
+        >
           <Text
             style={{
               fontSize: 20,
@@ -67,6 +84,14 @@ const CommunityScreen = () => {
           <Post></Post>
         </View>
       </ScrollView>
+      <BottomSheetModal
+        ref={bottomSheetRef}
+        snapPoints={["85%"]} // Define your snap points here
+        index={-1} // The initial snap point (0 means the first snap point)
+        enablePanDownToClose
+      >
+        <NewPostForm></NewPostForm>
+      </BottomSheetModal>
     </View>
   );
 };

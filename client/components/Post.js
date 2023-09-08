@@ -121,44 +121,6 @@ const Post = ({ focus, handleReplyPress, scrollToComment, comment }) => {
 export default Post;
 
 const styles = StyleSheet.create({
-  //   categoryContainer: {
-  //     flexDirection: "row",
-  //     flexWrap: "wrap",
-  //     gap: 20,
-  //     paddingHorizontal: 25,
-  //     marginTop: 20,
-  //   },
-  //   categoryActive: {
-  //     paddingHorizontal: 15,
-  //     paddingVertical: 5,
-  //     backgroundColor: "rgb(255, 150, 0)",
-  //     borderRadius: 20,
-  //     shadowOffset: {
-  //       width: 0,
-  //       height: -3,
-  //     },
-  //     shadowColor: "#000",
-  //     shadowRadius: 1,
-  //     shadowOpacity: 0.2,
-  //   },
-  //   category: {
-  //     paddingHorizontal: 15,
-  //     paddingVertical: 5,
-  //     backgroundColor: "rgba(26, 26, 26, 0.20)",
-  //     borderRadius: 20,
-  //   },
-  //   categoryName: {
-  //     color: "#FDFDFD",
-  //     fontSize: 12,
-  //   },
-  //   addBtn: {
-  //     height: 30,
-  //     width: 30,
-  //     backgroundColor: "#8CC84033",
-  //     borderRadius: 15,
-  //     alignItems: "center",
-  //     justifyContent: "center",
-  //   },
   actionContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
