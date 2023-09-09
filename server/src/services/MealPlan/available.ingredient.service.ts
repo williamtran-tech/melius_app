@@ -1,7 +1,7 @@
-import { Ingredient } from "../orm/models/ingredient.model";
-import { AvailableIngredient } from "../orm/models/available.ingredient.model";
-import { IngreCategory } from "../orm/models/ingre.category.model";
-import HttpException from "../exceptions/HttpException";
+import { Ingredient } from "../../orm/models/ingredient.model";
+import { AvailableIngredient } from "../../orm/models/available.ingredient.model";
+import { IngreCategory } from "../../orm/models/ingre.category.model";
+import HttpException from "../../exceptions/HttpException";
 
 export default class AvailableIngredientService {
   public async getAvailableIngredientList(parentId: number) {

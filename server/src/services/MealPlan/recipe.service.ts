@@ -1,7 +1,7 @@
-import { Recipe } from "../orm/models/recipe.model";
+import { Recipe } from "../../orm/models/recipe.model";
 import sequelize from "sequelize";
-import { AvailableIngredient } from "../orm/models/available.ingredient.model";
-import CombinationIngredientUtil from "../utils/combination.ingredient.util";
+import { AvailableIngredient } from "../../orm/models/available.ingredient.model";
+import CombinationIngredientUtil from "../../utils/combination.ingredient.util";
 import natural from "natural";
 import chalk from "chalk";
 

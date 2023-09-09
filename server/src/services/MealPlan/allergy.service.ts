@@ -1,7 +1,7 @@
-import { Allergy } from "../orm/models/allergy.model";
-import { Ingredient } from "../orm/models/ingredient.model";
-import HttpException from "../exceptions/HttpException";
-import { User } from "../orm/models/user.model";
+import { Allergy } from "../../orm/models/allergy.model";
+import { Ingredient } from "../../orm/models/ingredient.model";
+import HttpException from "../../exceptions/HttpException";
+import { User } from "../../orm/models/user.model";
 import { Op } from "sequelize";
 
 export default class AllergyService {

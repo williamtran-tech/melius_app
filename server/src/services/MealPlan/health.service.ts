@@ -1,12 +1,12 @@
 // BMI calculation formula: weight (kg) / [height (m)]2
 
 // TDEE calculation formula: 10 * weight (kg) + 6.25 * height (cm) - 5 * age (y) + s (kcal / day) //s is step count (optional)
-import { User } from "./../orm/models/user.model";
-import { Account } from "./../orm/models/account.model";
-import { Health } from "./../orm/models/health.model";
+import { User } from "../../orm/models/user.model";
+import { Account } from "../../orm/models/account.model";
+import { Health } from "../../orm/models/health.model";
 import moment from "moment";
-import KidHealthDTO from "../DTOs/Kid/KidHealthData.DTO";
-import HttpException from "../exceptions/HttpException";
+import KidHealthDTO from "../../DTOs/Kid/KidHealthData.DTO";
+import HttpException from "../../exceptions/HttpException";
 import MealPlanService from "./meal.plan.service";
 import chalk from "chalk";
 

@@ -1,11 +1,11 @@
-import { PlanDetail } from "../orm/models/plan.detail.model";
-import { Recipe } from "../orm/models/recipe.model";
-import HttpException from "../exceptions/HttpException";
+import { PlanDetail } from "../../orm/models/plan.detail.model";
+import { Recipe } from "../../orm/models/recipe.model";
+import HttpException from "../../exceptions/HttpException";
 import RecipeService from "./recipe.service";
 import { Op } from "sequelize";
-import dateTimeUtil from "../utils/dateTime";
-import { MealPlan } from "../orm/models/meal.plan.model";
-import MealPlanData from "../interfaces/MealPlan/MealPlanData.interface";
+import dateTimeUtil from "../../utils/dateTime";
+import { MealPlan } from "../../orm/models/meal.plan.model";
+import MealPlanData from "../../interfaces/MealPlan/MealPlanData.interface";
 import chalk from "chalk";
 
 export default class PlanDetailService {

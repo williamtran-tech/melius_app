@@ -64,17 +64,13 @@ import {
         allowNull: true,
     })
     parentId!: number;
-    @BelongsTo(() => Comment, {
-      foreignKey: 'parentId',
-      as: 'parentComment'
-    })
-    parent!: Comment[];
+    
     @HasMany(() => Comment, {
       foreignKey: 'parentId',
       onDelete: "CASCADE",
       as: 'replies'
     })
-    comments!: Comment[];
+    replies!: Comment[];
   
     @ForeignKey(() => User)
     @Column({
