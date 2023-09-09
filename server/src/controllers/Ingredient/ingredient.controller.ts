@@ -1,8 +1,8 @@
 import express from "express";
 import { BaseController } from "../abstractions/base.controller";
-import USDAService from "../../services/usda.service";
+import USDAService from "../../services/MealPlan/usda.service";
 import HttpException from "../../exceptions/HttpException";
-import IngredientService from "../../services/ingredient.service";
+import IngredientService from "../../services/MealPlan/ingredient.service";
 export default class IngredientController extends BaseController {
   constructor() {
     super();

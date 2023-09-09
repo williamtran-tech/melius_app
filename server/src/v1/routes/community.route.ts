@@ -13,4 +13,5 @@ const upload = multer({
 });
 
 communityRouter.get("/posts", authMiddleware, communityController.getAllPosts);
+communityRouter.get("/posts/post-details", authMiddleware, communityController.getPost);
 communityRouter.post("/posts", authMiddleware, upload.fields([{ name: 'photos', maxCount: 5}]), communityController.createPost);

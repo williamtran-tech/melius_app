@@ -1,7 +1,7 @@
 import { BaseController } from "../abstractions/base.controller";
 import { Request, Response, NextFunction } from "express";
-import RecipeService from "../../services/recipe.service";
-import USDAService from "../../services/usda.service";
+import RecipeService from "../../services/MealPlan/recipe.service";
+import USDAService from "../../services/MealPlan/usda.service";
 import axios from "axios";
 import cheerio from "cheerio";
 import natural from "natural";

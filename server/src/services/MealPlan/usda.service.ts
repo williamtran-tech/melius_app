@@ -1,6 +1,6 @@
-import KidHealthDTO from "../DTOs/Kid/KidHealthData.DTO";
-import HttpException from "../exceptions/HttpException";
-import { IngreCategory } from "../orm/models/ingre.category.model";
+import KidHealthDTO from "../../DTOs/Kid/KidHealthData.DTO";
+import HttpException from "../../exceptions/HttpException";
+import { IngreCategory } from "../../orm/models/ingre.category.model";
 export default class USDAService {
   public async getFoodNutritionData(ingredientDTO: any) {
     try {

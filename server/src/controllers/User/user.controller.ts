@@ -3,13 +3,13 @@ import { BaseController } from "../abstractions/base.controller";
 import HttpException from "../../exceptions/HttpException";
 
 import UserService from "../../services/user.service";
-import HealthService from "../../services/health.service";
-import IngredientService from "../../services/ingredient.service";
-import MealPlanService from "../../services/meal.plan.service";
-import PlanDetailService from "../../services/plan.detail.service";
-import AllergyService from "../../services/allergy.service";
-import AvailableIngredientService from "../../services/available.ingredient.service";
-import RecipeService from "../../services/recipe.service";
+import HealthService from "../../services/MealPlan/health.service";
+import IngredientService from "../../services/MealPlan/ingredient.service";
+import MealPlanService from "../../services/MealPlan/meal.plan.service";
+import PlanDetailService from "../../services/MealPlan/plan.detail.service";
+import AllergyService from "../../services/MealPlan/allergy.service";
+import AvailableIngredientService from "../../services/MealPlan/available.ingredient.service";
+import RecipeService from "../../services/MealPlan/recipe.service";
 
 import KidHealthDTO from "../../DTOs/Kid/KidHealthData.DTO";
 import MealPlanDTO from "../../DTOs/MealPlan/MealPlan.DTO";

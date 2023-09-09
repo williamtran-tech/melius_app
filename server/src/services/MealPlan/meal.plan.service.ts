@@ -1,16 +1,16 @@
-import HttpException from "../exceptions/HttpException";
-import { Ingredient } from "../orm/models/ingredient.model";
+import HttpException from "../../exceptions/HttpException";
+import { Ingredient } from "../../orm/models/ingredient.model";
 import USDAService from "./usda.service";
-import { Allergy } from "../orm/models/allergy.model";
-import { AvailableIngredient } from "../orm/models/available.ingredient.model";
-import { Recipe } from "../orm/models/recipe.model";
+import { Allergy } from "../../orm/models/allergy.model";
+import { AvailableIngredient } from "../../orm/models/available.ingredient.model";
+import { Recipe } from "../../orm/models/recipe.model";
 import { Sequelize } from "sequelize-typescript";
-import { MealPlan } from "../orm/models/meal.plan.model";
+import { MealPlan } from "../../orm/models/meal.plan.model";
 import HealthService from "./health.service";
 import PlanDetailService from "./plan.detail.service";
 import { Op, literal } from "sequelize";
-import MealPlanDTO from "../DTOs/MealPlan/MealPlan.DTO";
-import MealPlanData from "../interfaces/MealPlan/MealPlanData.interface";
+import MealPlanDTO from "../../DTOs/MealPlan/MealPlan.DTO";
+import MealPlanData from "../../interfaces/MealPlan/MealPlanData.interface";
 import chalk from "chalk";
 
 // Recipes Describe Data of nutrition
