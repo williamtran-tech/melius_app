@@ -30,14 +30,14 @@ const NewPostForm = () => {
   ];
   const handleSpaceKeyPress = (event) => {
     // Detect space key press (key code 32)
-    if (event.nativeEvent.key === " ") {
+    if (event.nativeEvent.key === " " || event.nativeEvent.key === "Enter") {
       saveHashtag();
       setShowHashtagInput(false);
     }
   };
   const saveHashtag = () => {
     if (hashtag && hashtag.trim() !== "") {
-      setHashtagList([...hashtagList, hashtag]);
+      setHashtagList(hashtagList ? [...hashtagList, hashtag] : [hashtag]);
       setHashtag(""); // Clear the input field after saving
     }
   };
@@ -45,6 +45,11 @@ const NewPostForm = () => {
     console.log(value);
     setHashtag(value);
     console.log(hashtagList);
+  };
+  const deleteHashtag = (index) => {
+    const updatedHashtags = [...hashtagList];
+    updatedHashtags.splice(index, 1); // Remove the hashtag at the specified index
+    setHashtagList(updatedHashtags);
   };
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
@@ -89,9 +94,19 @@ const NewPostForm = () => {
                 multiline={true}
               ></TextInput>
             </View>
-            <View>
+            <View style={styles.hashTagContainer}>
               {hashtagList &&
-                hashtagList.map((hashtag) => <Text>{hashtag}</Text>)}
+                hashtagList.map((hashtag, index) => (
+                  <View style={styles.hashtagBtnContainer}>
+                    <SubText>#{hashtag}</SubText>
+                    <TouchableOpacity
+                      style={styles.hashtagDeletebtn}
+                      onPress={() => deleteHashtag(index)}
+                    >
+                      <Text style={styles.deleteText}>✖️</Text>
+                    </TouchableOpacity>
+                  </View>
+                ))}
               {showHashtagInput ? (
                 <TextInput
                   placeholder="hashtag"
@@ -104,8 +119,11 @@ const NewPostForm = () => {
                   autoFocus
                 ></TextInput>
               ) : (
-                <TouchableOpacity onPress={() => setShowHashtagInput(true)}>
-                  <Text>Add hashtag</Text>
+                <TouchableOpacity
+                  onPress={() => setShowHashtagInput(true)}
+                  style={styles.addBtn}
+                >
+                  <Text style={{ color: "#FDFDFD" }}>➕ Hashtag</Text>
                 </TouchableOpacity>
               )}
             </View>
@@ -170,6 +188,35 @@ const styles = StyleSheet.create({
     flexWrap: "wrap",
     gap: 10,
     marginTop: 10,
+  },
+  hashTagContainer: {
+    marginTop: 10,
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 10,
+  },
+  hashtagBtnContainer: {
+    flexDirection: "row",
+    backgroundColor: "rgba(26, 26, 26, 0.10)",
+    paddingHorizontal: 5,
+    paddingVertical: 3,
+    borderRadius: 3,
+    gap: 5,
+  },
+  hashtagDeletebtn: {
+    backgroundColor: "rgba(26, 26, 26, 0.20)",
+    borderRadius: 10,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  deleteText: {
+    fontSize: 12,
+  },
+  addBtn: {
+    backgroundColor: "rgba(26, 26, 26, 0.5)",
+    paddingHorizontal: 5,
+    paddingVertical: 3,
+    borderRadius: 3,
   },
 });
 const picker = StyleSheet.create({
