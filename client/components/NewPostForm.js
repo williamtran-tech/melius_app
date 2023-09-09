@@ -1,4 +1,5 @@
 import {
+  Button,
   Image,
   Keyboard,
   KeyboardAvoidingView,
@@ -9,10 +10,11 @@ import {
   TouchableWithoutFeedback,
   View,
 } from "react-native";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import HeaderText from "./HeaderText";
 import RNPickerSelect from "react-native-picker-select";
 import SubText from "./SubText";
+import { ImagePicker } from "expo-image-multiple-picker";
 
 const NewPostForm = () => {
   const [topic, setTopic] = useState();
@@ -20,9 +22,17 @@ const NewPostForm = () => {
   const [hashtagList, setHashtagList] = useState();
   const [showHashtagInput, setShowHashtagInput] = useState(false);
 
+  const [album, setAlbum] = useState();
+  const [assets, setAssets] = useState([]);
   const handleChange = (value) => {
     console.log(value);
     setTopic(topic);
+  };
+
+  const [imageBrowser, setImageBrowser] = useState(false);
+  const [imageUrls, setImageUrls] = useState();
+  const openImagePicker = () => {
+    setImageBrowser(true);
   };
   const pickerItems = [
     { label: "Q&A", value: "Q&A" },
@@ -51,6 +61,15 @@ const NewPostForm = () => {
     updatedHashtags.splice(index, 1); // Remove the hashtag at the specified index
     setHashtagList(updatedHashtags);
   };
+  useEffect(() => {
+    // (async () => {
+    //   const { status } =
+    //     await ImagePicker.requestMediaLibraryPermissionsAsync();
+    //   if (status !== "granted") {
+    //     console.log("Permission to access images denied.");
+    //   }
+    // })();
+  }, []);
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
       <View style={{ flex: 1 }}>
@@ -74,17 +93,21 @@ const NewPostForm = () => {
               ></Image>
               <HeaderText>Thien Duc</HeaderText>
             </View>
-            <RNPickerSelect
-              value={topic}
-              onValueChange={(value) => handleChange(value)}
-              placeholder={{
-                label: "Choose topic for this post",
-                color: "#8C8C8C",
-                value: "default",
-              }}
-              items={pickerItems}
-              style={picker}
-            />
+            <View style={styles.actionContainer}>
+              <RNPickerSelect
+                value={topic}
+                onValueChange={(value) => handleChange(value)}
+                placeholder={{
+                  label: "Choose topic",
+                  color: "#8C8C8C",
+                  value: "default",
+                  fontSize: 6,
+                }}
+                items={pickerItems}
+                style={picker}
+              />
+              <Button title="Add Images" onPress={() => openImagePicker()} />
+            </View>
           </View>
           <View>
             <View>
@@ -129,6 +152,55 @@ const NewPostForm = () => {
             </View>
           </View>
         </View>
+        {imageUrls && (
+          <View style={styles.imagesContainer}>
+            {imageUrls[0] && (
+              <View style={styles.imageContainer}>
+                <Image
+                  source={{ uri: imageUrls[0]?.uri }}
+                  style={styles.image}
+                />
+              </View>
+            )}
+            {imageUrls[1] && (
+              <View style={{ ...styles.imageContainer, paddingTop: 20 }}>
+                <Image
+                  source={{ uri: imageUrls[1]?.uri }}
+                  style={styles.image}
+                />
+              </View>
+            )}
+            {imageUrls[2] && (
+              <View style={styles.imageContainer}>
+                <Image
+                  source={{ uri: imageUrls[2] && imageUrls[2]?.uri }}
+                  style={styles.image}
+                />
+                {imageUrls.length > 3 && (
+                  <View style={styles.mark}>
+                    <SubText style={{ color: "#FDFDFD", fontSize: 18 }}>
+                      +{imageUrls.length - 3}
+                    </SubText>
+                  </View>
+                )}
+              </View>
+            )}
+          </View>
+        )}
+        {imageBrowser && (
+          <ImagePicker
+            onSave={(assets) => {
+              setImageUrls(assets);
+              console.log(assets);
+              setImageBrowser(false);
+            }}
+            onCancel={(assets) => console.log("no permissions or user go back")}
+            multiple
+            noAlbums
+            galleryColumns={4}
+            limit={5}
+          />
+        )}
       </View>
     </TouchableWithoutFeedback>
   );
@@ -181,7 +253,8 @@ const styles = StyleSheet.create({
   headerPost: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 30,
+    justifyContent: "space-between",
+    // gap: 30,
   },
   hashTag: {
     flexDirection: "row",
@@ -218,12 +291,41 @@ const styles = StyleSheet.create({
     paddingVertical: 3,
     borderRadius: 3,
   },
+  actionContainer: {
+    flexDirection: "row",
+  },
+  imagesContainer: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    marginTop: 20,
+    gap: 5,
+    paddingHorizontal: 5,
+  },
+  imageContainer: {
+    // position: "absolute",
+    flex: 1,
+    borderRadius: 20,
+  },
+  mark: {
+    position: "absolute",
+    backgroundColor: "rgba(26, 26, 26, 0.4)",
+    width: "100%",
+    height: 300,
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: 15,
+  },
+  image: {
+    height: 300,
+    resizeMode: "cover",
+    borderRadius: 15,
+  },
 });
 const picker = StyleSheet.create({
   inputIOS: {
     color: "#FF9600",
     height: 35,
-    paddingHorizontal: 20,
+    paddingHorizontal: 10,
     borderWidth: 1,
     borderRadius: 10,
     borderColor: "#dadae8",

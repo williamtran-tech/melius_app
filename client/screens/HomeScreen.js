@@ -15,6 +15,7 @@ import { useNavigation } from "@react-navigation/native";
 import HandleApi from "../Services/HandleApi";
 import { getUserProfile } from "../Services/RetrieveNutritionProfile";
 import Loader from "../components/Loader";
+import { ImagePicker } from "expo-image-multiple-picker";
 const HomeScreen = () => {
   const navigation = useNavigation();
   const [loading, setLoading] = useState(false);

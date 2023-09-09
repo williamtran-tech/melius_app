@@ -152,7 +152,7 @@ const LoginScreen = ({ navigation }) => {
                     style={styles.inputStyle}
                     onChangeText={handleChange("password")}
                     onBlur={handleBlur("password")}
-                    placeholder="Enter Password" //12345
+                    placeholder="Enter Password" 
                     placeholderTextColor="#8b9cb5"
                     keyboardType="default"
                     value={values.password}

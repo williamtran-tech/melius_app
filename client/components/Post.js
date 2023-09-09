@@ -121,12 +121,6 @@ const Post = ({ focus, handleReplyPress, scrollToComment, comment }) => {
 export default Post;
 
 const styles = StyleSheet.create({
-  actionContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    paddingHorizontal: 25,
-    marginVertical: 10,
-  },
   postContainer: {
     flex: 1,
     marginTop: 20,
