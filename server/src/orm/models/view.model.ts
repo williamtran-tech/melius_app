@@ -14,6 +14,7 @@ import {
   @Table({
     tableName: "views",
     timestamps: true,
+    paranoid: true,
   })
   export class View extends Model {
     @PrimaryKey

@@ -37,7 +37,8 @@ export default class CommunityController extends BaseController {
     public getPost = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const postId = Number(req.query.id);
-            const post = await this.postService.getPost(postId);
+            const userId = Number(req.userData.id);
+            const post = await this.postService.getPost(postId, userId);
             res.status(200).json({
                 msg: "Get post successfully",
                 post: post
@@ -80,5 +81,32 @@ export default class CommunityController extends BaseController {
         }
     }
 
-   
+    public updatePost = async (req: Request, res: Response, next: NextFunction) => {}
+
+    public deletePost = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const postId = Number(req.query.id);
+            const userId = Number(req.userData.id);
+            await this.postService.deletePost(postId, userId);
+            res.status(200).json({
+                msg: "Delete post successfully"
+            });
+        } catch (err) {
+            next(err);
+        }
+    }
+
+    public undoDeletePost = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const postId = Number(req.query.id);
+            const userId = Number(req.userData.id);
+            const undoDeletedPost = await this.postService.undoDeletePost(postId, userId);
+            res.status(200).json({
+                msg: "Undo delete post successfully",
+                post: undoDeletedPost
+            });
+        } catch (error) {
+            next(error);
+        }
+    }
 }

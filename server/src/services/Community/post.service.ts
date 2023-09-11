@@ -9,10 +9,11 @@ import { PostImage } from "../../orm/models/post.images.model";
 import { Comment }  from "../../orm/models/comment.model";
 import { TagPostRels } from "../../orm/models/tag.post.rel.model";
 import chalk from "chalk";
+import HttpException from "../../exceptions/HttpException";
+import { View } from "../../orm/models/view.model";
 
 
 export default class PostService {
-    
     constructor() {}
     /**
      * Get all posts
@@ -42,6 +43,17 @@ export default class PostService {
     */
     public async getAllPosts(topic: string, limit: number): Promise<Post[]> {
         try {
+            const topicId = await Topic.findOne({
+                attributes: ["id"],
+                where: {
+                    name: topic,
+                },
+            });
+
+            if (!topicId) {
+                throw new HttpException(404, "Topic not found");
+            }
+
             const posts = await Post.findAll({
                 attributes: [
                     "id", 
@@ -73,14 +85,6 @@ export default class PostService {
                     required: false
                 },
                 {
-                    model: Topic,
-                    attributes: ["id", "name"],
-                    where: {
-                        postId: sequelize.col("Post.id"),
-                        name: topic,
-                    }
-                },
-                {
                     model: PostImage,
                     attributes: ["id", "imagePath", "caption"],
                     where: {
@@ -89,6 +93,9 @@ export default class PostService {
                     required: false
                 },
                 ],
+                where: {
+                    topicId: topicId.id,
+                },
                 order: [["createdAt", "DESC"]],
                 group: ["Post.id"],
                 limit: limit,
@@ -111,7 +118,7 @@ export default class PostService {
      * }
      * }
      */
-    public async getPost(postId: number): Promise<Post> {
+    public async getPost(postId: number, userId?: number): Promise<Post> {
         try {
             const post = await Post.findOne({
                 attributes: [
@@ -189,6 +196,25 @@ export default class PostService {
                         id: postId,
                     },
                 });
+            
+            // Update views
+            if (userId) {
+                const updateView = await View.findOrCreate({
+                    where: {
+                        postId: postId,
+                        userId: userId,
+                    },
+                    defaults: {
+                        postId: postId,
+                        userId: userId,
+                        view: 1,
+                    },
+                });
+
+                if (updateView[1] == false) {
+                    console.log(chalk.green("View updated successfully"));
+                }
+            }
             return post as Post;
         } catch (err) {
             throw err;
@@ -262,7 +288,6 @@ export default class PostService {
                         postId: createdPost?.id,
                     });
                 });
-            
                 console.log(chalk.green("Uploading images successfully"));
             }
 
@@ -272,5 +297,143 @@ export default class PostService {
         }
     }
 
+    /**
+     * Update a post
+     * @param req.body: Request { content: string, filePath: string, isAnonymous: boolean, userId: number, topicId: number, tagIds: number[] }
+     * @returns A post
+     * @example /api/v1/community/posts/1
+     */
+    public async updatePost(postDTO: any): Promise<Post> {
+        try {
+            const updatedPost = await Post.update({
+                content: postDTO.content,
+                isAnonymous: postDTO.isAnonymous,
+                topicId: postDTO.topicId,
+            }, {
+                where: {
+                    id: postDTO.postId,
+                },
+            });
+
+            // Associate post with tags
+            if (postDTO.tags.length > 0) {
+                postDTO.tags.map(async (tag: string) => {
+                    const createdTag = await Tag.findOrCreate({
+                        where: {
+                            name: tag.trim(),
+                        },
+                        attributes: ["id", "name"]
+                    });
+                });
+            }
+            const post = await Post.findOne({
+                where: {
+                    id: postDTO.postId,
+                },
+            });
+
+            if (!post) {
+                throw new HttpException(404, "Post not found");
+            }
+
+            console.log(chalk.green("Post updated successfully"));
+            return post as Post;
+        } catch (error) {
+            throw error;
+        }
+            
+    }
+
+    /**
+     * Delete a post
+     * @param req.params: Request { postId: number }
+     * @returns A post
+     * @example /api/v1/community/posts/1
+     */
+    public async deletePost(postId: number, userId: number) {
+        try {
+            await this.deletePostRels(postId, userId);
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    /**
+     * Undo delete a post
+     * @param req.params: Request { postId: number }
+     * @returns A post
+     * @example /api/v1/community/posts/1
+     */
+    public async undoDeletePost(postId: number, userId: number) {
+        try {
+            await this.undoDeletePostRels(postId, userId);
+            const undoDeletedPost = await Post.findOne({
+                where: {
+                    id: postId,
+                    userId: userId
+                },
+            });
+            if (!undoDeletedPost) {
+                throw new HttpException(404, "Post not found");
+            }
+
+            console.log(chalk.green("Post undo deleted successfully"));
+            return undoDeletedPost;
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    private async deletePostRels(postId: number, userId: number) {
+        const deletedPost = await Post.destroy({
+            where: {
+                id: postId,
+                userId: userId
+            },
+        });
+        if (deletedPost === 0) {
+            throw new HttpException(404, "Post not found");
+        }
+        // Delete tags of post
+        const tag_rels = await TagPostRels.destroy({
+            where: {
+                postId: postId,
+            },
+        });
+        console.log(chalk.green("TagPostRels deleted successfully"), tag_rels);
+
+        // Delete images of post
+        const images = await PostImage.destroy({
+            where: {
+                postId: postId,
+            },
+        });
+        console.log(chalk.green("PostImage deleted successfully"), images);
+
+        console.log(chalk.green("Post deleted successfully"));
+        return deletedPost;
+    }
+
+    private async undoDeletePostRels(postId: number, userId: number) {
+        await Post.restore({
+            where: {
+                id: postId,
+                userId: userId
+            },
+        });
+
+        await TagPostRels.restore({
+            where: {
+                postId: postId,
+            },
+        });
+
+        await PostImage.restore({
+            where: {
+                postId: postId,
+            },
+        });
+
+    }
 
 }

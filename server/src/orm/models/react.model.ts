@@ -15,6 +15,7 @@ import {
   @Table({
     tableName: "reacts",
     timestamps: true,
+    paranoid: true,
   })
   export class React extends Model {
     @PrimaryKey

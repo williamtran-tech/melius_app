@@ -17,6 +17,7 @@ import {
   @Table({
     tableName: "comment_reacts",
     timestamps: true,
+    paranoid: true,
   })
   export class CommentReact extends Model {
     @PrimaryKey

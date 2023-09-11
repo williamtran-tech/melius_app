@@ -17,6 +17,7 @@ import {
   @Table({
     tableName: "comments",
     timestamps: true,
+    paranoid: true,
   })
   export class Comment extends Model {
     @PrimaryKey
