@@ -268,41 +268,37 @@ export default class PostService {
             
                 // // Convert timestamp to date time
                 // const dateString = new Date(date).toJSON().slice(0, 19).replace('T', ' ');
-                // console.log("Date Time:",dateString);
+                // console.log("Date Time:",dateString);  
+                const accessKeyId = process.env.AWS_ACCESS_KEY_ID!;
+                const secretAccessKey = process.env.AWS_SECRET_ACCESS_KEY!;
+                const region = process.env.AWS_REGION!;
+                const Bucket = process.env.AWS_BUCKET_NAME!;
                 
                 files.photos.map(async (file) => {
                     const timestamp = Date.parse(new Date().toISOString());
                     const key = `posts/${timestamp}-${file.originalname}`;
-                    
-                    const accessKeyId = process.env.AWS_ACCESS_KEY_ID!;
-                    const secretAccessKey = process.env.AWS_SECRET_ACCESS_KEY!;
-                    const region = process.env.AWS_REGION!;
-                    const Bucket = process.env.AWS_BUCKET_NAME!;
-                    
-                    files.photos.map(async (file) => {
-                        // upload to S3
-                        new Upload({
-                        client: new S3Client({
-                            credentials: {
-                                accessKeyId,
-                                secretAccessKey,
-                            },
-                            region,
-                        }),
-                        params: {
-                            Bucket,
-                            Key: key,
-                            Body: file.buffer
+                    // upload to S3
+                    new Upload({
+                    client: new S3Client({
+                        credentials: {
+                            accessKeyId,
+                            secretAccessKey,
                         },
-                        }).done();
-                        // Associate post with images
-                        await PostImage.create({
-                        imagePath: process.env.AWS_URL + key,
-                        postId: createdPost?.id,
-                        });
+                        region,
+                    }),
+                    params: {
+                        Bucket,
+                        Key: key,
+                        Body: file.buffer
+                    },
+                    }).done();
+                    // Associate post with images
+                    await PostImage.create({
+                    imagePath: process.env.AWS_URL + key,
+                    postId: createdPost?.id,
                     });
-                    console.log(chalk.green("Uploading images successfully"));
                 });
+                console.log(chalk.green("Uploading images successfully"));
             }
 
             return createdPost;
