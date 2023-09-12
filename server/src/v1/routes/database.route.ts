@@ -33,10 +33,11 @@ databaseRouter.post("/create-models", async (req, res) => {
     // By default, the Index file will sync all models with database
     await CommentReact.sync({ alter: true });
     await Comment.sync({ alter: true });
-    // await View.sync({ alter: true });
-    // await React.sync({ alter: true });
+    await View.sync({ alter: true });
+    await React.sync({ alter: true });
     await Post.sync({ alter: true });
-    // await TagPostRels.sync({ force: true });
+    await TagPostRels.sync({ alter: true });
+    await Topic.sync({ alter: true });
     // await Tag.sync({ alter: true });
 
     // Init models

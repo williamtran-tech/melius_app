@@ -15,6 +15,7 @@ import { Tag } from "./tag.model";
   @Table({
     tableName: "tag_post_rels",
     timestamps: true,
+    paranoid: true,
   })
   export class TagPostRels extends Model {
     @PrimaryKey

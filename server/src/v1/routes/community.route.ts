@@ -13,5 +13,7 @@ const upload = multer({
 });
 
 communityRouter.get("/posts", authMiddleware, communityController.getAllPosts);
-communityRouter.get("/posts/post-details", authMiddleware, communityController.getPost);
+communityRouter.get("/posts/post-details", authMiddleware, communityController.getPost)
+                .delete("/posts/post-details", authMiddleware, communityController.deletePost)
+                .patch("/posts/post-details", authMiddleware, communityController.undoDeletePost);
 communityRouter.post("/posts", authMiddleware, upload.fields([{ name: 'photos', maxCount: 5}]), communityController.createPost);

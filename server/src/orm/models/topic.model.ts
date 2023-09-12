@@ -12,6 +12,7 @@ import {
   @Table({
     tableName: "topics",
     timestamps: true,
+    paranoid: true,
   })
   export class Topic extends Model {
     @PrimaryKey
@@ -29,7 +30,9 @@ import {
     })
     name!: string;
 
-    @HasMany(() => Post)
+    @HasMany(() => Post, {
+      onDelete: "CASCADE",
+    })
     posts!: Post[];
   }
   

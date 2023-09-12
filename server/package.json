@@ -14,7 +14,8 @@
   "author": "william-tr4n",
   "license": "ISC",
   "dependencies": {
-    "aws-sdk": "^2.1452.0",
+    "@aws-sdk/client-s3": "^3.410.0",
+    "@aws-sdk/lib-storage": "^3.410.0",
     "axios": "^1.4.0",
     "bcrypt": "^5.1.0",
     "chalk": "^4.1.2",

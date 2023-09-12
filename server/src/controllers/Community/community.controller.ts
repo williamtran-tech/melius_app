@@ -1,14 +1,5 @@
 import { BaseController } from "../abstractions/base.controller";
 import { Request, Response, NextFunction } from "express";
-import { User } from "../../orm/models/user.model";
-import { Post } from "../../orm/models/post.model";
-import { Tag } from "../../orm/models/tag.model";
-import { Topic } from "../../orm/models/topic.model";
-import { Comment } from "../../orm/models/comment.model";
-import { PostImage } from "../../orm/models/post.images.model";
-import sequelize from "sequelize";
-import dotenv from "dotenv";
-import aws from "aws-sdk";
 
 import PostService from "../../services/Community/post.service";
 import chalk from "chalk";
@@ -37,7 +28,8 @@ export default class CommunityController extends BaseController {
     public getPost = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const postId = Number(req.query.id);
-            const post = await this.postService.getPost(postId);
+            const userId = Number(req.userData.id);
+            const post = await this.postService.getPost(postId, userId);
             res.status(200).json({
                 msg: "Get post successfully",
                 post: post
@@ -49,7 +41,6 @@ export default class CommunityController extends BaseController {
 
     public createPost = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            dotenv.config();
             if (req.files && req.body.photos) {
               const files = req.files as Record<string, Express.Multer.File[]>;
               // Check if the images is valid images type
@@ -80,5 +71,32 @@ export default class CommunityController extends BaseController {
         }
     }
 
-   
+    public updatePost = async (req: Request, res: Response, next: NextFunction) => {}
+
+    public deletePost = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const postId = Number(req.query.id);
+            const userId = Number(req.userData.id);
+            await this.postService.deletePost(postId, userId);
+            res.status(200).json({
+                msg: "Delete post successfully"
+            });
+        } catch (err) {
+            next(err);
+        }
+    }
+
+    public undoDeletePost = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const postId = Number(req.query.id);
+            const userId = Number(req.userData.id);
+            const undoDeletedPost = await this.postService.undoDeletePost(postId, userId);
+            res.status(200).json({
+                msg: "Undo delete post successfully",
+                post: undoDeletedPost
+            });
+        } catch (error) {
+            next(error);
+        }
+    }
 }
