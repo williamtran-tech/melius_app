@@ -15,6 +15,7 @@ import HeaderText from "./HeaderText";
 import RNPickerSelect from "react-native-picker-select";
 import SubText from "./SubText";
 import { ImagePicker } from "expo-image-multiple-picker";
+import { createPost } from "../Services/CommunityApi";
 
 const NewPostForm = () => {
   const [topic, setTopic] = useState();
@@ -22,8 +23,6 @@ const NewPostForm = () => {
   const [hashtagList, setHashtagList] = useState();
   const [showHashtagInput, setShowHashtagInput] = useState(false);
 
-  const [album, setAlbum] = useState();
-  const [assets, setAssets] = useState([]);
   const handleChange = (value) => {
     console.log(value);
     setTopic(topic);
@@ -37,6 +36,7 @@ const NewPostForm = () => {
   const pickerItems = [
     { label: "Q&A", value: "Q&A" },
     { label: "Experience", value: "Experience" },
+    { label: "Sharing", value: "Sharing" },
   ];
   const handleSpaceKeyPress = (event) => {
     // Detect space key press (key code 32)
@@ -61,6 +61,10 @@ const NewPostForm = () => {
     updatedHashtags.splice(index, 1); // Remove the hashtag at the specified index
     setHashtagList(updatedHashtags);
   };
+  const handlePost = async () => {
+    const response = createPost("Content", false, 2, hashtagList, imageUrls);
+    // console.log(response.data);
+  };
   useEffect(() => {
     // (async () => {
     //   const { status } =
@@ -79,7 +83,10 @@ const NewPostForm = () => {
             <HeaderText style={styles.centeredText}>New post</HeaderText>
           </View>
           <View style={{ flex: 1, alignItems: "flex-end" }}>
-            <TouchableOpacity style={styles.postButton}>
+            <TouchableOpacity
+              style={styles.postButton}
+              onPress={() => handlePost()}
+            >
               <Text style={styles.postText}>Post</Text>
             </TouchableOpacity>
           </View>
@@ -120,7 +127,7 @@ const NewPostForm = () => {
             <View style={styles.hashTagContainer}>
               {hashtagList &&
                 hashtagList.map((hashtag, index) => (
-                  <View style={styles.hashtagBtnContainer}>
+                  <View style={styles.hashtagBtnContainer} key={index}>
                     <SubText>#{hashtag}</SubText>
                     <TouchableOpacity
                       style={styles.hashtagDeletebtn}

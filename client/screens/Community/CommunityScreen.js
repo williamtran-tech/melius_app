@@ -1,5 +1,5 @@
 import { StyleSheet, Text, TouchableOpacity, View, Image } from "react-native";
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import HeaderText from "../../components/HeaderText";
 import SubText from "../../components/SubText";
 import { ScrollView } from "react-native-gesture-handler";
@@ -7,11 +7,12 @@ import Comment from "../../components/Comment";
 import Post from "../../components/Post";
 import BottomSheetModal from "@gorhom/bottom-sheet";
 import NewPostForm from "../../components/NewPostForm";
+import { getPost } from "../../Services/CommunityApi";
 
 const CommunityScreen = () => {
-  const [activeTag, setActiveTag] = useState("all");
+  const [activeTag, setActiveTag] = useState("Sharing");
   const bottomSheetRef = useRef(null);
-
+  const [postData, setPostData] = useState();
   const handleNewPostPress = () => {
     console.log(bottomSheetRef.current); // Add this line
 
@@ -20,6 +21,13 @@ const CommunityScreen = () => {
     }
   };
   const handleClosePress = () => bottomSheetRef.current.close();
+  const retrievePostData = async () => {
+    const data = await getPost(activeTag);
+    setPostData(data);
+  };
+  useEffect(() => {
+    retrievePostData();
+  }, [activeTag]);
   return (
     <View>
       <View style={styles.categoryContainer}>
@@ -42,6 +50,14 @@ const CommunityScreen = () => {
           onPress={() => setActiveTag("Experience")}
         >
           <HeaderText style={styles.categoryName}>Experience</HeaderText>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={
+            activeTag === "Sharing" ? styles.categoryActive : styles.category
+          }
+          onPress={() => setActiveTag("Sharing")}
+        >
+          <HeaderText style={styles.categoryName}>Sharing</HeaderText>
         </TouchableOpacity>
       </View>
       <View style={styles.actionContainer}>
@@ -76,12 +92,9 @@ const CommunityScreen = () => {
 
       <ScrollView>
         <View style={styles.contentContainer}>
-          <Post></Post>
-          <Post></Post>
-          <Post></Post>
-          <Post></Post>
-          <Post></Post>
-          <Post></Post>
+          {postData?.posts?.map((post, index) => (
+            <Post post={post} key={index}></Post>
+          ))}
         </View>
       </ScrollView>
       <BottomSheetModal

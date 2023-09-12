@@ -12,7 +12,7 @@ import SubText from "./SubText";
 import Comment from "./Comment";
 import { useNavigation } from "@react-navigation/native";
 
-const Post = ({ focus, handleReplyPress, scrollToComment, comment }) => {
+const Post = ({ focus, post, handleReplyPress, scrollToComment, comment }) => {
   const navigation = useNavigation();
   return (
     <View
@@ -37,7 +37,7 @@ const Post = ({ focus, handleReplyPress, scrollToComment, comment }) => {
           </View>
 
           <View>
-            <HeaderText>Thien Duc</HeaderText>
+            <HeaderText>{post.user.fullName}</HeaderText>
             <SubText style={{ color: "rgba(26, 26, 26, 0.50)" }}>
               1 minute ago
             </SubText>
@@ -45,6 +45,41 @@ const Post = ({ focus, handleReplyPress, scrollToComment, comment }) => {
         </View>
         <HeaderText style={styles.tag}>Q&A</HeaderText>
       </View>
+      {post.images && (
+        <View style={styles.imagesContainer}>
+          {post.images[0] && (
+            <View style={styles.imageContainer}>
+              <Image
+                source={{ uri: post.images[0]?.imagePath }}
+                style={styles.image}
+              />
+            </View>
+          )}
+          {post.images[1] && (
+            <View style={{ ...styles.imageContainer, paddingTop: 20 }}>
+              <Image
+                source={{ uri: post.images[1]?.imagePath }}
+                style={styles.image}
+              />
+            </View>
+          )}
+          {post.images[2] && (
+            <View style={styles.imageContainer}>
+              <Image
+                source={{ uri: post.images[2] && post.images[2]?.imagePath }}
+                style={styles.image}
+              />
+              {post.images.length > 3 && (
+                <View style={styles.mark}>
+                  <SubText style={{ color: "#FDFDFD", fontSize: 18 }}>
+                    +{post.images.length - 3}
+                  </SubText>
+                </View>
+              )}
+            </View>
+          )}
+        </View>
+      )}
       <View style={{ marginTop: 20 }}>
         <View>
           <SubText
@@ -55,10 +90,7 @@ const Post = ({ focus, handleReplyPress, scrollToComment, comment }) => {
               lineHeight: 18,
             }}
           >
-            My baby doesn't like carrots very much. Is everyone in the family
-            like that? Is there any plan to teach the baby to eat carrots? My
-            baby doesn't like carrots very much. Is everyone in the family like
-            that? Is there any plan to teach the baby to eat carrots?
+            {post.content}
           </SubText>
         </View>
         <View style={styles.hashTag}>
@@ -190,5 +222,31 @@ const styles = StyleSheet.create({
   },
   backbtn: {
     fontSize: 20,
+  },
+  imagesContainer: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    marginTop: 20,
+    gap: 5,
+    paddingHorizontal: 5,
+  },
+  imageContainer: {
+    // position: "absolute",
+    flex: 1,
+    borderRadius: 20,
+  },
+  mark: {
+    position: "absolute",
+    backgroundColor: "rgba(26, 26, 26, 0.4)",
+    width: "100%",
+    height: 300,
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: 15,
+  },
+  image: {
+    height: 300,
+    resizeMode: "cover",
+    borderRadius: 15,
   },
 });

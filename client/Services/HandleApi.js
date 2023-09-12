@@ -9,6 +9,13 @@ const serverGeneral = axios.create({
   },
   withCredentials: true,
 });
+const serverFormData = axios.create({
+  baseURL: API_URL,
+  headers: {
+    "Content-Type": "multipart/form-data",
+  },
+  withCredentials: true,
+});
 const generateResponse = async (input) => {
   console.log(input);
   try {
@@ -44,4 +51,5 @@ const generateResponse = async (input) => {
 export default {
   serverGeneral,
   generateResponse,
+  serverFormData,
 };

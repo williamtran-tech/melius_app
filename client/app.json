@@ -11,16 +11,22 @@
       "backgroundColor": "#ffff"
     },
     "assetBundlePatterns": ["**/*"],
-    "plugins": ["expo-localization", "expo-camera"],
+    "plugins": ["expo-localization", "expo-camera", "expo-media-library"],
     "ios": {
       "infoPlist": {
         "NSFaceIDUsageDescription": "Authenticate with Face ID",
-        "NSCameraUsageDescription": "Allow MeliusChat to access your camera."
+        "NSCameraUsageDescription": "Allow MeliusChat to access your camera.",
+        "NSPhotoLibraryUsageDescription": "We need access to your photos to upload them."
       },
       "supportsTablet": true
     },
     "android": {
-      "permissions": ["USE_BIOMETRIC", "CAMERA"]
+      "permissions": [
+        "USE_BIOMETRIC",
+        "CAMERA",
+        "READ_EXTERNAL_STORAGE",
+        "WRITE_EXTERNAL_STORAGE"
+      ]
     },
     "extra": {
       "eas": {
