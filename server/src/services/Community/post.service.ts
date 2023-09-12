@@ -1,6 +1,9 @@
 import sequelize from "sequelize";
 import dotenv from "dotenv";
-import aws from "aws-sdk";
+
+import { Upload } from "@aws-sdk/lib-storage";
+import { S3Client } from "@aws-sdk/client-s3";
+
 import { Post } from "../../orm/models/post.model";
 import { User } from "../../orm/models/user.model";
 import { Tag } from "../../orm/models/tag.model";
@@ -258,12 +261,6 @@ export default class PostService {
             if (postDTO.files['photos'] && postDTO.files['photos'].length > 0) {
                 console.log(chalk.green("Uploading images..."));
                 const files = postDTO.files as Record<string, Express.Multer.File[]>;
-                // Upload images to S3
-                const s3 = new aws.S3({
-                    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-                    region: process.env.AWS_REGION,
-                    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-                });
                 
                 // Upload new file to S3
                 // const date = Date.parse(new Date().toISOString());
@@ -276,19 +273,36 @@ export default class PostService {
                 files.photos.map(async (file) => {
                     const timestamp = Date.parse(new Date().toISOString());
                     const key = `posts/${timestamp}-${file.originalname}`;
-                    const uploadRes = await s3.upload({
-                    Bucket: process.env.AWS_BUCKET_NAME!,
-                    Body: file.buffer,
-                    // File path in S3 bucket stored as Key
-                    Key: key,
-                    }).promise();
-                    // Associate post with images
-                    await PostImage.create({
+                    
+                    const accessKeyId = process.env.AWS_ACCESS_KEY_ID!;
+                    const secretAccessKey = process.env.AWS_SECRET_ACCESS_KEY!;
+                    const region = process.env.AWS_REGION!;
+                    const Bucket = process.env.AWS_BUCKET_NAME!;
+                    
+                    files.photos.map(async (file) => {
+                        // upload to S3
+                        new Upload({
+                        client: new S3Client({
+                            credentials: {
+                                accessKeyId,
+                                secretAccessKey,
+                            },
+                            region,
+                        }),
+                        params: {
+                            Bucket,
+                            Key: key,
+                            Body: file.buffer
+                        },
+                        }).done();
+                        // Associate post with images
+                        await PostImage.create({
                         imagePath: process.env.AWS_URL + key,
                         postId: createdPost?.id,
+                        });
                     });
+                    console.log(chalk.green("Uploading images successfully"));
                 });
-                console.log(chalk.green("Uploading images successfully"));
             }
 
             return createdPost;

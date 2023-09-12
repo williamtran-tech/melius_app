@@ -1,14 +1,5 @@
 import { BaseController } from "../abstractions/base.controller";
 import { Request, Response, NextFunction } from "express";
-import { User } from "../../orm/models/user.model";
-import { Post } from "../../orm/models/post.model";
-import { Tag } from "../../orm/models/tag.model";
-import { Topic } from "../../orm/models/topic.model";
-import { Comment } from "../../orm/models/comment.model";
-import { PostImage } from "../../orm/models/post.images.model";
-import sequelize from "sequelize";
-import dotenv from "dotenv";
-import aws from "aws-sdk";
 
 import PostService from "../../services/Community/post.service";
 import chalk from "chalk";
@@ -50,7 +41,6 @@ export default class CommunityController extends BaseController {
 
     public createPost = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            dotenv.config();
             if (req.files && req.body.photos) {
               const files = req.files as Record<string, Express.Multer.File[]>;
               // Check if the images is valid images type
