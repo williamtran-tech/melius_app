@@ -19,7 +19,7 @@ import { View } from "../../orm/models/view.model";
 export default class PostService {
     constructor() {}
     /**
-     * Get all posts
+     * Get all posts by Topic
      * @param req.query: Request { topic: string, limit: number}
      * @template {
     * "msg": "Get all posts successfully",
@@ -44,16 +44,16 @@ export default class PostService {
     * @example /api/v1/community/posts?topic=QnA&limit=10
     * @returns All posts of a topic with limit
     */
-    public async getAllPosts(topic: string, limit: number): Promise<Post[]> {
+    public async getAllPosts(topicId: number, limit: number): Promise<Post[]> {
         try {
-            const topicId = await Topic.findOne({
+            const topic = await Topic.findOne({
                 attributes: ["id"],
                 where: {
-                    name: topic,
+                    id: topicId,
                 },
             });
 
-            if (!topicId) {
+            if (!topic) {
                 throw new HttpException(404, "Topic not found");
             }
 
@@ -69,15 +69,17 @@ export default class PostService {
                     // Using CAST for convert to SIGNED numeric data type instead of a string
                     [sequelize.fn("COALESCE", sequelize.literal("(SELECT CAST(SUM(isLike) AS SIGNED) FROM reacts WHERE reacts.postId = Post.id)"), 0), "likes"],
                     [sequelize.fn("COALESCE", sequelize.literal("(SELECT CAST(SUM(isDislike) AS SIGNED) FROM reacts WHERE reacts.postId = Post.id)"), 0), "dislikes"],
-                    [sequelize.literal("(SELECT COUNT(id) FROM comments WHERE comments.postId = Post.id)"), "comments"]
+                    [sequelize.literal("(SELECT COUNT(id) FROM comments WHERE comments.postId = Post.id)"), "comments"],
                 ],
-                include: [
+                include: [  
                 {
                     model: User,
-                    attributes: ["id", "fullName", "gender", "img"],
-                    where: {
-                    id: sequelize.col("userId"),
-                    }
+                    attributes: [
+                        [sequelize.literal(`IF(isAnonymous = 1, null, user.id)`), 'id'], 
+                        [sequelize.literal(`IF(isAnonymous = 1, null, fullName)`), 'fullName'], 
+                        [sequelize.literal(`IF(isAnonymous = 1, null, gender)`), 'gender'],
+                        [sequelize.literal(`IF(isAnonymous = 1, null, img)`), 'img'],
+                    ],
                 },
                 {
                     model: Tag,
@@ -97,7 +99,7 @@ export default class PostService {
                 },
                 ],
                 where: {
-                    topicId: topicId.id,
+                    topicId: topic.id,
                 },
                 order: [["createdAt", "DESC"]],
                 group: ["Post.id"],
@@ -106,6 +108,86 @@ export default class PostService {
             return posts;
         } catch (err) {
         throw err;
+        }
+    }
+
+    /**
+     * 
+     * @param tagId Tag id
+     * @param limit Number of posts
+     * @returns All posts of a tag with limit
+     */
+    public async getAllPostsByTag(tagId: number, limit: number): Promise<Post[]> {
+        try {
+            const tag = await Tag.findOne({
+                attributes: ["id"],
+                where: {
+                    id: tagId,
+                },
+            });
+            if (!tag) {
+                throw new HttpException(404, "Tag not found");
+            }
+
+            const postsId = await TagPostRels.findAll({
+                attributes: ["postId"],
+                where: {
+                    tagId: tag.id,
+                },
+            });
+
+            const posts = await Post.findAll({
+                attributes: [
+                    "id", 
+                    "content", 
+                    "isAnonymous", 
+                    "createdAt", 
+                    "updatedAt", 
+                    [sequelize.literal("(SELECT COUNT(view) FROM views WHERE views.postId = Post.id)"), "views"],
+                    // Using COALESCE for return 0 if null 
+                    // Using CAST for convert to SIGNED numeric data type instead of a string
+                    [sequelize.fn("COALESCE", sequelize.literal("(SELECT CAST(SUM(isLike) AS SIGNED) FROM reacts WHERE reacts.postId = Post.id)"), 0), "likes"],
+                    [sequelize.fn("COALESCE", sequelize.literal("(SELECT CAST(SUM(isDislike) AS SIGNED) FROM reacts WHERE reacts.postId = Post.id)"), 0), "dislikes"],
+                    [sequelize.literal("(SELECT COUNT(id) FROM comments WHERE comments.postId = Post.id)"), "comments"],
+                ],
+                where: {
+                    id: postsId.map((post) => post.postId),
+                },
+                include: [  
+                    {
+                        model: User,
+                        attributes: [
+                            [sequelize.literal(`IF(isAnonymous = 1, null, user.id)`), 'id'], 
+                            [sequelize.literal(`IF(isAnonymous = 1, null, fullName)`), 'fullName'], 
+                            [sequelize.literal(`IF(isAnonymous = 1, null, gender)`), 'gender'],
+                            [sequelize.literal(`IF(isAnonymous = 1, null, img)`), 'img'],
+                        ],
+                    },
+                    {
+                        model: Tag,
+                        attributes: ["id", "name"],
+                        through: {
+                            attributes: [],
+                        },
+                        required: false,
+                    },
+                    {
+                        model: PostImage,
+                        attributes: ["id", "imagePath", "caption"],
+                        where: {
+                            postId: sequelize.col("Post.id"),
+                        },
+                        required: false
+                    },
+                    ],
+                    order: [["createdAt", "DESC"]],
+                    group: ["Post.id"],
+                    limit: limit,
+            });
+            
+            return posts;
+        } catch (err) {
+            throw err;
         }
     }
 
@@ -137,10 +219,12 @@ export default class PostService {
                 include: [
                     {
                         model: User,
-                        attributes: ["id", "fullName", "gender", "img"],
-                        where: {
-                        id: sequelize.col("userId"),
-                        }
+                        attributes: [
+                            [sequelize.literal(`IF(Post.isAnonymous = 1, null, user.id)`), 'id'], 
+                            [sequelize.literal(`IF(Post.isAnonymous = 1, null, user.fullName)`), 'fullName'], 
+                            [sequelize.literal(`IF(Post.isAnonymous = 1, null, user.gender)`), 'gender'],
+                            [sequelize.literal(`IF(Post.isAnonymous = 1, null, user.img)`), 'img'],
+                        ],
                     },
                     {
                         model: Tag,
@@ -214,7 +298,7 @@ export default class PostService {
                     },
                 });
 
-                if (updateView[1] == false) {
+                if (updateView[1] == true) {
                     console.log(chalk.green("View updated successfully"));
                 }
             }
@@ -231,7 +315,6 @@ export default class PostService {
      */
     public async createPost(postDTO: any): Promise<Post> {
         try {
-            dotenv.config();
             // Create post
             const createdPost = await Post.create({
                 content: postDTO.content,
