@@ -75,7 +75,41 @@ export default class CommunityController extends BaseController {
         }
     }
 
-    public updatePost = async (req: Request, res: Response, next: NextFunction) => {}
+    public updatePost = async (req: Request, res: Response, next: NextFunction) => {
+        try { 
+            if (req.files && req.body.photos) {
+                const files = req.files as Record<string, Express.Multer.File[]>;
+                // Check if the images is valid images type
+                if (!files.photos.every((file) => file.mimetype.includes("image"))) {
+                  return res.status(400).json({
+                    msg: "Invalid image type",
+                  });
+                }
+            }
+
+            const arrayTags = req.body.tags ? req.body.tags.split(",") : null;
+            console.log(chalk.green("arrayTags: ", arrayTags));
+            const postId = Number(req.params.id);
+            const userId = Number(req.userData.id);
+
+            const postDTO = {
+                id: postId,
+                content: req.body.content,
+                isAnonymous: req.body.isAnonymous,
+                topicId: req.body.topicId,
+                tags: arrayTags,
+                files: req.files ? req.files : null,
+            }
+
+            const post = await this.postService.updatePost(postDTO, userId);
+            res.status(200).json({
+                msg: "Update post successfully",
+                post: post
+            });
+        } catch (err) {
+            next(err);
+        }
+    }
 
     public deletePost = async (req: Request, res: Response, next: NextFunction) => {
         try {
@@ -94,13 +128,12 @@ export default class CommunityController extends BaseController {
         try {
             const postId = Number(req.query.id);
             const userId = Number(req.userData.id);
-            const undoDeletedPost = await this.postService.undoDeletePost(postId, userId);
+            await this.postService.undoDeletePost(postId, userId);
             res.status(200).json({
-                msg: "Undo delete post successfully",
-                post: undoDeletedPost
+                msg: "Undo delete post successfully"
             });
-        } catch (error) {
-            next(error);
+        } catch (err) {
+            next(err);
         }
     }
 

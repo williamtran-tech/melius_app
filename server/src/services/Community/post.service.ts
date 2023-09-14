@@ -2,7 +2,7 @@ import sequelize from "sequelize";
 import dotenv from "dotenv";
 
 import { Upload } from "@aws-sdk/lib-storage";
-import { S3Client } from "@aws-sdk/client-s3";
+import { S3Client, DeleteObjectCommand, HeadObjectCommand } from "@aws-sdk/client-s3";
 
 import { Post } from "../../orm/models/post.model";
 import { User } from "../../orm/models/user.model";
@@ -283,6 +283,11 @@ export default class PostService {
                         id: postId,
                     },
                 });
+            // Check post exists
+            if (!post) {
+                console.log(chalk.green("Get post Failed"));
+                throw new HttpException(404, "Post not found");
+            }
             
             // Update views
             if (userId) {
@@ -340,49 +345,21 @@ export default class PostService {
                 });
             }
 
-            console.log(chalk.green("Post created successfully"));
             if (postDTO.files['photos'] && postDTO.files['photos'].length > 0) {
                 console.log(chalk.green("Uploading images..."));
-                const files = postDTO.files as Record<string, Express.Multer.File[]>;
+                const imagePaths = await this.uploadImage(postDTO.files);
                 
-                // Upload new file to S3
-                // const date = Date.parse(new Date().toISOString());
-                // console.log(date);
-            
-                // // Convert timestamp to date time
-                // const dateString = new Date(date).toJSON().slice(0, 19).replace('T', ' ');
-                // console.log("Date Time:",dateString);  
-                const accessKeyId = process.env.AWS_ACCESS_KEY_ID!;
-                const secretAccessKey = process.env.AWS_SECRET_ACCESS_KEY!;
-                const region = process.env.AWS_REGION!;
-                const Bucket = process.env.AWS_BUCKET_NAME!;
-                
-                files.photos.map(async (file) => {
-                    const timestamp = Date.parse(new Date().toISOString());
-                    const key = `posts/${timestamp}-${file.originalname}`;
-                    // upload to S3
-                    new Upload({
-                    client: new S3Client({
-                        credentials: {
-                            accessKeyId,
-                            secretAccessKey,
-                        },
-                        region,
-                    }),
-                    params: {
-                        Bucket,
-                        Key: key,
-                        Body: file.buffer
-                    },
-                    }).done();
+                for (let imagePath of imagePaths) {
                     // Associate post with images
+                    console.log(chalk.green("imagePath: ", imagePath));
                     await PostImage.create({
-                    imagePath: process.env.AWS_URL + key,
-                    postId: createdPost?.id,
+                        imagePath: imagePath,
+                        postId: createdPost?.id,
                     });
-                });
+                }
                 console.log(chalk.green("Uploading images successfully"));
             }
+            console.log(chalk.green("Post created successfully"));
 
             return createdPost;
         } catch (err) {
@@ -391,23 +368,69 @@ export default class PostService {
     }
 
     /**
-     * Update a post
+     * Update a post - Undo delete post
      * @param req.body: Request { content: string, filePath: string, isAnonymous: boolean, userId: number, topicId: number, tagIds: number[] }
      * @returns A post
      * @example /api/v1/community/posts/1
      */
-    public async updatePost(postDTO: any): Promise<Post> {
-        try {
+    public async updatePost(postDTO: any, userId: number): Promise<Post> {
+        try{
+            const post = await Post.findOne({
+                where: {
+                    id: postDTO.id,
+                    userId: userId,
+                }
+            });
+            if (!post) {
+                throw new HttpException(404, "Post not found");
+            }
+
             const updatedPost = await Post.update({
-                content: postDTO.content,
-                isAnonymous: postDTO.isAnonymous,
-                topicId: postDTO.topicId,
+                content: postDTO.content ? postDTO.content : post.content,
+                isAnonymous: postDTO.isAnonymous ? postDTO.isAnonymous : post.isAnonymous,
+                topicId: postDTO.topicId ? postDTO.topicId : post.topicId,
             }, {
                 where: {
-                    id: postDTO.postId,
+                    id: postDTO.id,
                 },
             });
 
+            // Upload new file to S3 if exist
+            if (postDTO.files['photos'] && postDTO.files['photos'].length > 0) {
+                // Remove the old files in AWS S3
+                const oldImages = await PostImage.findAll({
+                    attributes: ["imagePath"],
+                    where: {
+                        postId: postDTO.id,
+                    },
+                });
+                const oldImagePaths = oldImages.map((image) => image.imagePath);
+                console.log("Old Images:", oldImagePaths);
+                await this.deleteImage(oldImagePaths);
+                
+                // Remove the old images in database
+                await PostImage.destroy({
+                    where: {
+                        postId: postDTO.id,
+                    },
+                    force: true
+                });
+                
+                // Upload new files to AWS S3
+                console.log(chalk.green("Uploading images..."));
+                const imagePaths = await this.uploadImage(postDTO.files);
+                
+                for (let imagePath of imagePaths) {
+                    // Associate post with images
+                    console.log(chalk.green("imagePath: ", imagePath));
+                    await PostImage.create({
+                        imagePath: imagePath,
+                        postId: post?.id,
+                    });
+                }
+                console.log(chalk.green("Uploading images successfully"));
+            }
+            
             // Associate post with tags
             if (postDTO.tags.length > 0) {
                 postDTO.tags.map(async (tag: string) => {
@@ -417,24 +440,34 @@ export default class PostService {
                         },
                         attributes: ["id", "name"]
                     });
+
+                    // Remove the old tags
+                    await TagPostRels.destroy({
+                        where: {
+                            postId: postDTO.id,
+                        }, 
+                        force: true
+                    });
+                    
+                    // Create association between post and tags
+                    await TagPostRels.create({
+                        postId: postDTO.id,
+                        tagId: createdTag[0].id,
+                    });
+                    console.log(chalk.green("Tag created - associated successfully", tag));
                 });
             }
-            const post = await Post.findOne({
+            const finalPost = await Post.findOne({
                 where: {
-                    id: postDTO.postId,
+                    id: postDTO.id,
                 },
             });
-
-            if (!post) {
-                throw new HttpException(404, "Post not found");
-            }
-
+            
             console.log(chalk.green("Post updated successfully"));
-            return post as Post;
+            return finalPost as Post;
         } catch (error) {
             throw error;
         }
-            
     }
 
     /**
@@ -451,27 +484,10 @@ export default class PostService {
         }
     }
 
-    /**
-     * Undo delete a post
-     * @param req.params: Request { postId: number }
-     * @returns A post
-     * @example /api/v1/community/posts/1
-     */
     public async undoDeletePost(postId: number, userId: number) {
         try {
             await this.undoDeletePostRels(postId, userId);
-            const undoDeletedPost = await Post.findOne({
-                where: {
-                    id: postId,
-                    userId: userId
-                },
-            });
-            if (!undoDeletedPost) {
-                throw new HttpException(404, "Post not found");
-            }
 
-            console.log(chalk.green("Post undo deleted successfully"));
-            return undoDeletedPost;
         } catch (error) {
             throw error;
         }
@@ -527,6 +543,78 @@ export default class PostService {
             },
         });
 
+    }
+
+    private async uploadImage(files: Record<string, Express.Multer.File[]>) {
+        let imagePaths: string[] = [];
+        // Upload new file to S3
+        // const date = Date.parse(new Date().toISOString());
+        // console.log(date);
+    
+        // // Convert timestamp to date time
+        // const dateString = new Date(date).toJSON().slice(0, 19).replace('T', ' ');
+        // console.log("Date Time:",dateString);  
+        const accessKeyId = process.env.AWS_ACCESS_KEY_ID!;
+        const secretAccessKey = process.env.AWS_SECRET_ACCESS_KEY!;
+        const region = process.env.AWS_REGION!;
+        const Bucket = process.env.AWS_BUCKET_NAME!;
+        
+        files.photos.map(async (file) => {
+            const timestamp = Date.parse(new Date().toISOString());
+            const key = `posts/${timestamp}-${file.originalname}`;
+            // upload to S3
+            new Upload({
+            client: new S3Client({
+                credentials: {
+                    accessKeyId,
+                    secretAccessKey,
+                },
+                region,
+            }),
+            params: {
+                Bucket,
+                Key: key,
+                Body: file.buffer
+            },
+            }).done();
+            
+            console.log(chalk.green("Image uploaded successfully", key));
+            let imagePath = `${process.env.AWS_URL!}${key}`;
+            imagePaths.push(imagePath);
+        });
+
+        return imagePaths;
+    }
+
+    private async deleteImage(files: string[]) {
+        const accessKeyId = process.env.AWS_ACCESS_KEY_ID!;
+        const secretAccessKey = process.env.AWS_SECRET_ACCESS_KEY!;
+        const region = process.env.AWS_REGION!;
+        const Bucket = process.env.AWS_BUCKET_NAME!;
+
+        files.map(async (file) => {
+            const key = file.split(process.env.AWS_URL!)[1];
+
+            // Create an S3 Client
+            const s3 = new S3Client({
+                credentials: {
+                    accessKeyId,
+                    secretAccessKey,
+                },
+                region,
+            });
+
+            // Create the command.
+            const command = new DeleteObjectCommand({
+                Bucket,
+                Key: key,
+            });
+
+            // Run the command.
+            await s3.send(command);
+            
+            console.log(chalk.green("Image deleted successfully", key));
+        });
     }
 
 }

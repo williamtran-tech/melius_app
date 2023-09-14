@@ -13,9 +13,10 @@ const upload = multer({
 });
 
 communityRouter.post("/posts", authMiddleware, upload.fields([{ name: 'photos', maxCount: 5}]), communityController.createPost)
+                .post("/posts/:id", authMiddleware, upload.fields([{ name: 'photos', maxCount: 5}]), communityController.updatePost)
                 .get("/posts", authMiddleware, communityController.getPost)
-                .delete("/posts", authMiddleware, communityController.deletePost)
-                .patch("/posts", authMiddleware, communityController.undoDeletePost);
+                .patch("/posts", authMiddleware, communityController.undoDeletePost)
+                .delete("/posts", authMiddleware, communityController.deletePost);
 
 communityRouter.get("/topics", authMiddleware, communityController.getAllTopics);
 communityRouter.get("/topics/topic-details", authMiddleware, communityController.getAllPostsByTopic);
