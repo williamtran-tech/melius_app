@@ -1,4 +1,11 @@
-import { StyleSheet, Text, TouchableOpacity, View, Image } from "react-native";
+import {
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+  Image,
+  TouchableWithoutFeedback,
+} from "react-native";
 import React, { useState, useRef, useEffect } from "react";
 import HeaderText from "../../components/HeaderText";
 import SubText from "../../components/SubText";
@@ -8,11 +15,33 @@ import Post from "../../components/Post";
 import BottomSheetModal from "@gorhom/bottom-sheet";
 import NewPostForm from "../../components/NewPostForm";
 import { getPost } from "../../Services/CommunityApi";
-
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { BottomSheetFlatList } from "@gorhom/bottom-sheet";
 const CommunityScreen = () => {
-  const [activeTag, setActiveTag] = useState("Sharing");
+  const [activeTag, setActiveTag] = useState(2);
   const bottomSheetRef = useRef(null);
+  const [userId, setUserId] = useState();
   const [postData, setPostData] = useState();
+  const [visible, setVisible] = useState(false);
+  const bottomSheetRefInf = useRef(null);
+
+  const data = [
+    { label: "Delete", action: handleDelete },
+    { label: "Update", action: handleUpdate },
+    { label: "Cancel", action: handleClose },
+  ];
+
+  const handleDelete = () => {
+    bottomSheetRefInf.current.close();
+  };
+
+  const handleUpdate = () => {
+    bottomSheetRefInf.current.close();
+  };
+
+  const handleClose = () => {
+    bottomSheetRefInf.current.close();
+  };
   const handleNewPostPress = () => {
     console.log(bottomSheetRef.current); // Add this line
 
@@ -26,36 +55,42 @@ const CommunityScreen = () => {
     setPostData(data);
   };
   useEffect(() => {
+    AsyncStorage.getItem("userProfile").then((value) => {
+      setUserId(JSON.parse(value).userProfile.user.id);
+    });
     retrievePostData();
   }, [activeTag]);
   return (
-    <View>
+    // <TouchableWithoutFeedback
+    //   onPress={() => {
+    //     if (visible) {
+    //       handleClose();
+    //     }
+    //   }}
+    // >
+    <View style={{ paddingBottom: 100 }}>
       <View style={styles.categoryContainer}>
         <TouchableOpacity
-          style={activeTag === "all" ? styles.categoryActive : styles.category}
-          onPress={() => setActiveTag("all")}
+          style={activeTag === 0 ? styles.categoryActive : styles.category}
+          onPress={() => setActiveTag(0)}
         >
           <HeaderText style={styles.categoryName}>All</HeaderText>
         </TouchableOpacity>
         <TouchableOpacity
-          style={activeTag === "Q&A" ? styles.categoryActive : styles.category}
-          onPress={() => setActiveTag("Q&A")}
+          style={activeTag === 1 ? styles.categoryActive : styles.category}
+          onPress={() => setActiveTag(1)}
         >
           <HeaderText style={styles.categoryName}>Q&A</HeaderText>
         </TouchableOpacity>
         <TouchableOpacity
-          style={
-            activeTag === "Experience" ? styles.categoryActive : styles.category
-          }
-          onPress={() => setActiveTag("Experience")}
+          style={activeTag === 3 ? styles.categoryActive : styles.category}
+          onPress={() => setActiveTag(3)}
         >
           <HeaderText style={styles.categoryName}>Experience</HeaderText>
         </TouchableOpacity>
         <TouchableOpacity
-          style={
-            activeTag === "Sharing" ? styles.categoryActive : styles.category
-          }
-          onPress={() => setActiveTag("Sharing")}
+          style={activeTag === 2 ? styles.categoryActive : styles.category}
+          onPress={() => setActiveTag(2)}
         >
           <HeaderText style={styles.categoryName}>Sharing</HeaderText>
         </TouchableOpacity>
@@ -77,7 +112,10 @@ const CommunityScreen = () => {
             +
           </Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.addBtn}>
+        <TouchableOpacity
+          style={styles.addBtn}
+          onPress={() => setVisible(true)}
+        >
           <Text
             style={{
               fontSize: 20,
@@ -93,7 +131,7 @@ const CommunityScreen = () => {
       <ScrollView>
         <View style={styles.contentContainer}>
           {postData?.posts?.map((post, index) => (
-            <Post post={post} key={index}></Post>
+            <Post post={post} key={index} userId={userId}></Post>
           ))}
         </View>
       </ScrollView>
@@ -105,7 +143,38 @@ const CommunityScreen = () => {
       >
         <NewPostForm></NewPostForm>
       </BottomSheetModal>
+
+      <BottomSheetModal
+        ref={bottomSheetRefInf}
+        enablePanDownToClose
+        snapPoints={["30%"]}
+        index={visible ? 0 : -1}
+        onChange={(index) => {
+          if (index === -1) setVisible(false);
+        }}
+      >
+        <View
+          style={{
+            flex: 1,
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "space-around",
+            paddingBottom: 100,
+          }}
+        >
+          <TouchableOpacity onPress={() => handleDelete()}>
+            <SubText>Update</SubText>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => handleDelete()}>
+            <SubText>Delete</SubText>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => handleDelete()}>
+            <SubText>Cancel</SubText>
+          </TouchableOpacity>
+        </View>
+      </BottomSheetModal>
     </View>
+    // </TouchableWithoutFeedback>
   );
 };
 

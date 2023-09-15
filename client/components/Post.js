@@ -6,14 +6,17 @@ import {
   TouchableOpacity,
   Keyboard,
 } from "react-native";
-import React from "react";
+import React, { useEffect, useState, useRef } from "react";
 import HeaderText from "./HeaderText";
 import SubText from "./SubText";
 import Comment from "./Comment";
 import { useNavigation } from "@react-navigation/native";
+import { formatTimeElapsed } from "../Services/FormatTimeElapsed";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
-const Post = ({ focus, post, handleReplyPress, scrollToComment, comment }) => {
+const Post = ({ focus, post, handleReplyPress, scrollToComment, userId }) => {
   const navigation = useNavigation();
+
   return (
     <View
       style={
@@ -32,18 +35,34 @@ const Post = ({ focus, post, handleReplyPress, scrollToComment, comment }) => {
             )}
             <Image
               style={styles.avatar}
-              source={require("../assets/images/doctor.png")}
+              source={
+                post?.user?.img
+                  ? { uri: post.user.img }
+                  : require("../assets/images/doctor.png")
+              }
             ></Image>
           </View>
 
           <View>
-            <HeaderText>{post.user.fullName}</HeaderText>
+            <HeaderText>
+              {post?.user ? post.user.fullName : "Annoymous"}
+            </HeaderText>
             <SubText style={{ color: "rgba(26, 26, 26, 0.50)" }}>
-              1 minute ago
+              {formatTimeElapsed(post?.createdAt)} ago
             </SubText>
           </View>
         </View>
-        <HeaderText style={styles.tag}>Q&A</HeaderText>
+        <View style={{ flexDirection: "row", alignItems: "center", gap: 15 }}>
+          <HeaderText style={styles.tag}>Q&A</HeaderText>
+          {userId === post.user?.id && (
+            <TouchableOpacity onPress={() => setVisible(true)}>
+              <Image
+                source={require("../assets/icon/iconMoreInf.png")}
+                style={{ width: 15, height: 15, resizeMode: "contain" }}
+              ></Image>
+            </TouchableOpacity>
+          )}
+        </View>
       </View>
       {post.images && (
         <View style={styles.imagesContainer}>
@@ -90,25 +109,17 @@ const Post = ({ focus, post, handleReplyPress, scrollToComment, comment }) => {
               lineHeight: 18,
             }}
           >
-            {post.content}
+            {post?.content}
           </SubText>
         </View>
         <View style={styles.hashTag}>
-          <TouchableOpacity>
-            <SubText style={{ color: "rgba(26, 26, 26, 0.50)" }}>
-              #Learn_to_eat
-            </SubText>
-          </TouchableOpacity>
-          <TouchableOpacity>
-            <SubText style={{ color: "rgba(26, 26, 26, 0.50)" }}>
-              #Learn_to_eat
-            </SubText>
-          </TouchableOpacity>
-          <TouchableOpacity>
-            <SubText style={{ color: "rgba(26, 26, 26, 0.50)" }}>
-              #Learn_to_eat
-            </SubText>
-          </TouchableOpacity>
+          {post?.tags?.map((tag) => (
+            <TouchableOpacity key={tag.id}>
+              <SubText style={{ color: "rgba(26, 26, 26, 0.50)" }}>
+                #{tag.name}
+              </SubText>
+            </TouchableOpacity>
+          ))}
         </View>
       </View>
       <View style={styles.bottomContainer}>
@@ -117,23 +128,31 @@ const Post = ({ focus, post, handleReplyPress, scrollToComment, comment }) => {
             style={styles.interact}
             source={require("../assets/icon/IconView.png")}
           ></Image>
-          <SubText style={{ color: "rgba(26, 26, 26, 0.50)" }}>200k</SubText>
+          <SubText style={{ color: "rgba(26, 26, 26, 0.50)" }}>
+            {post.views}
+          </SubText>
         </View>
         <View style={styles.interactContainer}>
           <Image
             style={styles.interact}
             source={require("../assets/icon/IconLike.png")}
           ></Image>
-          <SubText style={{ color: "rgba(26, 26, 26, 0.50)" }}>200k</SubText>
+          <SubText style={{ color: "rgba(26, 26, 26, 0.50)" }}>
+            {post.likes}
+          </SubText>
         </View>
 
-        <TouchableOpacity onPress={() => navigation.navigate("PostDetail")}>
+        <TouchableOpacity
+          onPress={() => navigation.navigate("PostDetail", { data: post.id })}
+        >
           <View style={styles.interactContainer}>
             <Image
               style={styles.interact}
               source={require("../assets/icon/IconComment.png")}
             ></Image>
-            <SubText style={{ color: "rgba(26, 26, 26, 0.50)" }}>200k</SubText>
+            <SubText style={{ color: "rgba(26, 26, 26, 0.50)" }}>
+              {focus ? post.comments.length : post.comments}
+            </SubText>
           </View>
         </TouchableOpacity>
       </View>
@@ -142,7 +161,7 @@ const Post = ({ focus, post, handleReplyPress, scrollToComment, comment }) => {
           <Comment
             handleReplyPress={handleReplyPress}
             scrollToComment={scrollToComment}
-            comment={comment}
+            comment={post.post}
           ></Comment>
         )}
       </View>

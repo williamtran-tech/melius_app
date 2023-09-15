@@ -8,11 +8,16 @@ import {
   TouchableOpacity,
   Image,
 } from "react-native";
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Post from "../../components/Post";
 import HeaderText from "../../components/HeaderText";
+import { set } from "react-native-reanimated";
+import { GetPostDetail } from "../../Services/CommunityApi";
 
-const PostDetail = () => {
+const PostDetail = ({ route }) => {
+  const { data } = route.params;
+  console.log(data);
+  const [post, setPost] = useState();
   const [message, setMessage] = useState();
   const textInputRef = useRef(null);
 
@@ -110,6 +115,14 @@ const PostDetail = () => {
       scrollViewRef.current.scrollTo({ y: scrollPosition, animated: true });
     }
   };
+  const retrievePostData = async () => {
+    const dataPost = await GetPostDetail(data);
+    console.log(dataPost);
+    setPost(dataPost.post);
+  };
+  useEffect(() => {
+    retrievePostData();
+  }, []);
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -119,12 +132,15 @@ const PostDetail = () => {
     >
       <View style={styles.container}>
         <ScrollView ref={scrollViewRef}>
-          <Post
-            focus={true}
-            handleReplyPress={handleReplyPress}
-            scrollToComment={scrollToComment}
-            comment={comment}
-          ></Post>
+          {post && (
+            <Post
+              focus={true}
+              post={post}
+              handleReplyPress={handleReplyPress}
+              scrollToComment={scrollToComment}
+              comment={comment}
+            ></Post>
+          )}
         </ScrollView>
         <View style={styles.inputContainer}>
           <TextInput
@@ -134,7 +150,6 @@ const PostDetail = () => {
             value={message}
             onChangeText={handleInputChange}
           />
-
           {message && (
             <TouchableOpacity onPress={() => {}}>
               <Image
