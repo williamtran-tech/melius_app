@@ -17,7 +17,7 @@ export default class TagService {
      * @param 
      * @returns All hash tags
      */
-  public getAllTags = async () => {
+  public async getAllTags() {
     try {
       const tags = await Tag.findAll({
         attributes: ["id", "name"],

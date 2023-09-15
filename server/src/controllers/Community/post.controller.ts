@@ -13,21 +13,6 @@ export default class CommunityController extends BaseController {
     public postService = new PostService();
     public topicService = new TopicService();
     public tagService = new TagService();
-    // public getAllPosts = async (req: Request, res: Response, next: NextFunction) => {
-    //     try {
-    //         const topic = req.query.topic as string;
-    //         const limit = Number(req.query.limit ? req.query.limit : 10);
-    //         const posts = await this.postService.getAllPosts(topic, limit);
-            
-    //         res.status(200).json({
-    //             msg: "Get all posts successfully",
-    //             posts: posts 
-    //         });
-    //     } catch (err) {
-    //         console.log(err);
-    //         next(err);
-    //     }
-    // }
 
     public getPost = async (req: Request, res: Response, next: NextFunction) => {
         try {
@@ -131,61 +116,6 @@ export default class CommunityController extends BaseController {
             await this.postService.undoDeletePost(postId, userId);
             res.status(200).json({
                 msg: "Undo delete post successfully"
-            });
-        } catch (err) {
-            next(err);
-        }
-    }
-
-    // TOPIC FUNCTIONS
-    public getAllTopics = async (req: Request, res: Response, next: NextFunction) => {
-        try {
-            const topics = await this.topicService.getAllTopics();
-            res.status(200).json({
-                msg: "Get all topics successfully",
-                topics: topics
-            });
-        } catch (err) {
-            next(err);
-        }
-    }
-
-    public getAllPostsByTopic = async (req: Request, res: Response, next: NextFunction) => {
-        try {
-            const topicId = Number(req.query.id);
-            const limit = Number(req.query.limit ? req.query.limit : 10);
-            const posts = await this.postService.getAllPosts(topicId, limit);
-            res.status(200).json({
-                msg: "Get all posts by topic successfully",
-                posts: posts
-            });
-        } catch (err) {
-            next(err);
-        }
-    }
-
-    
-    // TAG FUNCTIONS
-    public getAllTags = async (req: Request, res: Response, next: NextFunction) => {
-        try {
-            const tags = await this.tagService.getAllTags();
-            res.status(200).json({
-                msg: "Get all topics successfully",
-                tags: tags
-            });
-        } catch (err) {
-            next(err);
-        }
-    }
-    
-    public getAllPostsByTag = async (req: Request, res: Response, next: NextFunction) => {
-        try {
-            const tagId = Number(req.query.id);
-            const limit = Number(req.query.limit ? req.query.limit : 10);
-            const posts = await this.postService.getAllPostsByTag(tagId, limit);
-            res.status(200).json({
-                msg: "Get all posts by tag successfully",
-                posts: posts
             });
         } catch (err) {
             next(err);

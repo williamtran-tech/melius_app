@@ -14,6 +14,8 @@ import { TagPostRels } from "../../orm/models/tag.post.rel.model";
 import chalk from "chalk";
 import HttpException from "../../exceptions/HttpException";
 import { View } from "../../orm/models/view.model";
+import { React } from "../../orm/models/react.model";
+import { CommentReact } from "../../orm/models/comment.react.model";
 
 
 export default class PostService {
@@ -240,7 +242,8 @@ export default class PostService {
                     },
                     {
                         model: Comment,
-                        attributes: ["id", "comment", "isAnonymous", "createdAt", "updatedAt"],
+                        attributes: ["id", "comment", "isAnonymous", "createdAt", "updatedAt",
+                        [sequelize.fn("COALESCE", sequelize.literal("(SELECT CAST(SUM(isLike) AS SIGNED) FROM comment_reacts WHERE comment_reacts.commentId = comments.id)"), 0), "likes"],],
                         as: "comments",
                         where: {
                             postId: sequelize.col("Post.id"),
@@ -255,7 +258,8 @@ export default class PostService {
                             {
                                 model: Comment,
                                 as: "replies",
-                                attributes: ["id", "comment", "isAnonymous", "createdAt", "updatedAt"],
+                                attributes: ["id", "comment", "isAnonymous", "createdAt", "updatedAt",
+                                [sequelize.fn("COALESCE", sequelize.literal("(SELECT CAST(SUM(isLike) AS SIGNED) FROM comment_reacts WHERE comment_reacts.commentId = comments.id)"), 0), "likes"]],
                                 where: {
                                     parentId: sequelize.col("comments.id"),
                                 },
@@ -266,9 +270,9 @@ export default class PostService {
                                         attributes: ["id", "fullName", 'img']
                                     }
                                 ],
-                            }
+                                required: false,
+                            },
                         ],
-                        required: false,
                     },
                     {
                         model: PostImage,
@@ -288,7 +292,6 @@ export default class PostService {
                 console.log(chalk.green("Get post Failed"));
                 throw new HttpException(404, "Post not found");
             }
-            
             // Update views
             if (userId) {
                 const updateView = await View.findOrCreate({
@@ -519,6 +522,14 @@ export default class PostService {
         });
         console.log(chalk.green("PostImage deleted successfully"), images);
 
+        // Delete comments of post
+        const comments = await Comment.destroy({
+            where: {
+                postId: postId,
+            },
+        });
+        console.log(chalk.green("Comment deleted successfully"), comments);
+
         console.log(chalk.green("Post deleted successfully"));
         return deletedPost;
     }
@@ -616,5 +627,4 @@ export default class PostService {
             console.log(chalk.green("Image deleted successfully", key));
         });
     }
-
 }
