@@ -14,9 +14,22 @@ export default class CommunityController extends BaseController {
     public topicService = new TopicService();
     public tagService = new TagService();
 
+    public getAllPosts = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const posts = await this.postService.getAllPosts();
+            res.status(200).json({
+                msg: "Get all posts successfully",
+                posts: posts
+            });
+        } catch (err) {
+            next(err);
+        }
+    }
+
+
     public getPost = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const postId = Number(req.query.id);
+            const postId = Number(req.params.id);
             const userId = Number(req.userData.id);
             const post = await this.postService.getPost(postId, userId);
             res.status(200).json({
