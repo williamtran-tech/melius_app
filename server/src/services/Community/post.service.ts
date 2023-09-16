@@ -20,6 +20,59 @@ import { CommentReact } from "../../orm/models/comment.react.model";
 
 export default class PostService {
     constructor() {}
+
+    public async getAllPosts(): Promise<Post[]> {
+        const posts = await Post.findAll({
+            attributes: [
+                "id", 
+                "content", 
+                "isAnonymous", 
+                "createdAt", 
+                "updatedAt", 
+                [sequelize.literal("(SELECT COUNT(view) FROM views WHERE views.postId = Post.id)"), "views"],
+                // Using COALESCE for return 0 if null 
+                // Using CAST for convert to SIGNED numeric data type instead of a string
+                [sequelize.fn("COALESCE", sequelize.literal("(SELECT CAST(SUM(isLike) AS SIGNED) FROM reacts WHERE reacts.postId = Post.id)"), 0), "likes"],
+                [sequelize.fn("COALESCE", sequelize.literal("(SELECT CAST(SUM(isDislike) AS SIGNED) FROM reacts WHERE reacts.postId = Post.id)"), 0), "dislikes"],
+                [sequelize.literal("(SELECT COUNT(id) FROM comments WHERE comments.postId = Post.id)"), "comments"],],
+                include: [
+                    {
+                        model: Topic,
+                        attributes: ["id", "name"],
+                    },
+                    {
+                        model: User,
+                        attributes: [
+                            [sequelize.literal(`IF(isAnonymous = 1, null, user.id)`), 'id'], 
+                            [sequelize.literal(`IF(isAnonymous = 1, null, fullName)`), 'fullName'], 
+                            [sequelize.literal(`IF(isAnonymous = 1, null, gender)`), 'gender'],
+                            [sequelize.literal(`IF(isAnonymous = 1, null, img)`), 'img'],
+                        ],
+                    },
+                    {
+                        model: Tag,
+                        attributes: ["id", "name"],
+                        through: {
+                        attributes: [],
+                        },
+                        required: false
+                    },
+                    {
+                        model: PostImage,
+                        attributes: ["id", "imagePath", "caption"],
+                        where: {
+                            postId: sequelize.col("Post.id"),
+                        },
+                        required: false
+                    },
+                ],  
+                order: [["createdAt", "DESC"]],
+                group: ["Post.id"],
+        });
+
+        return posts;
+    }
+
     /**
      * Get all posts by Topic
      * @param req.query: Request { topic: string, limit: number}
@@ -46,10 +99,10 @@ export default class PostService {
     * @example /api/v1/community/posts?topic=QnA&limit=10
     * @returns All posts of a topic with limit
     */
-    public async getAllPosts(topicId: number, limit: number): Promise<Post[]> {
+    public async getAllPostsByTopic(topicId: number, limit: number): Promise<[Topic, Post[]]> {
         try {
             const topic = await Topic.findOne({
-                attributes: ["id"],
+                attributes: ["id", "name"],
                 where: {
                     id: topicId,
                 },
@@ -107,7 +160,7 @@ export default class PostService {
                 group: ["Post.id"],
                 limit: limit,
             })
-            return posts;
+            return [topic, posts];
         } catch (err) {
         throw err;
         }
@@ -273,6 +326,7 @@ export default class PostService {
                                 required: false,
                             },
                         ],
+                        required: false
                     },
                     {
                         model: PostImage,

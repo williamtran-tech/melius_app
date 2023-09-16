@@ -22,10 +22,11 @@ const upload = multer({
     },
 });
 
+communityRouter.get("/posts", authMiddleware, communityController.getAllPosts);
 communityRouter.post("/posts", authMiddleware, upload.fields([{ name: 'photos', maxCount: 5}]), communityController.createPost)
                 .post("/posts/:id", authMiddleware, upload.fields([{ name: 'photos', maxCount: 5}]), communityController.updatePost)
                 .patch("/posts/:id", authMiddleware, reactController.reactPost)
-                .get("/posts", authMiddleware, communityController.getPost)
+                .get("/posts/:id", authMiddleware, communityController.getPost)
                 .patch("/posts", authMiddleware, communityController.undoDeletePost)
                 .delete("/posts", authMiddleware, communityController.deletePost);
 
