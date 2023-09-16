@@ -26,6 +26,8 @@ import {
 const ProfileChildeFrom = () => {
   const navigation = useNavigation();
   const handleSubmit = async (values) => {
+    // AsyncStorage.clear().then(console.log("cc"));
+    console.log(values);
     try {
       const response = await HandleApi.serverGeneral.post(
         "v1/users/create-child",
@@ -33,8 +35,8 @@ const ProfileChildeFrom = () => {
       );
       await AsyncStorage.setItem("childrenInf", JSON.stringify(response.data));
 
-      // const userProfile = await getUserProfile();
-      // console.log(userProfile);
+      const userProfile = await getUserProfile();
+      console.log(userProfile);
       // console.log(response.data.child.id);
       // const mealPlanResponse = await HandleApi.serverGeneral.post(
       //   "v1/users/meal-plan",

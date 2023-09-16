@@ -3,6 +3,10 @@ import moment from "moment";
 import HandleApi from "./HandleApi";
 import axios from "axios";
 
+export const getUserInfor = async () => {
+  const value = await AsyncStorage.getItem("userProfile");
+  console.log("mealPlan", JSON.parse(value));
+};
 export const suggestMealPlan = async (date) => {
   const dateTime = date ? date : moment().format("YYYY-MM-DD");
 
@@ -223,7 +227,7 @@ export const createMealPlanByDate = async (date) => {
   console.log("createMealPlanByDate:", dateTime);
   try {
     const value = await AsyncStorage.getItem("userProfile");
-    // console.log(JSON.parse(value)?.mealPlan);
+    console.log("userProfileeeeeeeeee", JSON.parse(value)?.mealPlan);
     const kidId = JSON.parse(value)?.kidProfile[0].id;
     const mealPlanResponse = await HandleApi.serverGeneral.post(
       "v1/users/meal-plan",

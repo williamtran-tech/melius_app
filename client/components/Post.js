@@ -14,7 +14,15 @@ import { useNavigation } from "@react-navigation/native";
 import { formatTimeElapsed } from "../Services/FormatTimeElapsed";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-const Post = ({ focus, post, handleReplyPress, scrollToComment, userId }) => {
+const Post = ({
+  focus,
+  post,
+  handleReplyPress,
+  scrollToComment,
+  userId,
+  setActivePost,
+  setVisible,
+}) => {
   const navigation = useNavigation();
 
   return (
@@ -55,7 +63,12 @@ const Post = ({ focus, post, handleReplyPress, scrollToComment, userId }) => {
         <View style={{ flexDirection: "row", alignItems: "center", gap: 15 }}>
           <HeaderText style={styles.tag}>Q&A</HeaderText>
           {userId === post.user?.id && (
-            <TouchableOpacity onPress={() => setVisible(true)}>
+            <TouchableOpacity
+              onPress={() => {
+                setActivePost(post.id);
+                setVisible(true);
+              }}
+            >
               <Image
                 source={require("../assets/icon/iconMoreInf.png")}
                 style={{ width: 15, height: 15, resizeMode: "contain" }}

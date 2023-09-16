@@ -14,24 +14,27 @@ import Comment from "../../components/Comment";
 import Post from "../../components/Post";
 import BottomSheetModal from "@gorhom/bottom-sheet";
 import NewPostForm from "../../components/NewPostForm";
-import { getPost } from "../../Services/CommunityApi";
+import { DeletePost, getPost } from "../../Services/CommunityApi";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { BottomSheetFlatList } from "@gorhom/bottom-sheet";
 const CommunityScreen = () => {
   const [activeTag, setActiveTag] = useState(2);
+  const [activePost, setActivePost] = useState();
+  const [flag, setFlag] = useState(false);
   const bottomSheetRef = useRef(null);
   const [userId, setUserId] = useState();
   const [postData, setPostData] = useState();
   const [visible, setVisible] = useState(false);
   const bottomSheetRefInf = useRef(null);
-
   const data = [
     { label: "Delete", action: handleDelete },
     { label: "Update", action: handleUpdate },
     { label: "Cancel", action: handleClose },
   ];
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
+    await DeletePost(activePost);
+    setFlag(!flag);
     bottomSheetRefInf.current.close();
   };
 
@@ -59,7 +62,7 @@ const CommunityScreen = () => {
       setUserId(JSON.parse(value).userProfile.user.id);
     });
     retrievePostData();
-  }, [activeTag]);
+  }, [activeTag, flag]);
   return (
     // <TouchableWithoutFeedback
     //   onPress={() => {
@@ -68,7 +71,7 @@ const CommunityScreen = () => {
     //     }
     //   }}
     // >
-    <View style={{ paddingBottom: 100 }}>
+    <View style={{ flex: 1 }}>
       <View style={styles.categoryContainer}>
         <TouchableOpacity
           style={activeTag === 0 ? styles.categoryActive : styles.category}
@@ -131,7 +134,13 @@ const CommunityScreen = () => {
       <ScrollView>
         <View style={styles.contentContainer}>
           {postData?.posts?.map((post, index) => (
-            <Post post={post} key={index} userId={userId}></Post>
+            <Post
+              post={post}
+              key={index}
+              userId={userId}
+              setVisible={setVisible}
+              setActivePost={setActivePost}
+            ></Post>
           ))}
         </View>
       </ScrollView>
@@ -159,7 +168,6 @@ const CommunityScreen = () => {
             flexDirection: "column",
             alignItems: "center",
             justifyContent: "space-around",
-            paddingBottom: 100,
           }}
         >
           <TouchableOpacity onPress={() => handleDelete()}>

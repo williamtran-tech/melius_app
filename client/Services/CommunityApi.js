@@ -72,3 +72,35 @@ export const GetPostDetail = async (postId) => {
     return null; // Return null or handle the error as needed
   }
 };
+export const DeletePost = async (postId) => {
+  try {
+    console.log(postId);
+    const response = await HandleApi.serverGeneral.delete(
+      "/v1/community/posts",
+      {
+        params: {
+          id: postId,
+        },
+      }
+    );
+    console.log(response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching post:", error.message);
+    return null; // Return null or handle the error as needed
+  }
+};
+export const UndoDeletePost = async (postId) => {
+  try {
+    const response = await HandleApi.serverGeneral.get("/v1/community/posts", {
+      params: {
+        id: postId,
+      },
+    });
+    console.log(response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching post:", error.message);
+    return null; // Return null or handle the error as needed
+  }
+};

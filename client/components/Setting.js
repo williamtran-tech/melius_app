@@ -12,6 +12,7 @@ import SubText from "./SubText";
 
 const Setting = () => {
   const navigation = useNavigation();
+
   const handleFaceIDAuthentication = async () => {
     try {
       const { success } = await LocalAuthentication.authenticateAsync({
@@ -38,8 +39,8 @@ const Setting = () => {
       if (error) {
         console.error(error);
       } else {
-        console.log('"Authentication" has been deleted.');
-        // navigation.replace("Auth");
+        // console.log('"Authentication" has been deleted.');
+        navigation.replace("Auth");
         HandleApi.serverGeneral
           .get("/v1/auth/logout")
           .then((response) => {
