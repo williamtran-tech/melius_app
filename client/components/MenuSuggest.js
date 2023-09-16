@@ -29,7 +29,7 @@ const MenuSuggest = () => {
   };
   const [recipeImages, setRecipeImages] = useState({});
 
-  const searchRecipe = async (value) => {
+  const searchRecipe = async () => {
     const response = await HandleApi.serverGeneral.get("v1/recipes", {
       params: {
         limit: 5,
@@ -110,7 +110,7 @@ const MenuSuggest = () => {
                         ellipsizeMode="tail"
                         style={styles.menuDescription}
                       >
-                        Step: {menuItem.nSteps}, Ingredient:{" "}
+                        Step: {menuItem.nSteps}, Ingredient:
                         {menuItem.nIngredients}
                       </SubText>
                     </View>

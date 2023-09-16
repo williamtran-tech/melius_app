@@ -92,12 +92,11 @@ export const DeletePost = async (postId) => {
 };
 export const UndoDeletePost = async (postId) => {
   try {
-    const response = await HandleApi.serverGeneral.get("/v1/community/posts", {
-      params: {
-        id: postId,
-      },
-    });
-    console.log(response.data);
+    console.log(postId);
+    const response = await HandleApi.serverGeneral.patch(
+      `/v1/community/posts?id=${postId}`
+    );
+    console.log("postId:", postId, response.data);
     return response.data;
   } catch (error) {
     console.error("Error fetching post:", error.message);

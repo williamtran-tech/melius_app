@@ -17,7 +17,7 @@ import SubText from "./SubText";
 import { ImagePicker } from "expo-image-multiple-picker";
 import { createPost } from "../Services/CommunityApi";
 
-const NewPostForm = () => {
+const NewPostForm = ({ flag, setFlag, handleCloseNewPost }) => {
   const [topic, setTopic] = useState();
   const [hashtag, setHashtag] = useState();
   const [hashtagList, setHashtagList] = useState();
@@ -62,9 +62,26 @@ const NewPostForm = () => {
     setHashtagList(updatedHashtags);
   };
   const handlePost = async () => {
-    const response = createPost("Content", false, 2, hashtagList, imageUrls);
+    try {
+      const response = await createPost(
+        "Content",
+        false,
+        2,
+        hashtagList,
+        imageUrls
+      );
+      setFlag(!flag);
+      handleCloseNewPost();
+      setImageUrls();
+      setHashtagList();
+      setTopic();
+    } catch (error) {
+      console.log(error.message);
+    }
+
     // console.log(response.data);
   };
+
   useEffect(() => {
     // (async () => {
     //   const { status } =
@@ -201,9 +218,9 @@ const NewPostForm = () => {
               console.log(assets);
               setImageBrowser(false);
             }}
-            onCancel={(assets) => console.log("no permissions or user go back")}
+            onCancel={() => console.log("no permissions or user go back")}
+            albumColumns={3}
             multiple
-            noAlbums
             galleryColumns={4}
             limit={5}
           />

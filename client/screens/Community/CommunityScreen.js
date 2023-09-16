@@ -5,6 +5,8 @@ import {
   View,
   Image,
   TouchableWithoutFeedback,
+  Modal,
+  Pressable,
 } from "react-native";
 import React, { useState, useRef, useEffect } from "react";
 import HeaderText from "../../components/HeaderText";
@@ -14,7 +16,11 @@ import Comment from "../../components/Comment";
 import Post from "../../components/Post";
 import BottomSheetModal from "@gorhom/bottom-sheet";
 import NewPostForm from "../../components/NewPostForm";
-import { DeletePost, getPost } from "../../Services/CommunityApi";
+import {
+  DeletePost,
+  getPost,
+  UndoDeletePost,
+} from "../../Services/CommunityApi";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { BottomSheetFlatList } from "@gorhom/bottom-sheet";
 const CommunityScreen = () => {
@@ -24,6 +30,7 @@ const CommunityScreen = () => {
   const bottomSheetRef = useRef(null);
   const [userId, setUserId] = useState();
   const [postData, setPostData] = useState();
+  const [modalVisible, setModalVisible] = useState(false);
   const [visible, setVisible] = useState(false);
   const bottomSheetRefInf = useRef(null);
   const data = [
@@ -36,14 +43,30 @@ const CommunityScreen = () => {
     await DeletePost(activePost);
     setFlag(!flag);
     bottomSheetRefInf.current.close();
+    setModalVisible(true);
+    setTimeout(() => {
+      setModalVisible(false);
+      setActivePost(null);
+    }, 3000);
   };
 
-  const handleUpdate = () => {
+  const handleUndo = async () => {
+    await UndoDeletePost(activePost);
+    setModalVisible(false);
+    setActivePost(null);
+    setFlag(!flag);
+  };
+  const handleUpdate = async () => {
+    // await UndoDeletePost(activePost);
+    // setFlag(!flag);
     bottomSheetRefInf.current.close();
   };
 
   const handleClose = () => {
     bottomSheetRefInf.current.close();
+  };
+  const handleCloseNewPost = () => {
+    bottomSheetRef.current.close();
   };
   const handleNewPostPress = () => {
     console.log(bottomSheetRef.current); // Add this line
@@ -150,7 +173,11 @@ const CommunityScreen = () => {
         index={-1} // The initial snap point (0 means the first snap point)
         enablePanDownToClose
       >
-        <NewPostForm></NewPostForm>
+        <NewPostForm
+          flag={flag}
+          setFlag={setFlag}
+          handleCloseNewPost={handleCloseNewPost}
+        ></NewPostForm>
       </BottomSheetModal>
 
       <BottomSheetModal
@@ -181,6 +208,24 @@ const CommunityScreen = () => {
           </TouchableOpacity>
         </View>
       </BottomSheetModal>
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <View style={styles.centeredView}>
+          <View style={styles.modalView}>
+            <Text>Post deleted. Undo?</Text>
+            <TouchableOpacity
+              style={styles.undoButton}
+              onPress={() => handleUndo()}
+            >
+              <Text>Undo</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </View>
     // </TouchableWithoutFeedback>
   );
@@ -291,5 +336,26 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     paddingHorizontal: 25,
+  },
+  centeredView: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "flex-end",
+    paddingBottom: 90,
+  },
+  modalView: {
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#8CC840",
+    paddingHorizontal: 20,
+    paddingVertical: 5,
+    borderRadius: 20,
+    gap: 20,
+  },
+  undoButton: {
+    backgroundColor: "#FDFDFD",
+    padding: 10,
+    borderRadius: 10,
   },
 });
