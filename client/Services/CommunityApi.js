@@ -28,23 +28,26 @@ export const createPost = async (
 ) => {
   try {
     const formData = new FormData();
-    formData.append("content", "ddddd");
+    formData.append("content", content);
     formData.append("isAnonymous", isAnonymous);
     formData.append("topicId", 1);
-    tags && formData.append("tags", tags.join(","));
-
-    for (const photo of photos) {
-      const assetInfo = await MediaLibrary.getAssetInfoAsync(photo);
-      const localUri = assetInfo.localUri;
-      const fileName = `photo_${Date.now()}.jpg`; // You can customize the file name
-
-      // Append the image to the FormData object with a custom name
-      formData.append("photos", {
-        uri: localUri,
-        name: fileName,
-        type: "image/jpeg", // You can adjust the MIME type based on your needs
-      });
+    if (tags) {
+      formData.append("tags", tags.join(","));
+      console.log(tags);
     }
+    if (photos)
+      for (const photo of photos) {
+        const assetInfo = await MediaLibrary.getAssetInfoAsync(photo);
+        const localUri = assetInfo.localUri;
+        const fileName = `photo_${Date.now()}.jpg`; // You can customize the file name
+
+        // Append the image to the FormData object with a custom name
+        formData.append("photos", {
+          uri: localUri,
+          name: fileName,
+          type: "image/jpeg", // You can adjust the MIME type based on your needs
+        });
+      }
     console.log(formData);
     const response = await HandleApi.serverGeneral.post(
       "/v1/community/posts",
@@ -136,6 +139,25 @@ export const UndoDeletePost = async (postId) => {
     console.log(postId);
     const response = await HandleApi.serverGeneral.patch(
       `/v1/community/posts?id=${postId}`
+    );
+    console.log("postId:", postId, response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching post:", error.message);
+    return null; // Return null or handle the error as needed
+  }
+};
+export const CommentPost = async (postId, content, activeComment) => {
+  try {
+    const data = {
+      postId: postId,
+      comment: content,
+      isAnonymous: false,
+      ...(activeComment ? { parentId: activeComment } : {}),
+    };
+    const response = await HandleApi.serverGeneral.post(
+      `/v1/community/posts/post-details/comments`,
+      data
     );
     console.log("postId:", postId, response.data);
     return response.data;

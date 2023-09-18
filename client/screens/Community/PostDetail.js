@@ -7,122 +7,61 @@ import {
   TextInput,
   TouchableOpacity,
   Image,
+  Keyboard,
 } from "react-native";
 import React, { useEffect, useRef, useState } from "react";
 import Post from "../../components/Post";
 import HeaderText from "../../components/HeaderText";
 import { set } from "react-native-reanimated";
-import { GetPostDetail } from "../../Services/CommunityApi";
+import { CommentPost, GetPostDetail } from "../../Services/CommunityApi";
 
 const PostDetail = ({ route }) => {
   const { data } = route.params;
-  console.log(data);
   const [post, setPost] = useState();
+  const [flag, setFlag] = useState(true);
   const [message, setMessage] = useState();
   const textInputRef = useRef(null);
-
+  const [activeComment, setActiveComment] = useState();
   const handleReplyPress = () => {
     if (textInputRef.current) {
       textInputRef.current.focus();
     }
   };
 
-  const handleInputChange = (text) => {
-    setMessage(text);
-  };
-  const scrollViewRef = useRef(null);
-  const [comment, setComment] = useState([
-    {
-      id: 1,
-      comment: "hello",
-      timeStamp: "2023-08-23T18:05:45.000Z",
-    },
-    {
-      id: 2,
-      comment: "hi",
-      timeStamp: "2023-08-23T18:06:45.000Z",
-    },
-    {
-      id: 3,
-      comment: "hi",
-      timeStamp: "2023-08-23T18:06:45.000Z",
-    },
-    {
-      id: 4,
-      comment: "hi",
-      timeStamp: "2023-08-23T18:06:45.000Z",
-    },
-    {
-      id: 5,
-      comment: "hi",
-      timeStamp: "2023-08-23T18:06:45.000Z",
-    },
-    {
-      id: 6,
-      comment: "hi",
-      timeStamp: "2023-08-23T18:06:45.000Z",
-    },
-    {
-      id: 7,
-      comment: "hi",
-      timeStamp: "2023-08-23T18:06:45.000Z",
-    },
-    {
-      id: 8,
-      comment: "hi",
-      timeStamp: "2023-08-23T18:06:45.000Z",
-    },
-    {
-      id: 9,
-      comment: "hi",
-      timeStamp: "2023-08-23T18:06:45.000Z",
-    },
-    {
-      id: 10,
-      comment: "hi",
-      timeStamp: "2023-08-23T18:06:45.000Z",
-    },
-    {
-      id: 11,
-      comment: "hi",
-      timeStamp: "2023-08-23T18:06:45.000Z",
-    },
-    {
-      id: 12,
-      comment: "hi",
-      timeStamp: "2023-08-23T18:06:45.000Z",
-    },
-    {
-      id: 13,
-      comment: "hi",
-      timeStamp: "2023-08-23T18:06:45.000Z",
-    },
-  ]);
-  const scrollToComment = (commentId) => {
-    const commentIndex = comment.findIndex((item) => item.id === commentId);
+  // const scrollViewRef = useRef(null);
 
-    if (commentIndex === -1) {
-      return;
-    }
+  // const scrollToComment = (commentId) => {
+  //   const commentIndex = comment.findIndex((item) => item.id === commentId);
 
-    const commentHeight = 100; // Adjust the height based on your comment layout
-    const keyboardHeight = Platform.OS === "ios" ? 300 : 150; // Adjust as needed
+  //   if (commentIndex === -1) {
+  //     return;
+  //   }
 
-    const scrollPosition =
-      commentIndex * commentHeight - keyboardHeight + commentHeight;
+  //   const commentHeight = 100; // Adjust the height based on your comment layout
+  //   const keyboardHeight = Platform.OS === "ios" ? 300 : 150; // Adjust as needed
 
-    if (scrollViewRef.current) {
-      scrollViewRef.current.scrollTo({ y: scrollPosition, animated: true });
-    }
-  };
+  //   const scrollPosition =
+  //     commentIndex * commentHeight - keyboardHeight + commentHeight;
+
+  //   if (scrollViewRef.current) {
+  //     scrollViewRef.current.scrollTo({ y: scrollPosition, animated: true });
+  //   }
+  // };
   const retrievePostData = async () => {
     const dataPost = await GetPostDetail(data);
     console.log(dataPost);
     setPost(dataPost.post);
   };
+  const [content, setContent] = useState();
+  const handleComment = async () => {
+    const response = await CommentPost(post.id, content, activeComment);
+    Keyboard.dismiss();
+    setContent("");
+    setFlag(!flag);
+  };
   useEffect(() => {
     retrievePostData();
-  }, []);
+  }, [flag]);
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -131,14 +70,14 @@ const PostDetail = ({ route }) => {
       }}
     >
       <View style={styles.container}>
-        <ScrollView ref={scrollViewRef}>
+        <ScrollView>
           {post && (
             <Post
               focus={true}
               post={post}
               handleReplyPress={handleReplyPress}
-              scrollToComment={scrollToComment}
-              comment={comment}
+              setActiveComment={setActiveComment}
+              activeComment={activeComment}
             ></Post>
           )}
         </ScrollView>
@@ -147,11 +86,15 @@ const PostDetail = ({ route }) => {
             ref={textInputRef}
             style={styles.input}
             placeholder="Comment here "
-            value={message}
-            onChangeText={handleInputChange}
+            value={content}
+            onChangeText={(value) => setContent(value)}
           />
-          {message && (
-            <TouchableOpacity onPress={() => {}}>
+          {content && (
+            <TouchableOpacity
+              onPress={() => {
+                handleComment();
+              }}
+            >
               <Image
                 source={require("../../assets/icon/IconSend.png")}
                 style={styles.sendIcon}

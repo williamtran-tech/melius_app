@@ -23,9 +23,17 @@ const Post = ({
   setActivePost,
   setVisible,
   setDataNewPost,
+  setActiveComment,
+  activeComment,
 }) => {
   const navigation = useNavigation();
+  let commentCount = 0;
 
+  if (focus)
+    post.comments.map((comment) => {
+      commentCount++;
+      comment.replies.map((reply) => commentCount++);
+    });
   return (
     <View
       style={
@@ -79,7 +87,7 @@ const Post = ({
           )}
         </View>
       </View>
-      {post.images && (
+      {post.images != "" && (
         <View style={styles.imagesContainer}>
           {post.images[0] && (
             <View style={styles.imageContainer}>
@@ -114,7 +122,7 @@ const Post = ({
           )}
         </View>
       )}
-      <View style={{ marginTop: 20 }}>
+      <View>
         <View>
           <SubText
             numberOfLines={5}
@@ -166,7 +174,7 @@ const Post = ({
               source={require("../assets/icon/IconComment.png")}
             ></Image>
             <SubText style={{ color: "rgba(26, 26, 26, 0.50)" }}>
-              {focus ? post.comments.length : post.comments}
+              {focus ? commentCount : post.comments}
             </SubText>
           </View>
         </TouchableOpacity>
@@ -175,8 +183,9 @@ const Post = ({
         {focus && (
           <Comment
             handleReplyPress={handleReplyPress}
-            scrollToComment={scrollToComment}
-            comment={post.post}
+            comments={post.comments}
+            setActiveComment={setActiveComment}
+            activeComment={activeComment}
           ></Comment>
         )}
       </View>
@@ -263,6 +272,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
     gap: 5,
     paddingHorizontal: 5,
+    marginBottom: 20,
   },
   imageContainer: {
     // position: "absolute",

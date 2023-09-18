@@ -19,6 +19,7 @@ import { createPost, updatePost } from "../Services/CommunityApi";
 
 const NewPostForm = ({ flag, setFlag, handleCloseNewPost, dataNewPost }) => {
   const [topic, setTopic] = useState();
+  const [content, setContent] = useState();
   const [hashtag, setHashtag] = useState();
   const [hashtagList, setHashtagList] = useState();
   const [showHashtagInput, setShowHashtagInput] = useState(false);
@@ -64,12 +65,13 @@ const NewPostForm = ({ flag, setFlag, handleCloseNewPost, dataNewPost }) => {
   const handlePost = async () => {
     try {
       const response = await createPost(
-        "Content",
+        content,
         false,
         2,
         hashtagList,
         imageUrls
       );
+      Keyboard.dismiss();
       setFlag(!flag);
       handleCloseNewPost();
       setImageUrls();
@@ -85,7 +87,7 @@ const NewPostForm = ({ flag, setFlag, handleCloseNewPost, dataNewPost }) => {
     try {
       const response = await updatePost(
         dataNewPost.id,
-        "Content",
+        content,
         false,
         2,
         hashtagList,
@@ -114,7 +116,8 @@ const NewPostForm = ({ flag, setFlag, handleCloseNewPost, dataNewPost }) => {
     //     console.log("Permission to access images denied.");
     //   }
     // })();
-    console.log("dataNewPostdataNewPostdataNewPost", dataNewPost);
+    console.log("dataNewPostdataNewPostdataNewPost");
+    setContent(dataNewPost && dataNewPost.content);
     setHashtagList(dataNewPost && dataNewPost.tags.map((tag) => tag.name));
 
     setImageUrls(
@@ -169,6 +172,8 @@ const NewPostForm = ({ flag, setFlag, handleCloseNewPost, dataNewPost }) => {
           <View>
             <View>
               <TextInput
+                value={content}
+                onChangeText={(value) => setContent(value)}
                 placeholder="Type here..."
                 placeholderTextColor="#8b9cb5"
                 multiline={true}
