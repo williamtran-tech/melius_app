@@ -15,9 +15,9 @@ import HeaderText from "./HeaderText";
 import RNPickerSelect from "react-native-picker-select";
 import SubText from "./SubText";
 import { ImagePicker } from "expo-image-multiple-picker";
-import { createPost } from "../Services/CommunityApi";
+import { createPost, updatePost } from "../Services/CommunityApi";
 
-const NewPostForm = ({ flag, setFlag, handleCloseNewPost }) => {
+const NewPostForm = ({ flag, setFlag, handleCloseNewPost, dataNewPost }) => {
   const [topic, setTopic] = useState();
   const [hashtag, setHashtag] = useState();
   const [hashtagList, setHashtagList] = useState();
@@ -29,7 +29,7 @@ const NewPostForm = ({ flag, setFlag, handleCloseNewPost }) => {
   };
 
   const [imageBrowser, setImageBrowser] = useState(false);
-  const [imageUrls, setImageUrls] = useState();
+  const [imageUrls, setImageUrls] = useState([]);
   const openImagePicker = () => {
     setImageBrowser(true);
   };
@@ -81,6 +81,30 @@ const NewPostForm = ({ flag, setFlag, handleCloseNewPost }) => {
 
     // console.log(response.data);
   };
+  const handleUpdate = async () => {
+    try {
+      const response = await updatePost(
+        dataNewPost.id,
+        "Content",
+        false,
+        2,
+        hashtagList,
+        imageUrls,
+        dataNewPost.images.map((image) => {
+          return { uri: image.imagePath };
+        })
+      );
+      setFlag(!flag);
+      handleCloseNewPost();
+      setImageUrls();
+      setHashtagList();
+      setTopic();
+    } catch (error) {
+      console.log(error.message);
+    }
+
+    // console.log(response.data);
+  };
 
   useEffect(() => {
     // (async () => {
@@ -90,7 +114,16 @@ const NewPostForm = ({ flag, setFlag, handleCloseNewPost }) => {
     //     console.log("Permission to access images denied.");
     //   }
     // })();
-  }, []);
+    console.log("dataNewPostdataNewPostdataNewPost", dataNewPost);
+    setHashtagList(dataNewPost && dataNewPost.tags.map((tag) => tag.name));
+
+    setImageUrls(
+      dataNewPost &&
+        dataNewPost.images.map((image) => {
+          return { uri: image.imagePath };
+        })
+    );
+  }, [dataNewPost]);
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
       <View style={{ flex: 1 }}>
@@ -102,7 +135,7 @@ const NewPostForm = ({ flag, setFlag, handleCloseNewPost }) => {
           <View style={{ flex: 1, alignItems: "flex-end" }}>
             <TouchableOpacity
               style={styles.postButton}
-              onPress={() => handlePost()}
+              onPress={() => (dataNewPost ? handleUpdate() : handlePost())}
             >
               <Text style={styles.postText}>Post</Text>
             </TouchableOpacity>

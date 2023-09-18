@@ -57,14 +57,55 @@ export const createPost = async (
     return null; // Return null or handle the error as needed
   }
 };
+export const updatePost = async (
+  id,
+  content,
+  isAnonymous,
+  topicId,
+  tags,
+
+  photos,
+  original
+) => {
+  try {
+    const formData = new FormData();
+    formData.append("content", "ddddd");
+    formData.append("isAnonymous", isAnonymous);
+    formData.append("topicId", 1);
+    tags && formData.append("tags", tags.join(","));
+    if (JSON.stringify(photos) !== JSON.stringify(original)) {
+      for (const photo of photos) {
+        const assetInfo = await MediaLibrary.getAssetInfoAsync(photo);
+        const localUri = assetInfo.localUri;
+        const fileName = `photo_${Date.now()}.jpg`; // You can customize the file name
+
+        // Append the image to the FormData object with a custom name
+        formData.append("photos", {
+          uri: localUri,
+          name: fileName,
+          type: "image/jpeg", // You can adjust the MIME type based on your needs
+        });
+      }
+    }
+
+    console.log(formData);
+    const response = await HandleApi.serverFormData.post(
+      `/v1/community/posts/${id}`,
+      formData
+    );
+    console.log(response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching post:", error.message);
+    return null; // Return null or handle the error as needed
+  }
+};
 
 export const GetPostDetail = async (postId) => {
   try {
-    const response = await HandleApi.serverGeneral.get("/v1/community/posts", {
-      params: {
-        id: postId,
-      },
-    });
+    const response = await HandleApi.serverGeneral.get(
+      `/v1/community/posts/${postId}`
+    );
     console.log(response.data);
     return response.data;
   } catch (error) {

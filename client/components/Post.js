@@ -22,6 +22,7 @@ const Post = ({
   userId,
   setActivePost,
   setVisible,
+  setDataNewPost,
 }) => {
   const navigation = useNavigation();
 
@@ -66,6 +67,7 @@ const Post = ({
             <TouchableOpacity
               onPress={() => {
                 setActivePost(post.id);
+                setDataNewPost(post);
                 setVisible(true);
               }}
             >

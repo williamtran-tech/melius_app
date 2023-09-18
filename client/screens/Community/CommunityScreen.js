@@ -26,6 +26,7 @@ import { BottomSheetFlatList } from "@gorhom/bottom-sheet";
 const CommunityScreen = () => {
   const [activeTag, setActiveTag] = useState(2);
   const [activePost, setActivePost] = useState();
+  const [dataNewPost, setDataNewPost] = useState();
   const [flag, setFlag] = useState(false);
   const bottomSheetRef = useRef(null);
   const [userId, setUserId] = useState();
@@ -60,6 +61,9 @@ const CommunityScreen = () => {
     // await UndoDeletePost(activePost);
     // setFlag(!flag);
     bottomSheetRefInf.current.close();
+    if (bottomSheetRef.current) {
+      bottomSheetRef.current.expand();
+    }
   };
 
   const handleClose = () => {
@@ -69,8 +73,8 @@ const CommunityScreen = () => {
     bottomSheetRef.current.close();
   };
   const handleNewPostPress = () => {
-    console.log(bottomSheetRef.current); // Add this line
-
+    // console.log(bottomSheetRef.current);
+    setDataNewPost();
     if (bottomSheetRef.current) {
       bottomSheetRef.current.expand();
     }
@@ -163,17 +167,19 @@ const CommunityScreen = () => {
               userId={userId}
               setVisible={setVisible}
               setActivePost={setActivePost}
+              setDataNewPost={setDataNewPost}
             ></Post>
           ))}
         </View>
       </ScrollView>
       <BottomSheetModal
         ref={bottomSheetRef}
-        snapPoints={["85%"]} // Define your snap points here
+        snapPoints={["100%"]} // Define your snap points here
         index={-1} // The initial snap point (0 means the first snap point)
         enablePanDownToClose
       >
         <NewPostForm
+          dataNewPost={dataNewPost}
           flag={flag}
           setFlag={setFlag}
           handleCloseNewPost={handleCloseNewPost}
@@ -197,7 +203,7 @@ const CommunityScreen = () => {
             justifyContent: "space-around",
           }}
         >
-          <TouchableOpacity onPress={() => handleDelete()}>
+          <TouchableOpacity onPress={() => handleUpdate()}>
             <SubText>Update</SubText>
           </TouchableOpacity>
           <TouchableOpacity onPress={() => handleDelete()}>
