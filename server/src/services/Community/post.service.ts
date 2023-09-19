@@ -21,7 +21,11 @@ import { CommentReact } from "../../orm/models/comment.react.model";
 export default class PostService {
     constructor() {}
 
-    public async getAllPosts(): Promise<Post[]> {
+    /**
+     * 
+     * @returns All posts
+     */
+    public async getAllPosts(userId: number): Promise<Post[]> {
         const posts = await Post.findAll({
             attributes: [
                 "id", 
@@ -43,10 +47,10 @@ export default class PostService {
                     {
                         model: User,
                         attributes: [
-                            [sequelize.literal(`IF(isAnonymous = 1, null, user.id)`), 'id'], 
-                            [sequelize.literal(`IF(isAnonymous = 1, null, fullName)`), 'fullName'], 
-                            [sequelize.literal(`IF(isAnonymous = 1, null, gender)`), 'gender'],
-                            [sequelize.literal(`IF(isAnonymous = 1, null, img)`), 'img'],
+                            [sequelize.literal(`IF(Post.isAnonymous = 1 AND user.id != ${userId}, null, user.id)`), 'id'], 
+                            [sequelize.literal(`IF(Post.isAnonymous = 1 AND user.id != ${userId}, null, user.fullName)`), 'fullName'], 
+                            [sequelize.literal(`IF(Post.isAnonymous = 1 AND user.id != ${userId}, null, user.gender)`), 'gender'],
+                            [sequelize.literal(`IF(Post.isAnonymous = 1 AND user.id != ${userId}, null, user.img)`), 'img'],
                         ],
                     },
                     {
@@ -99,7 +103,7 @@ export default class PostService {
     * @example /api/v1/community/posts?topic=QnA&limit=10
     * @returns All posts of a topic with limit
     */
-    public async getAllPostsByTopic(topicId: number, limit: number): Promise<[Topic, Post[]]> {
+    public async getAllPostsByTopic(topicId: number, limit: number, userId: number): Promise<[Topic, Post[]]> {
         try {
             const topic = await Topic.findOne({
                 attributes: ["id", "name"],
@@ -130,10 +134,10 @@ export default class PostService {
                 {
                     model: User,
                     attributes: [
-                        [sequelize.literal(`IF(isAnonymous = 1, null, user.id)`), 'id'], 
-                        [sequelize.literal(`IF(isAnonymous = 1, null, fullName)`), 'fullName'], 
-                        [sequelize.literal(`IF(isAnonymous = 1, null, gender)`), 'gender'],
-                        [sequelize.literal(`IF(isAnonymous = 1, null, img)`), 'img'],
+                        [sequelize.literal(`IF(Post.isAnonymous = 1 AND user.id != ${userId}, null, user.id)`), 'id'], 
+                        [sequelize.literal(`IF(Post.isAnonymous = 1 AND user.id != ${userId}, null, user.fullName)`), 'fullName'], 
+                        [sequelize.literal(`IF(Post.isAnonymous = 1 AND user.id != ${userId}, null, user.gender)`), 'gender'],
+                        [sequelize.literal(`IF(Post.isAnonymous = 1 AND user.id != ${userId}, null, user.img)`), 'img'],
                     ],
                 },
                 {
@@ -172,7 +176,7 @@ export default class PostService {
      * @param limit Number of posts
      * @returns All posts of a tag with limit
      */
-    public async getAllPostsByTag(tagId: number, limit: number): Promise<Post[]> {
+    public async getAllPostsByTag(tagId: number, limit: number, userId: number): Promise<Post[]> {
         try {
             const tag = await Tag.findOne({
                 attributes: ["id"],
@@ -212,10 +216,10 @@ export default class PostService {
                     {
                         model: User,
                         attributes: [
-                            [sequelize.literal(`IF(isAnonymous = 1, null, user.id)`), 'id'], 
-                            [sequelize.literal(`IF(isAnonymous = 1, null, fullName)`), 'fullName'], 
-                            [sequelize.literal(`IF(isAnonymous = 1, null, gender)`), 'gender'],
-                            [sequelize.literal(`IF(isAnonymous = 1, null, img)`), 'img'],
+                            [sequelize.literal(`IF(Post.isAnonymous = 1 AND user.id != ${userId}, null, user.id)`), 'id'], 
+                            [sequelize.literal(`IF(Post.isAnonymous = 1 AND user.id != ${userId}, null, user.fullName)`), 'fullName'], 
+                            [sequelize.literal(`IF(Post.isAnonymous = 1 AND user.id != ${userId}, null, user.gender)`), 'gender'],
+                            [sequelize.literal(`IF(Post.isAnonymous = 1 AND user.id != ${userId}, null, user.img)`), 'img'],
                         ],
                     },
                     {
@@ -258,7 +262,7 @@ export default class PostService {
      * }
      * }
      */
-    public async getPost(postId: number, userId?: number): Promise<Post> {
+    public async getPost(postId: number, userId: number): Promise<Post> {
         try {
             const post = await Post.findOne({
                 attributes: [
@@ -275,10 +279,10 @@ export default class PostService {
                     {
                         model: User,
                         attributes: [
-                            [sequelize.literal(`IF(Post.isAnonymous = 1, null, user.id)`), 'id'], 
-                            [sequelize.literal(`IF(Post.isAnonymous = 1, null, user.fullName)`), 'fullName'], 
-                            [sequelize.literal(`IF(Post.isAnonymous = 1, null, user.gender)`), 'gender'],
-                            [sequelize.literal(`IF(Post.isAnonymous = 1, null, user.img)`), 'img'],
+                            [sequelize.literal(`IF(Post.isAnonymous = 1 AND user.id != ${userId}, null, user.id)`), 'id'], 
+                            [sequelize.literal(`IF(Post.isAnonymous = 1 AND user.id != ${userId}, null, user.fullName)`), 'fullName'], 
+                            [sequelize.literal(`IF(Post.isAnonymous = 1 AND user.id != ${userId}, null, user.gender)`), 'gender'],
+                            [sequelize.literal(`IF(Post.isAnonymous = 1 AND user.id != ${userId}, null, user.img)`), 'img'],
                         ],
                     },
                     {
@@ -452,26 +456,31 @@ export default class PostService {
                 },
             });
 
-            // Upload new file to S3 if exist
+            // Upload new file to S3 if exists
             if (postDTO.files['photos'] && postDTO.files['photos'].length > 0) {
-                // Remove the old files in AWS S3
-                const oldImages = await PostImage.findAll({
-                    attributes: ["imagePath"],
-                    where: {
-                        postId: postDTO.id,
-                    },
-                });
-                const oldImagePaths = oldImages.map((image) => image.imagePath);
-                console.log("Old Images:", oldImagePaths);
-                await this.deleteImage(oldImagePaths);
-                
-                // Remove the old images in database
-                await PostImage.destroy({
-                    where: {
-                        postId: postDTO.id,
-                    },
-                    force: true
-                });
+                if (postDTO.retainImg == false) {
+                    // Remove the old files in AWS S3
+                    const oldImages = await PostImage.findAll({
+                        attributes: ["imagePath"],
+                        where: {
+                            postId: postDTO.id,
+                        },
+                    });
+                    const oldImagePaths = oldImages.map((image) => image.imagePath);
+                    console.log("Old Images:", oldImagePaths);
+                    await this.deleteImage(oldImagePaths);
+                    
+                    // Remove the old images in database
+                    await PostImage.destroy({
+                        where: {
+                            postId: postDTO.id,
+                        },
+                        force: true
+                    });
+                    console.log(chalk.green("Delete images"));
+                } else {
+                    console.log(chalk.green("Retain images"));
+                }
                 
                 // Upload new files to AWS S3
                 console.log(chalk.green("Uploading images..."));
@@ -489,7 +498,7 @@ export default class PostService {
             }
             
             // Associate post with tags
-            if (postDTO.tags.length > 0) {
+            if (postDTO.tags && postDTO.tags.length > 0) {
                 postDTO.tags.map(async (tag: string) => {
                     const createdTag = await Tag.findOrCreate({
                         where: {
@@ -513,6 +522,16 @@ export default class PostService {
                     });
                     console.log(chalk.green("Tag created - associated successfully", tag));
                 });
+            }
+            if (!postDTO.tags || postDTO.tags.length == 0) {
+                // Remove the old tags
+                await TagPostRels.destroy({
+                    where: {
+                        postId: postDTO.id,
+                    }, 
+                    force: true
+                });
+                console.log(chalk.green("Remove all tags successfully"));
             }
             const finalPost = await Post.findOne({
                 where: {

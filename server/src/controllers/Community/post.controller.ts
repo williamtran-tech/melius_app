@@ -16,7 +16,8 @@ export default class CommunityController extends BaseController {
 
     public getAllPosts = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const posts = await this.postService.getAllPosts();
+            const userId = Number(req.userData.id);
+            const posts = await this.postService.getAllPosts(userId);
             res.status(200).json({
                 msg: "Get all posts successfully",
                 posts: posts
@@ -97,6 +98,7 @@ export default class CommunityController extends BaseController {
                 topicId: req.body.topicId,
                 tags: arrayTags,
                 files: req.files ? req.files : null,
+                retainImg: req.body.retainImg
             }
 
             const post = await this.postService.updatePost(postDTO, userId);
