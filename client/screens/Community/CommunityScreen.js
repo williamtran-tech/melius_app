@@ -168,6 +168,8 @@ const CommunityScreen = () => {
               setVisible={setVisible}
               setActivePost={setActivePost}
               setDataNewPost={setDataNewPost}
+              setFlag={setFlag}
+              flag={flag}
             ></Post>
           ))}
         </View>
@@ -189,7 +191,7 @@ const CommunityScreen = () => {
       <BottomSheetModal
         ref={bottomSheetRefInf}
         enablePanDownToClose
-        snapPoints={["30%"]}
+        snapPoints={["25%"]}
         index={visible ? 0 : -1}
         onChange={(index) => {
           if (index === -1) setVisible(false);

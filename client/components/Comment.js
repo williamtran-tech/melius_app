@@ -39,7 +39,7 @@ const Comment = ({
       <View style={styles.container}>
         {comments &&
           comments.map((item, index) => (
-            <>
+            <View key={index}>
               <View style={styles.messagecontainer} key={index}>
                 <Image
                   source={
@@ -132,7 +132,7 @@ const Comment = ({
                   </View>
                 </View>
               ))}
-            </>
+            </View>
           ))}
       </View>
     </View>

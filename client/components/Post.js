@@ -13,6 +13,7 @@ import Comment from "./Comment";
 import { useNavigation } from "@react-navigation/native";
 import { formatTimeElapsed } from "../Services/FormatTimeElapsed";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { ReactPost } from "../Services/CommunityApi";
 
 const Post = ({
   focus,
@@ -25,15 +26,23 @@ const Post = ({
   setDataNewPost,
   setActiveComment,
   activeComment,
+  setFlag,
+  flag,
 }) => {
   const navigation = useNavigation();
   let commentCount = 0;
+  const handleReactPost = () => {
+    const response = ReactPost(post.id);
+    setFlag(!flag);
+  };
+  useEffect(() => {
+    if (focus)
+      post.comments.map((comment) => {
+        commentCount++;
+        comment.replies.map((reply) => commentCount++);
+      });
+  }, []);
 
-  if (focus)
-    post.comments.map((comment) => {
-      commentCount++;
-      comment.replies.map((reply) => commentCount++);
-    });
   return (
     <View
       style={
@@ -155,16 +164,17 @@ const Post = ({
             {post.views}
           </SubText>
         </View>
-        <View style={styles.interactContainer}>
-          <Image
-            style={styles.interact}
-            source={require("../assets/icon/IconLike.png")}
-          ></Image>
-          <SubText style={{ color: "rgba(26, 26, 26, 0.50)" }}>
-            {post.likes}
-          </SubText>
-        </View>
-
+        <TouchableOpacity onPress={() => handleReactPost()}>
+          <View style={styles.interactContainer}>
+            <Image
+              style={styles.interact}
+              source={require("../assets/icon/IconLike.png")}
+            ></Image>
+            <SubText style={{ color: "rgba(26, 26, 26, 0.50)" }}>
+              {post.likes}
+            </SubText>
+          </View>
+        </TouchableOpacity>
         <TouchableOpacity
           onPress={() => navigation.navigate("PostDetail", { data: post.id })}
         >

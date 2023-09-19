@@ -96,18 +96,25 @@ const NewPostForm = ({ flag, setFlag, handleCloseNewPost, dataNewPost }) => {
           return { uri: image.imagePath };
         })
       );
-      setFlag(!flag);
-      handleCloseNewPost();
-      setImageUrls();
-      setHashtagList();
-      setTopic();
+      // setFlag(!flag);
+      // handleCloseNewPost();
+      // setImageUrls();
+      // setHashtagList();
+      // setTopic();
     } catch (error) {
       console.log(error.message);
     }
-
-    // console.log(response.data);
+    console.log(response.data);
   };
+  const HandleDeleteImage = (index) => {
+    const updatedImageUrls = [...imageUrls];
 
+    // Remove the element at the specified index using splice
+    updatedImageUrls.splice(index, 1);
+
+    // Update the state with the modified array
+    setImageUrls(updatedImageUrls);
+  };
   useEffect(() => {
     // (async () => {
     //   const { status } =
@@ -116,7 +123,6 @@ const NewPostForm = ({ flag, setFlag, handleCloseNewPost, dataNewPost }) => {
     //     console.log("Permission to access images denied.");
     //   }
     // })();
-    console.log("dataNewPostdataNewPostdataNewPost");
     setContent(dataNewPost && dataNewPost.content);
     setHashtagList(dataNewPost && dataNewPost.tags.map((tag) => tag.name));
 
@@ -222,6 +228,19 @@ const NewPostForm = ({ flag, setFlag, handleCloseNewPost, dataNewPost }) => {
                   source={{ uri: imageUrls[0]?.uri }}
                   style={styles.image}
                 />
+                <TouchableOpacity
+                  style={{
+                    position: "absolute",
+                    alignSelf: "flex-end",
+                    marginTop: 15,
+                    paddingRight: 15,
+                  }}
+                  onPress={() => {
+                    HandleDeleteImage(0);
+                  }}
+                >
+                  <Text style={{ fontSize: 16, color: "#fff" }}>ⓧ</Text>
+                </TouchableOpacity>
               </View>
             )}
             {imageUrls[1] && (
@@ -230,6 +249,19 @@ const NewPostForm = ({ flag, setFlag, handleCloseNewPost, dataNewPost }) => {
                   source={{ uri: imageUrls[1]?.uri }}
                   style={styles.image}
                 />
+                <TouchableOpacity
+                  style={{
+                    position: "absolute",
+                    alignSelf: "flex-end",
+                    marginTop: 35,
+                    paddingRight: 15,
+                  }}
+                  onPress={() => {
+                    HandleDeleteImage(1);
+                  }}
+                >
+                  <Text style={{ fontSize: 16, color: "#fff" }}>ⓧ</Text>
+                </TouchableOpacity>
               </View>
             )}
             {imageUrls[2] && (
@@ -238,12 +270,28 @@ const NewPostForm = ({ flag, setFlag, handleCloseNewPost, dataNewPost }) => {
                   source={{ uri: imageUrls[2] && imageUrls[2]?.uri }}
                   style={styles.image}
                 />
-                {imageUrls.length > 3 && (
-                  <View style={styles.mark}>
-                    <SubText style={{ color: "#FDFDFD", fontSize: 18 }}>
-                      +{imageUrls.length - 3}
-                    </SubText>
-                  </View>
+                {imageUrls.length > 3 ? (
+                  <TouchableOpacity style={styles.mark}>
+                    <View>
+                      <SubText style={{ color: "#FDFDFD", fontSize: 18 }}>
+                        +{imageUrls.length - 3}
+                      </SubText>
+                    </View>
+                  </TouchableOpacity>
+                ) : (
+                  <TouchableOpacity
+                    style={{
+                      position: "absolute",
+                      alignSelf: "flex-end",
+                      marginTop: 15,
+                      paddingRight: 15,
+                    }}
+                    onPress={() => {
+                      HandleDeleteImage(2);
+                    }}
+                  >
+                    <Text style={{ fontSize: 16, color: "#fff" }}>ⓧ</Text>
+                  </TouchableOpacity>
                 )}
               </View>
             )}
@@ -252,7 +300,7 @@ const NewPostForm = ({ flag, setFlag, handleCloseNewPost, dataNewPost }) => {
         {imageBrowser && (
           <ImagePicker
             onSave={(assets) => {
-              setImageUrls(assets);
+              setImageUrls(imageUrls ? [...imageUrls, ...assets] : assets);
               console.log(assets);
               setImageBrowser(false);
             }}
