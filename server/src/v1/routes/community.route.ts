@@ -2,11 +2,16 @@ import { Router } from "express";
 import CommunityController from "../../controllers/Community/post.controller";
 import TopicController from "../../controllers/Community/topic.controller";
 
+import validationMiddleware from "../../middlewares/validation.middleware";
+import formDataValidationMiddleware from "../../middlewares/formDataValidation.middleware";
+import CreatePostDTO from "../../DTOs/Community/createPost.DTO";
+
 import multer from "multer";
 import authMiddleware from "../../middlewares/auth.middleware";
 import TagController from "../../controllers/Community/tag.controller";
 import ReactController from "../../controllers/Community/react.controller";
 import CommentController from "../../controllers/Community/comment.controller";
+
 export const communityRouter = Router();
 
 const communityController = new CommunityController();
@@ -23,7 +28,7 @@ const upload = multer({
 });
 
 communityRouter.get("/posts", authMiddleware, communityController.getAllPosts);
-communityRouter.post("/posts", authMiddleware, upload.fields([{ name: 'photos', maxCount: 5}]), communityController.createPost)
+communityRouter.post("/posts", authMiddleware, upload.fields([{ name: 'photos', maxCount: 5}]), formDataValidationMiddleware(CreatePostDTO), communityController.createPost)
                 .post("/posts/:id", authMiddleware, upload.fields([{ name: 'photos', maxCount: 5}]), communityController.updatePost)
                 .patch("/posts/:id", authMiddleware, reactController.reactPost)
                 .get("/posts/:id", authMiddleware, communityController.getPost)

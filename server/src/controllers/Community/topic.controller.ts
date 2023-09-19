@@ -26,9 +26,10 @@ export default class TopicController extends BaseController {
 
     public getAllPostsByTopic = async (req: Request, res: Response, next: NextFunction) => {
         try {
+            const userId = Number(req.userData.id);
             const topicId = Number(req.query.id);
             const limit = Number(req.query.limit ? req.query.limit : 10);
-            const [topic, posts] = await this.postService.getAllPostsByTopic(topicId, limit);
+            const [topic, posts] = await this.postService.getAllPostsByTopic(topicId, limit, userId);
             res.status(200).json({
                 msg: "Get all posts by topic successfully",
                 topic: topic,

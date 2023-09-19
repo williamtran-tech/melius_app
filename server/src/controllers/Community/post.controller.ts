@@ -16,7 +16,8 @@ export default class CommunityController extends BaseController {
 
     public getAllPosts = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const posts = await this.postService.getAllPosts();
+            const userId = Number(req.userData.id);
+            const posts = await this.postService.getAllPosts(userId);
             res.status(200).json({
                 msg: "Get all posts successfully",
                 posts: posts
@@ -52,11 +53,11 @@ export default class CommunityController extends BaseController {
                 });
               }
             }
-            const arrayTags = req.body.tags.split(",");
+            const arrayTags = req.body.tags ? req.body.tags.split(",") : null;
             console.log(chalk.green("arrayTags: ", arrayTags));
             const postDTO = {
                 content: req.body.content,
-                isAnonymous: req.body.isAnonymous,
+                isAnonymous: Boolean(Number(req.body.isAnonymous)),
                 userId: req.userData.id,
                 topicId: req.body.topicId,
                 tags: arrayTags,
@@ -97,6 +98,7 @@ export default class CommunityController extends BaseController {
                 topicId: req.body.topicId,
                 tags: arrayTags,
                 files: req.files ? req.files : null,
+                retainImg: req.body.retainImg
             }
 
             const post = await this.postService.updatePost(postDTO, userId);

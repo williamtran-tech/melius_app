@@ -28,7 +28,8 @@ export default class TagController extends BaseController {
         try {
             const tagId = Number(req.query.id);
             const limit = Number(req.query.limit ? req.query.limit : 10);
-            const posts = await this.postService.getAllPostsByTag(tagId, limit);
+            const userId = Number(req.userData.id)
+            const posts = await this.postService.getAllPostsByTag(tagId, limit, userId);
             res.status(200).json({
                 msg: "Get all posts by tag successfully",
                 posts: posts
