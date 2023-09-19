@@ -53,11 +53,11 @@ export default class CommunityController extends BaseController {
                 });
               }
             }
-            const arrayTags = req.body.tags.split(",");
+            const arrayTags = req.body.tags ? req.body.tags.split(",") : null;
             console.log(chalk.green("arrayTags: ", arrayTags));
             const postDTO = {
                 content: req.body.content,
-                isAnonymous: req.body.isAnonymous,
+                isAnonymous: Boolean(Number(req.body.isAnonymous)),
                 userId: req.userData.id,
                 topicId: req.body.topicId,
                 tags: arrayTags,

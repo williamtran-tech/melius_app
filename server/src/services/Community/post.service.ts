@@ -11,12 +11,11 @@ import { Topic } from "../../orm/models/topic.model";
 import { PostImage } from "../../orm/models/post.images.model";
 import { Comment }  from "../../orm/models/comment.model";
 import { TagPostRels } from "../../orm/models/tag.post.rel.model";
+import { View } from "../../orm/models/view.model";
 import chalk from "chalk";
 import HttpException from "../../exceptions/HttpException";
-import { View } from "../../orm/models/view.model";
-import { React } from "../../orm/models/react.model";
-import { CommentReact } from "../../orm/models/comment.react.model";
 
+import bcrypt from "bcrypt";
 
 export default class PostService {
     constructor() {}
@@ -390,7 +389,7 @@ export default class PostService {
             });
 
             // Associate post with tags
-            if (postDTO.tags.length > 0) {
+            if (postDTO.tags && postDTO.tags.length > 0) {
                 postDTO.tags.map(async (tag: string) => {
                     const createdTag = await Tag.findOrCreate({
                         where: {
@@ -408,7 +407,7 @@ export default class PostService {
 
             if (postDTO.files['photos'] && postDTO.files['photos'].length > 0) {
                 console.log(chalk.green("Uploading images..."));
-                const imagePaths = await this.uploadImage(postDTO.files);
+                const imagePaths = await this.uploadImage(postDTO.files, postDTO.userId);
                 
                 for (let imagePath of imagePaths) {
                     // Associate post with images
@@ -484,7 +483,7 @@ export default class PostService {
                 
                 // Upload new files to AWS S3
                 console.log(chalk.green("Uploading images..."));
-                const imagePaths = await this.uploadImage(postDTO.files);
+                const imagePaths = await this.uploadImage(postDTO.files, userId);
                 
                 for (let imagePath of imagePaths) {
                     // Associate post with images
@@ -629,7 +628,7 @@ export default class PostService {
 
     }
 
-    private async uploadImage(files: Record<string, Express.Multer.File[]>) {
+    private async uploadImage(files: Record<string, Express.Multer.File[]>, userId: number) {
         let imagePaths: string[] = [];
         // Upload new file to S3
         // const date = Date.parse(new Date().toISOString());
@@ -642,10 +641,11 @@ export default class PostService {
         const secretAccessKey = process.env.AWS_SECRET_ACCESS_KEY!;
         const region = process.env.AWS_REGION!;
         const Bucket = process.env.AWS_BUCKET_NAME!;
-        
+        const hashId = bcrypt.hashSync(userId.toString(), 5);
+
         files.photos.map(async (file) => {
             const timestamp = Date.parse(new Date().toISOString());
-            const key = `posts/${timestamp}-${file.originalname}`;
+            const key = `posts/${timestamp}-${hashId}-${file.originalname}`;
             // upload to S3
             new Upload({
             client: new S3Client({
