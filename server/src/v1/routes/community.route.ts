@@ -33,7 +33,11 @@ communityRouter.post("/posts", authMiddleware, upload.fields([{ name: 'photos', 
                 .patch("/posts/:id", authMiddleware, reactController.reactPost)
                 .get("/posts/:id", authMiddleware, communityController.getPost)
                 .patch("/posts", authMiddleware, communityController.undoDeletePost)
-                .delete("/posts", authMiddleware, communityController.deletePost);
+                .delete("/posts", authMiddleware, communityController.deletePost)
+                /**
+                 * @Description: Delete images of a post
+                 */
+                .delete("/posts/:id", authMiddleware, communityController.deleteImages);
 
 communityRouter.get("/posts/post-details/comments", authMiddleware, commentController.getComment)
                 .post("/posts/post-details/comments", authMiddleware, commentController.createComment)

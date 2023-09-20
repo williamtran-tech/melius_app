@@ -4,7 +4,9 @@ import { Request, Response, NextFunction } from "express";
 import PostService from "../../services/Community/post.service";
 import TopicService from "../../services/Community/topic.service";
 import TagService from "../../services/Community/tag.service";
+import PostImageService from "../../services/Community/post.image.service";
 import chalk from "chalk";
+import HttpException from "../../exceptions/HttpException";
 
 export default class CommunityController extends BaseController {
     constructor() {
@@ -13,6 +15,7 @@ export default class CommunityController extends BaseController {
     public postService = new PostService();
     public topicService = new TopicService();
     public tagService = new TagService();
+    public postImageService = new PostImageService();
 
     public getAllPosts = async (req: Request, res: Response, next: NextFunction) => {
         try {
@@ -98,7 +101,6 @@ export default class CommunityController extends BaseController {
                 topicId: req.body.topicId,
                 tags: arrayTags,
                 files: req.files ? req.files : null,
-                retainImg: req.body.retainImg
             }
 
             const post = await this.postService.updatePost(postDTO, userId);
@@ -134,6 +136,27 @@ export default class CommunityController extends BaseController {
             });
         } catch (err) {
             next(err);
+        }
+    }
+
+    public deleteImages = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            console.log(chalk.green("Delete images"));
+            const imageIds = req.query.imageIds ? (req.query.imageIds as any).split(",") : null;
+            const userId = Number(req.userData.id);
+            const postId = Number(req.params.id);
+            if (!imageIds) {
+                throw new HttpException(400, "Invalid image ids");
+            } else {
+                console.log(chalk.green("imageIds: ", imageIds));
+                await this.postImageService.deleteImages(imageIds, userId, postId);
+            }
+
+            res.status(200).json({
+                msg: "Delete images successfully"
+            });
+        } catch (error) {
+            next(error);
         }
     }
 }
