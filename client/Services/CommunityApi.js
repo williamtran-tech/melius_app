@@ -76,44 +76,61 @@ export const updatePost = async (
     formData.append("isAnonymous", isAnonymous);
     formData.append("topicId", 1);
     tags && formData.append("tags", tags.join(","));
-    console.log("photos", photos);
-    console.log("original", original);
-    const isSubset = original.every((originalItem) =>
-      photos.some(
-        (photoItem) =>
-          JSON.stringify(originalItem) === JSON.stringify(photoItem)
-      )
-    );
-
-    console.log("result", isSubset);
-    // if (JSON.stringify(photos) !== JSON.stringify(original)) {
-    //   for (const photo of photos) {
-    //     const assetInfo = await MediaLibrary.getAssetInfoAsync(photo);
-    //     const localUri = assetInfo.localUri;
-    //     const fileName = `photo_${Date.now()}.jpg`; // You can customize the file name
-
-    //     // Append the image to the FormData object with a custom name
-    //     formData.append("photos", {
-    //       uri: localUri,
-    //       name: fileName,
-    //       type: "image/jpeg", // You can adjust the MIME type based on your needs
-    //     });
-    //   }
-    // }
-
-    // console.log(formData);
-    // const response = await HandleApi.serverFormData.post(
-    //   `/v1/community/posts/${id}`,
-    //   formData
+    // console.log("photos", photos);
+    // console.log("original", original);
+    // const isSubset = original.every((originalItem) =>
+    //   photos.some(
+    //     (photoItem) =>
+    //       JSON.stringify(originalItem) === JSON.stringify(photoItem)
+    //   )
     // );
-    // console.log(response.data);
-    // return response.data;
+
+    // console.log("result", isSubset);
+    if (JSON.stringify(photos) !== JSON.stringify(original)) {
+      for (const photo of photos) {
+        if (!photo?.isOriginal) {
+          const assetInfo = await MediaLibrary.getAssetInfoAsync(photo);
+          const localUri = assetInfo.localUri;
+          const fileName = `photo_${Date.now()}.jpg`; // You can customize the file name
+
+          // Append the image to the FormData object with a custom name
+          formData.append("photos", {
+            uri: localUri,
+            name: fileName,
+            type: "image/jpeg", // You can adjust the MIME type based on your needs
+          });
+        }
+      }
+    }
+
+    console.log(formData);
+    const response = await HandleApi.serverFormData.post(
+      `/v1/community/posts/${id}`,
+      formData
+    );
+    console.log(response.data);
+    return response.data;
   } catch (error) {
     console.error("Error fetching post:", error.message);
     return null; // Return null or handle the error as needed
   }
 };
 
+export const deleteImage = async (postId, imageList) => {
+  try {
+    const response = await HandleApi.serverGeneral.delete(
+      `/v1/community/posts/${postId}`,
+      {
+        params: { imageIds: imageList.join(",") },
+      }
+    );
+    console.log(response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching post:", error.message);
+    return null; // Return null or handle the error as needed
+  }
+};
 export const GetPostDetail = async (postId) => {
   try {
     const response = await HandleApi.serverGeneral.get(
