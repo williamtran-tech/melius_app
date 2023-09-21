@@ -8,6 +8,16 @@ import sequelize from "sequelize";
 export default class CommentService {
     public async getComment(commentId: number, userId: number): Promise<Comment> {
         try {
+            const user = await User.findOne({
+                where: {
+                    id: userId,
+                },
+                attributes: ['id', 'gender', 'fullName', 'img']
+            });
+
+            const a = 3;
+            const b = "Asd";
+
             const comment = await Comment.findOne({
                 attributes: ["id", "comment", "isAnonymous", "postId", "parentId", 
                 [sequelize.fn("COALESCE", sequelize.literal("(SELECT CAST(SUM(isLike) AS SIGNED) FROM comment_reacts WHERE comment_reacts.commentId = Comment.id)"), 0), "likes"],
@@ -15,32 +25,32 @@ export default class CommentService {
                 include: [
                     {
                         model: User,
+                        as: 'user',
                         attributes: [
-                            [sequelize.literal(`IF(replies.isAnonymous = 1 AND user.id != ${userId}, null, user.id)`), 'id'], 
-                            [sequelize.literal(`IF(replies.isAnonymous = 1 AND user.id != ${userId}, null, user.fullName)`), 'fullName'], 
-                            [sequelize.literal(`IF(replies.isAnonymous = 1 AND user.id != ${userId}, null, user.gender)`), 'gender'],
-                            [sequelize.literal(`IF(replies.isAnonymous = 1 AND user.id != ${userId}, null, user.img)`), 'img'],
+                            [sequelize.literal(`IF(Comment.isAnonymous = 1 AND user.id != ${userId}, null, user.id)`), 'id'], 
+                            [sequelize.literal(`IF(Comment.isAnonymous = 1 AND user.id != ${userId}, null, user.fullName)`), 'fullName'], 
+                            [sequelize.literal(`IF(Comment.isAnonymous = 1 AND user.id != ${userId}, null, user.gender)`), 'gender'],
+                            [sequelize.literal(`IF(Comment.isAnonymous = 1 AND user.id != ${userId}, null, user.img)`), 'img'],
                         ],
                     },
                     {
                         model: Comment,
-                        as: "replies",
+                        as: 'replies',
                         attributes: ["id", "comment", "isAnonymous", "postId", "parentId",
-                        [sequelize.fn("COALESCE", sequelize.literal("(SELECT CAST(SUM(isLike) AS SIGNED) FROM comment_reacts WHERE comment_reacts.commentId = replies.id)"), 0), "likes"],
+                        [sequelize.fn("COALESCE", sequelize.literal("(SELECT CAST(SUM(isLike) AS SIGNED) FROM comment_reacts WHERE comment_reacts.commentId = Comment.id)"), 0), "likes"],
                         "createdAt", "updatedAt"],
                         include: [
                             {
                                 model: User,
+                                as: 'user',
                                 attributes: [
-                                    [sequelize.literal(`IF(Comment.isAnonymous = 1 AND replies.userId != ${userId}, null, user.id)`), 'id'], 
-                                    [sequelize.literal(`IF(Comment.isAnonymous = 1 AND replies.userId != ${userId}, null, user.fullName)`), 'fullName'], 
-                                    [sequelize.literal(`IF(Comment.isAnonymous = 1 AND replies.userId != ${userId}, null, user.gender)`), 'gender'],
-                                    [sequelize.literal(`IF(Comment.isAnonymous = 1 AND replies.userId != ${userId}, null, user.img)`), 'img'],
-                                ],
+                                    [sequelize.literal(`IF(replies.isAnonymous = 1 AND replies.userId != "${userId}", null, "${user!.id}")`), 'id'], 
+                                    [sequelize.literal(`IF(replies.isAnonymous = 1 AND replies.userId != "${userId}", null, "${user!.fullName}")`), 'fullName'], 
+                                    [sequelize.literal(`IF(replies.isAnonymous = 1 AND replies.userId != "${userId}", null, "${user!.gender}")`), 'gender'],
+                                    [sequelize.literal(`IF(replies.isAnonymous = 1 AND replies.userId != "${userId}", null, "${user!.img}")`), 'img'],
+                                ]
                             }
-                        ],
-                        order: [["createdAt", "ASC"]],
-                        required: false,
+                        ]
                     },
                     {
                         model: CommentReact,
