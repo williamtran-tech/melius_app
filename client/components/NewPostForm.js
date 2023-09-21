@@ -15,7 +15,7 @@ import HeaderText from "./HeaderText";
 import RNPickerSelect from "react-native-picker-select";
 import SubText from "./SubText";
 import { ImagePicker } from "expo-image-multiple-picker";
-import { createPost, updatePost } from "../Services/CommunityApi";
+import { createPost, deleteImage, updatePost } from "../Services/CommunityApi";
 
 const NewPostForm = ({ flag, setFlag, handleCloseNewPost, dataNewPost }) => {
   const [topic, setTopic] = useState();
@@ -24,6 +24,8 @@ const NewPostForm = ({ flag, setFlag, handleCloseNewPost, dataNewPost }) => {
   const [hashtagList, setHashtagList] = useState();
   const [showHashtagInput, setShowHashtagInput] = useState(false);
 
+  //for image in server
+  const [deleteImageId, setDeleteImageId] = useState([]);
   const handleChange = (value) => {
     console.log(value);
     setTopic(topic);
@@ -83,8 +85,16 @@ const NewPostForm = ({ flag, setFlag, handleCloseNewPost, dataNewPost }) => {
 
     // console.log(response.data);
   };
+  const handleDeleteImage = async () => {
+    try {
+      const response = await deleteImage(dataNewPost.id, deleteImageId);
+    } catch (error) {}
+  };
   const handleUpdate = async () => {
     try {
+      if (deleteImageId.length > 0) {
+        const responseDelete = await handleDeleteImage();
+      }
       const response = await updatePost(
         dataNewPost.id,
         content,
@@ -93,18 +103,19 @@ const NewPostForm = ({ flag, setFlag, handleCloseNewPost, dataNewPost }) => {
         hashtagList,
         imageUrls,
         dataNewPost.images.map((image) => {
-          return { uri: image.imagePath };
+          return { uri: image.imagePath, id: image.id, isOriginal: true };
         })
       );
-      // setFlag(!flag);
-      // handleCloseNewPost();
-      // setImageUrls();
-      // setHashtagList();
-      // setTopic();
+      setFlag(!flag);
+      handleCloseNewPost();
+      setImageUrls();
+      setHashtagList();
+      setTopic();
+      setDeleteImageId([]);
+      console.log(response.data);
     } catch (error) {
       console.log(error.message);
     }
-    console.log(response.data);
   };
   const HandleDeleteImage = (index) => {
     const updatedImageUrls = [...imageUrls];
@@ -129,7 +140,7 @@ const NewPostForm = ({ flag, setFlag, handleCloseNewPost, dataNewPost }) => {
     setImageUrls(
       dataNewPost &&
         dataNewPost.images.map((image) => {
-          return { uri: image.imagePath };
+          return { uri: image.imagePath, id: image.id, isOriginal: true };
         })
     );
   }, [dataNewPost]);
@@ -237,6 +248,9 @@ const NewPostForm = ({ flag, setFlag, handleCloseNewPost, dataNewPost }) => {
                   }}
                   onPress={() => {
                     HandleDeleteImage(0);
+                    if (imageUrls[0].isOriginal) {
+                      setDeleteImageId([...deleteImageId, imageUrls[0].id]);
+                    }
                   }}
                 >
                   <Text style={{ fontSize: 16, color: "#fff" }}>ⓧ</Text>
@@ -258,6 +272,9 @@ const NewPostForm = ({ flag, setFlag, handleCloseNewPost, dataNewPost }) => {
                   }}
                   onPress={() => {
                     HandleDeleteImage(1);
+                    if (imageUrls[1]?.isOriginal) {
+                      setDeleteImageId([...deleteImageId, imageUrls[1].id]);
+                    }
                   }}
                 >
                   <Text style={{ fontSize: 16, color: "#fff" }}>ⓧ</Text>
@@ -288,6 +305,9 @@ const NewPostForm = ({ flag, setFlag, handleCloseNewPost, dataNewPost }) => {
                     }}
                     onPress={() => {
                       HandleDeleteImage(2);
+                      if (imageUrls[2]?.isOriginal) {
+                        setDeleteImageId([...deleteImageId, imageUrls[2].id]);
+                      }
                     }}
                   >
                     <Text style={{ fontSize: 16, color: "#fff" }}>ⓧ</Text>
