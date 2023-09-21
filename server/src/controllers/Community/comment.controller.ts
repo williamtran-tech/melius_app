@@ -3,6 +3,8 @@ import { Request, Response, NextFunction } from "express";
 
 import PostService from "../../services/Community/post.service";
 import CommentService from "../../services/Community/comment.service";
+
+import HttpException from "../../exceptions/HttpException";
 import chalk from "chalk";
 
 export default class CommentController extends BaseController {
@@ -14,6 +16,9 @@ export default class CommentController extends BaseController {
     // COMMENT FUNCTIONS
     public getComment = async (req: Request, res: Response, next: NextFunction) => {
         try {
+            if (!req.query.id) {
+                throw new HttpException(404, "Comment not found");
+            }
             const commentId = Number(req.query.id);
             const userId = Number(req.userData.id);
             const comment = await this.commentService.getComment(commentId, userId);
@@ -90,14 +95,19 @@ export default class CommentController extends BaseController {
             if (req.query.react) {
                 const react = Number(req.query.react);
                 await this.commentService.reactComment(commentId, userId, Boolean(react));
+                const comment = await this.commentService.getComment(commentId, userId);
+                res.status(200).json({
+                    msg: "React comment successfully",
+                    comment: comment
+                });
             } else {
                 const deletedComment = await this.commentService.undoDeleteComment(commentId, userId);
+                const comment = await this.commentService.getComment(commentId, userId);
+                res.status(200).json({
+                    msg: "Undo delete comment successfully",
+                    comment: comment
+                });
             }
-            const comment = await this.commentService.getComment(commentId, userId);
-            res.status(200).json({
-                msg: "Undo delete comment successfully",
-                comment: comment
-            });
         } catch (err) {
             next(err);
         }
