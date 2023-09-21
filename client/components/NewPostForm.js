@@ -233,12 +233,16 @@ const NewPostForm = ({ flag, setFlag, handleCloseNewPost, dataNewPost }) => {
         </View>
         {imageUrls && (
           <View style={styles.imagesContainer}>
-            {imageUrls[0] && (
-              <View style={styles.imageContainer}>
-                <Image
-                  source={{ uri: imageUrls[0]?.uri }}
-                  style={styles.image}
-                />
+            {imageUrls?.map((image, index) => (
+              <View
+                style={[
+                  styles.imageContainer,
+                  imageUrls.length == 1 && { flexBasis: "100%" },
+                  imageUrls.length == 2 && { flexBasis: "49%" },
+                ]}
+                key={index}
+              >
+                <Image source={{ uri: image.uri }} style={styles.image} />
                 <TouchableOpacity
                   style={{
                     position: "absolute",
@@ -248,14 +252,17 @@ const NewPostForm = ({ flag, setFlag, handleCloseNewPost, dataNewPost }) => {
                   }}
                   onPress={() => {
                     HandleDeleteImage(0);
-                    if (imageUrls[0].isOriginal) {
-                      setDeleteImageId([...deleteImageId, imageUrls[0].id]);
+                    if (image.isOriginal) {
+                      setDeleteImageId([...deleteImageId, image.id]);
                     }
                   }}
                 >
                   <Text style={{ fontSize: 16, color: "#fff" }}>ⓧ</Text>
                 </TouchableOpacity>
               </View>
+            ))}
+            {/* {imageUrls[0] && (
+             
             )}
             {imageUrls[1] && (
               <View style={{ ...styles.imageContainer, paddingTop: 20 }}>
@@ -314,7 +321,7 @@ const NewPostForm = ({ flag, setFlag, handleCloseNewPost, dataNewPost }) => {
                   </TouchableOpacity>
                 )}
               </View>
-            )}
+            )} */}
           </View>
         )}
         {imageBrowser && (
@@ -428,12 +435,12 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     flexWrap: "wrap",
     marginTop: 20,
-    gap: 5,
+    gap: 1,
     paddingHorizontal: 5,
   },
   imageContainer: {
     // position: "absolute",
-    flex: 1,
+    flexBasis: "33%",
     borderRadius: 20,
   },
   mark: {

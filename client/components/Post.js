@@ -5,6 +5,8 @@ import {
   Image,
   TouchableOpacity,
   Keyboard,
+  Modal,
+  Dimensions,
 } from "react-native";
 import React, { useEffect, useState, useRef } from "react";
 import HeaderText from "./HeaderText";
@@ -14,6 +16,7 @@ import { useNavigation } from "@react-navigation/native";
 import { formatTimeElapsed } from "../Services/FormatTimeElapsed";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { ReactPost } from "../Services/CommunityApi";
+import { ScrollView } from "react-native-gesture-handler";
 
 const Post = ({
   focus,
@@ -35,6 +38,8 @@ const Post = ({
     const response = ReactPost(post.id);
     setFlag(!flag);
   };
+  const [visiableImg, setVisibleImg] = useState(false);
+  const [imageDetail, setImageDetail] = useState([]);
   useEffect(() => {
     if (focus)
       post.comments.map((comment) => {
@@ -99,35 +104,62 @@ const Post = ({
       {post.images != "" && (
         <View style={styles.imagesContainer}>
           {post.images[0] && (
-            <View style={styles.imageContainer}>
+            <TouchableOpacity
+              style={styles.imageContainer}
+              onPress={() => {
+                setImageDetail([{ imagePath: post.images[0]?.imagePath }]);
+                setVisibleImg(true);
+              }}
+            >
+              {/* <View style={styles.imageContainer}> */}
               <Image
                 source={{ uri: post.images[0]?.imagePath }}
                 style={styles.image}
               />
-            </View>
+              {/* </View> */}
+            </TouchableOpacity>
           )}
           {post.images[1] && (
-            <View style={{ ...styles.imageContainer, paddingTop: 20 }}>
+            <TouchableOpacity
+              style={{ ...styles.imageContainer, paddingTop: 20 }}
+              onPress={() => {
+                setImageDetail([{ imagePath: post.images[1]?.imagePath }]);
+                setVisibleImg(true);
+              }}
+            >
               <Image
                 source={{ uri: post.images[1]?.imagePath }}
                 style={styles.image}
               />
-            </View>
+            </TouchableOpacity>
           )}
           {post.images[2] && (
-            <View style={styles.imageContainer}>
+            <TouchableOpacity
+              style={styles.imageContainer}
+              disabled={post.images.length > 3}
+              onPress={() => {
+                setImageDetail([{ imagePath: post.images[2]?.imagePath }]);
+                setVisibleImg(true);
+              }}
+            >
               <Image
                 source={{ uri: post.images[2] && post.images[2]?.imagePath }}
                 style={styles.image}
               />
               {post.images.length > 3 && (
-                <View style={styles.mark}>
+                <TouchableOpacity
+                  style={styles.mark}
+                  onPress={() => {
+                    setImageDetail(post.images);
+                    setVisibleImg(true);
+                  }}
+                >
                   <SubText style={{ color: "#FDFDFD", fontSize: 18 }}>
                     +{post.images.length - 3}
                   </SubText>
-                </View>
+                </TouchableOpacity>
               )}
-            </View>
+            </TouchableOpacity>
           )}
         </View>
       )}
@@ -199,6 +231,36 @@ const Post = ({
           ></Comment>
         )}
       </View>
+      <Modal visible={visiableImg}>
+        <ScrollView>
+          {imageDetail &&
+            imageDetail?.map((image, index) => (
+              <Image
+                style={{
+                  flex: 1,
+                  resizeMode: "contain",
+                  width: "100%",
+                  height: Dimensions.get("window").height,
+                }}
+                source={{ uri: image.imagePath }}
+                key={index}
+              ></Image>
+            ))}
+        </ScrollView>
+
+        <TouchableOpacity
+          style={{
+            alignSelf: "center",
+            paddingBottom: 30,
+          }}
+          onPress={() => {
+            setImageDetail([]);
+            setVisibleImg(false);
+          }}
+        >
+          <Text>Close</Text>
+        </TouchableOpacity>
+      </Modal>
     </View>
   );
 };
