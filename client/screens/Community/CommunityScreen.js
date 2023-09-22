@@ -7,6 +7,8 @@ import {
   TouchableWithoutFeedback,
   Modal,
   Pressable,
+  TextInput,
+  RefreshControl,
 } from "react-native";
 import React, { useState, useRef, useEffect } from "react";
 import HeaderText from "../../components/HeaderText";
@@ -18,22 +20,29 @@ import BottomSheetModal from "@gorhom/bottom-sheet";
 import NewPostForm from "../../components/NewPostForm";
 import {
   DeletePost,
+  getAllPost,
+  getAllPostByTag,
   getPost,
   UndoDeletePost,
 } from "../../Services/CommunityApi";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { BottomSheetFlatList } from "@gorhom/bottom-sheet";
-const CommunityScreen = () => {
-  const [activeTag, setActiveTag] = useState(2);
+import { useNavigation } from "@react-navigation/native";
+const CommunityScreen = ({ dataTag }) => {
+  console.log(dataTag);
+  const [activeTag, setActiveTag] = useState(0);
   const [activePost, setActivePost] = useState();
   const [dataNewPost, setDataNewPost] = useState();
   const [flag, setFlag] = useState(false);
   const bottomSheetRef = useRef(null);
   const [userId, setUserId] = useState();
   const [postData, setPostData] = useState();
+  const [hashtagName, setHashtagName] = useState(dataTag && dataTag);
   const [modalVisible, setModalVisible] = useState(false);
   const [visible, setVisible] = useState(false);
   const bottomSheetRefInf = useRef(null);
+  const navigation = useNavigation();
+
   const data = [
     { label: "Delete", action: handleDelete },
     { label: "Update", action: handleUpdate },
@@ -81,15 +90,33 @@ const CommunityScreen = () => {
   };
   const handleClosePress = () => bottomSheetRef.current.close();
   const retrievePostData = async () => {
-    const data = await getPost(activeTag);
+    let data;
+    if (activeTag == 0) {
+      if (dataTag) {
+        setHashtagName(dataTag);
+        data = await getAllPostByTag(dataTag.id);
+      } else {
+        setHashtagName();
+        data = await getAllPost();
+      }
+    } else {
+      data = await getPost(activeTag);
+    }
     setPostData(data);
   };
+  const onRefresh = () => {
+    retrievePostData();
+  };
+  const searchByTag = async () => {
+    const response = await getAllPostByTag();
+  };
+
   useEffect(() => {
     AsyncStorage.getItem("userProfile").then((value) => {
       setUserId(JSON.parse(value).userProfile.user.id);
     });
     retrievePostData();
-  }, [activeTag, flag]);
+  }, [activeTag, flag, dataTag]);
   return (
     // <TouchableWithoutFeedback
     //   onPress={() => {
@@ -126,39 +153,41 @@ const CommunityScreen = () => {
         </TouchableOpacity>
       </View>
       <View style={styles.actionContainer}>
-        <TouchableOpacity
-          style={styles.addBtn}
-          onPress={() => {
-            handleNewPostPress();
-          }}
-        >
-          <Text
-            style={{
-              fontSize: 20,
-              fontWeight: "bold",
-              color: "#518B1A",
+        <View style={{ flex: 1 }}>
+          <TouchableOpacity
+            style={styles.addBtn}
+            onPress={() => {
+              handleNewPostPress();
             }}
           >
-            +
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.addBtn}
-          onPress={() => setVisible(true)}
-        >
-          <Text
-            style={{
-              fontSize: 20,
-              fontWeight: "bold",
-              color: "#518B1A",
-            }}
-          >
-            +
-          </Text>
-        </TouchableOpacity>
+            <Text
+              style={{
+                fontSize: 20,
+                fontWeight: "bold",
+                color: "#518B1A",
+              }}
+            >
+              +
+            </Text>
+          </TouchableOpacity>
+        </View>
+        {hashtagName && (
+          <View style={styles.hashtagBtnContainer}>
+            <SubText style={{ fontSize: 16 }}>#{hashtagName.name}</SubText>
+            <TouchableOpacity
+              style={styles.hashtagDeletebtn}
+              onPress={() => {
+                navigation.navigate("Home");
+              }}
+            >
+              <Text style={styles.deleteText}>✖️</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+        <View style={{ flex: 1 }}></View>
       </View>
 
-      <ScrollView>
+      <ScrollView refreshControl={<RefreshControl onRefresh={onRefresh} />}>
         <View style={styles.contentContainer}>
           {postData?.posts?.map((post, index) => (
             <Post
@@ -170,6 +199,8 @@ const CommunityScreen = () => {
               setDataNewPost={setDataNewPost}
               setFlag={setFlag}
               flag={flag}
+              setHashtagName={setHashtagName}
+              setActiveTag={setActiveTag}
             ></Post>
           ))}
         </View>
@@ -285,6 +316,8 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     paddingHorizontal: 25,
     marginVertical: 10,
+    alignItems: "center",
+    gap: 25,
   },
   postContainer: {
     marginTop: 20,
@@ -365,5 +398,23 @@ const styles = StyleSheet.create({
     backgroundColor: "#FDFDFD",
     padding: 10,
     borderRadius: 10,
+  },
+
+  hashtagBtnContainer: {
+    flexDirection: "row",
+    backgroundColor: "#8CC84090",
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 10,
+    gap: 5,
+  },
+  hashtagDeletebtn: {
+    backgroundColor: "rgba(26, 26, 26, 0.20)",
+    borderRadius: 10,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  deleteText: {
+    fontSize: 12,
   },
 });

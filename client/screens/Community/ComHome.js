@@ -5,7 +5,8 @@ import ExpertScreen from "./ExpertScreen";
 import { LinearGradient } from "expo-linear-gradient";
 import CommunityScreen from "./CommunityScreen";
 
-const ComHome = () => {
+const ComHome = ({ route }) => {
+  const { dataTag } = route.params;
   const [activeTab, setActiveTab] = useState("Expert");
   const handleTabPress = (tab) => {
     setActiveTab(tab);
@@ -16,7 +17,7 @@ const ComHome = () => {
         // console.log(selectedDate);
         return <ExpertScreen></ExpertScreen>;
       case "Community":
-        return <CommunityScreen></CommunityScreen>;
+        return <CommunityScreen dataTag={dataTag}></CommunityScreen>;
       default:
         return null;
     }

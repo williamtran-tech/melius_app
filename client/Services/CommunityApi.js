@@ -231,3 +231,25 @@ export const deleteComment = async (commentId) => {
     return null; // Return null or handle the error as needed
   }
 };
+export const getAllPost = async () => {
+  try {
+    const response = await HandleApi.serverGeneral.get(`/v1/community/posts`);
+    // console.log(response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching post:", error.message);
+    return null; // Return null or handle the error as needed
+  }
+};
+export const getAllPostByTag = async (id) => {
+  try {
+    const response = await HandleApi.serverGeneral.get(
+      `/v1/community/tags/tag-details?id=${id}`
+    );
+    // console.log(response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching post:", error.message);
+    return null; // Return null or handle the error as needed
+  }
+};
