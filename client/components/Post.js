@@ -38,6 +38,7 @@ const Post = ({
     const response = ReactPost(post.id);
     setFlag(!flag);
   };
+
   const [visiableImg, setVisibleImg] = useState(false);
   const [imageDetail, setImageDetail] = useState([]);
   useEffect(() => {
@@ -230,6 +231,7 @@ const Post = ({
             activeComment={activeComment}
             setFlag={setFlag}
             flag={flag}
+            userId={userId}
           ></Comment>
         )}
       </View>

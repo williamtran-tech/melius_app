@@ -118,6 +118,7 @@ const NewPostForm = ({ flag, setFlag, handleCloseNewPost, dataNewPost }) => {
     }
   };
   const HandleDeleteImage = (index) => {
+    console.log(index);
     const updatedImageUrls = [...imageUrls];
 
     // Remove the element at the specified index using splice
@@ -251,7 +252,7 @@ const NewPostForm = ({ flag, setFlag, handleCloseNewPost, dataNewPost }) => {
                     paddingRight: 15,
                   }}
                   onPress={() => {
-                    HandleDeleteImage(0);
+                    HandleDeleteImage(index);
                     if (image.isOriginal) {
                       setDeleteImageId([...deleteImageId, image.id]);
                     }

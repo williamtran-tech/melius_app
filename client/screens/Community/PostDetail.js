@@ -14,6 +14,7 @@ import Post from "../../components/Post";
 import HeaderText from "../../components/HeaderText";
 import { set } from "react-native-reanimated";
 import { CommentPost, GetPostDetail } from "../../Services/CommunityApi";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const PostDetail = ({ route }) => {
   const { data } = route.params;
@@ -59,7 +60,11 @@ const PostDetail = ({ route }) => {
     setContent("");
     setFlag(!flag);
   };
+  const [userId, setUserId] = useState();
   useEffect(() => {
+    AsyncStorage.getItem("userProfile").then((value) => {
+      setUserId(JSON.parse(value).userProfile.user.id);
+    });
     retrievePostData();
   }, [flag]);
   return (
@@ -80,6 +85,7 @@ const PostDetail = ({ route }) => {
               activeComment={activeComment}
               setFlag={setFlag}
               flag={flag}
+              userId={userId}
             ></Post>
           )}
         </ScrollView>

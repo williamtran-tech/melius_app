@@ -24,6 +24,7 @@ const Comment = ({
   activeComment,
   setFlag,
   flag,
+  userId,
 }) => {
   const [actionCommnment, setActionComment] = useState();
   const [updateCommnment, setUpdateComment] = useState();
@@ -90,7 +91,10 @@ const Comment = ({
                             }
                           : styles.message
                       }
-                      onLongPress={() => setActionComment(item.id)}
+                      disabled={userId !== item.user.id}
+                      onLongPress={() => {
+                        setActionComment(item.id);
+                      }}
                     >
                       <View
                         style={{
