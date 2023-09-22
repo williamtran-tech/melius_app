@@ -11,14 +11,38 @@ import React, { useState, useRef, useEffect } from "react";
 import HeaderText from "./HeaderText";
 import SubText from "./SubText";
 import { formatTimeElapsed } from "../Services/FormatTimeElapsed";
-import { CommentPost } from "../Services/CommunityApi";
+import {
+  CommentPost,
+  deleteComment,
+  updateComment,
+} from "../Services/CommunityApi";
 
 const Comment = ({
   handleReplyPress,
   comments,
   setActiveComment,
   activeComment,
+  setFlag,
+  flag,
 }) => {
+  const [actionCommnment, setActionComment] = useState();
+  const [updateCommnment, setUpdateComment] = useState();
+  //for comment update content
+  const [comment, setComment] = useState();
+  const handleUpdateCommment = async () => {
+    const response = await updateComment(updateCommnment, comment);
+    setActionComment();
+    setUpdateComment();
+    setComment();
+    setFlag(!flag);
+  };
+  const handleDeleteCommment = async () => {
+    const response = await deleteComment(actionCommnment);
+    setActionComment();
+    setUpdateComment();
+    setComment();
+    setFlag(!flag);
+  };
   useEffect(() => {
     // Add a keyboard dismiss event listener
 
@@ -40,26 +64,124 @@ const Comment = ({
         {comments &&
           comments.map((item, index) => (
             <View key={index}>
-              <View style={styles.messagecontainer} key={index}>
+              <View style={styles.messagecontainer}>
                 <Image
                   source={
-                    item.isAnonymous ? { uri: "" } : { uri: item.user.img }
+                    item?.user?.img
+                      ? { uri: item.user.img }
+                      : require("../assets/images/Avatar.png")
                   }
                   style={styles.avatar}
                 />
-                <View>
+                <View style={{ flex: 1 }}>
                   <View
-                    style={
-                      activeComment === item.id
-                        ? {
-                            ...styles.message,
-                            backgroundColor: "rgba(26, 26, 26, 0.50)",
-                          }
-                        : styles.message
-                    }
+                    style={{
+                      flexDirection: "row",
+                      flexWrap: "wrap",
+                      alignItems: "center",
+                    }}
                   >
-                    <HeaderText>{item.user.fullName}</HeaderText>
-                    <SubText>{item?.comment}</SubText>
+                    <TouchableOpacity
+                      style={
+                        activeComment === item.id
+                          ? {
+                              ...styles.message,
+                              backgroundColor: "rgba(26, 26, 26, 0.50)",
+                            }
+                          : styles.message
+                      }
+                      onLongPress={() => setActionComment(item.id)}
+                    >
+                      <View
+                        style={{
+                          flexDirection: "row",
+                          alignItems: "center",
+                          gap: 10,
+                        }}
+                      >
+                        <HeaderText>{item.user.fullName}</HeaderText>
+                        <SubText style={{ fontSize: 12 }}>
+                          {formatTimeElapsed(item.createdAt)}
+                        </SubText>
+                      </View>
+                      {updateCommnment == item.id ? (
+                        <View>
+                          <TextInput
+                            style={styles.input}
+                            value={comment}
+                            onChangeText={(value) => setComment(value)}
+                            multiline={true}
+                          />
+                          <View style={{ flexDirection: "row", gap: 15 }}>
+                            <TouchableOpacity
+                              onPress={() => {
+                                handleUpdateCommment();
+                              }}
+                              style={{
+                                backgroundColor: "#8CC840",
+                                ...styles.action,
+                              }}
+                            >
+                              <SubText>Update</SubText>
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                              style={{
+                                backgroundColor: "rgba(26, 26, 26, 0.50)",
+                                ...styles.action,
+                              }}
+                              onPress={() => {
+                                setActionComment();
+                                setUpdateComment();
+                                setComment();
+                              }}
+                            >
+                              <SubText>Cancel</SubText>
+                            </TouchableOpacity>
+                          </View>
+                        </View>
+                      ) : (
+                        <SubText>{item?.comment}</SubText>
+                      )}
+                    </TouchableOpacity>
+                    {actionCommnment == item.id && (
+                      <View style={{ flexDirection: "row", gap: 15 }}>
+                        <TouchableOpacity
+                          onPress={() => {
+                            setComment(item.comment);
+                            setUpdateComment(item.id);
+                            setActionComment();
+                          }}
+                          style={{
+                            backgroundColor: "#8CC840",
+                            ...styles.action,
+                          }}
+                        >
+                          <SubText>Update</SubText>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                          style={{
+                            backgroundColor: "#FF9600",
+                            ...styles.action,
+                          }}
+                          onPress={() => handleDeleteCommment()}
+                        >
+                          <SubText>Delete</SubText>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                          style={{
+                            backgroundColor: "rgba(26, 26, 26, 0.50)",
+                            ...styles.action,
+                          }}
+                          onPress={() => {
+                            setActionComment();
+                            setUpdateComment();
+                            setComment();
+                          }}
+                        >
+                          <SubText>Cancel</SubText>
+                        </TouchableOpacity>
+                      </View>
+                    )}
                   </View>
                   <View style={styles.actionConatiner}>
                     <TouchableOpacity>
@@ -81,7 +203,6 @@ const Comment = ({
                     >
                       <HeaderText style={styles.actionName}>Reply</HeaderText>
                     </TouchableOpacity>
-                    <SubText>{formatTimeElapsed(item.createdAt)}</SubText>
                   </View>
                 </View>
               </View>
@@ -96,23 +217,121 @@ const Comment = ({
                 >
                   <Image
                     source={
-                      reply.isAnonymous ? { uri: "" } : { uri: reply.user.img }
+                      reply?.user?.img
+                        ? { uri: reply.user.img }
+                        : require("../assets/images/Avatar.png")
                     }
                     style={styles.avatar}
                   />
-                  <View>
+                  <View style={{ flex: 1 }}>
                     <View
-                      style={
-                        activeComment === reply.id
-                          ? {
-                              ...styles.message,
-                              backgroundColor: "rgba(26, 26, 26, 0.50)",
-                            }
-                          : styles.message
-                      }
+                      style={{
+                        flexDirection: "row",
+                        flexWrap: "wrap",
+                        alignItems: "center",
+                      }}
                     >
-                      <HeaderText>{reply.user.fullName}</HeaderText>
-                      <SubText>{reply?.comment}</SubText>
+                      <TouchableOpacity
+                        style={
+                          activeComment === reply.id
+                            ? {
+                                ...styles.message,
+                                backgroundColor: "rgba(26, 26, 26, 0.50)",
+                              }
+                            : styles.message
+                        }
+                        onLongPress={() => setActionComment(reply.id)}
+                      >
+                        <View
+                          style={{
+                            flexDirection: "row",
+                            alignItems: "center",
+                            gap: 10,
+                          }}
+                        >
+                          <HeaderText>{reply.user.fullName}</HeaderText>
+                          <SubText style={{ fontSize: 12 }}>
+                            {formatTimeElapsed(reply.createdAt)}
+                          </SubText>
+                        </View>
+                        {updateCommnment == reply.id ? (
+                          <View>
+                            <TextInput
+                              style={styles.input}
+                              value={comment}
+                              onChangeText={(value) => setComment(value)}
+                              multiline={true}
+                            />
+                            <View style={{ flexDirection: "row", gap: 15 }}>
+                              <TouchableOpacity
+                                onPress={() => {
+                                  handleUpdateCommment();
+                                }}
+                                style={{
+                                  backgroundColor: "#8CC840",
+                                  ...styles.action,
+                                }}
+                              >
+                                <SubText>Update</SubText>
+                              </TouchableOpacity>
+                              <TouchableOpacity
+                                style={{
+                                  backgroundColor: "rgba(26, 26, 26, 0.50)",
+                                  ...styles.action,
+                                }}
+                                onPress={() => {
+                                  setActionComment();
+                                  setUpdateComment();
+                                  setComment();
+                                }}
+                              >
+                                <SubText>Cancel</SubText>
+                              </TouchableOpacity>
+                            </View>
+                          </View>
+                        ) : (
+                          <SubText>{reply?.comment}</SubText>
+                        )}
+                      </TouchableOpacity>
+                      {actionCommnment == reply.id && (
+                        <View style={{ flexDirection: "row", gap: 15 }}>
+                          <TouchableOpacity
+                            onPress={() => {
+                              setComment(reply.comment);
+                              setUpdateComment(reply.id);
+                              setActionComment();
+                            }}
+                            style={{
+                              backgroundColor: "#8CC840",
+                              ...styles.action,
+                            }}
+                          >
+                            <SubText>Update</SubText>
+                          </TouchableOpacity>
+                          <TouchableOpacity
+                            style={{
+                              backgroundColor: "#FF9600",
+                              ...styles.action,
+                            }}
+                            onPress={() => handleDeleteCommment()}
+                          >
+                            <SubText>Delete</SubText>
+                          </TouchableOpacity>
+                          <TouchableOpacity
+                            style={{
+                              backgroundColor: "rgba(26, 26, 26, 0.50)",
+                              ...styles.action,
+                            }}
+                            onPress={() => {
+                              setActionComment();
+                              setUpdateComment();
+                              setComment();
+                            }}
+                          >
+                            <SubText>Cancel</SubText>
+                          </TouchableOpacity>
+                        </View>
+                      )}
                     </View>
                     <View style={styles.actionConatiner}>
                       <TouchableOpacity>
@@ -122,12 +341,18 @@ const Comment = ({
                             source={require("../assets/icon/IconLike.png")}
                           ></Image>
                           <SubText style={{ color: "rgba(26, 26, 26, 0.50)" }}>
-                            {item.likes}
+                            {reply.likes}
                           </SubText>
                         </View>
                       </TouchableOpacity>
-
-                      <SubText>{formatTimeElapsed(item.createdAt)}</SubText>
+                      {/* <TouchableOpacity
+                        onPress={() => {
+                          setActiveComment(reply.id);
+                          handleReplyPress();
+                        }}
+                      >
+                        <HeaderText style={styles.actionName}>Reply</HeaderText>
+                      </TouchableOpacity> */}
                     </View>
                   </View>
                 </View>
@@ -162,7 +387,7 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   message: {
-    flexShrink: 1,
+    // flexBasis: "90%",
     flexDirection: "column",
     backgroundColor: "rgba(26, 26, 26, 0.20)",
     paddingVertical: 5,
@@ -198,5 +423,19 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     gap: 3,
     alignItems: "center",
+  },
+  action: {
+    height: 30,
+    paddingHorizontal: 10,
+    borderRadius: 20,
+
+    marginVertical: 5,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  input: {
+    backgroundColor: "#FDFDFD",
+    padding: 5,
+    borderRadius: 15,
   },
 });

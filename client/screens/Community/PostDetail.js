@@ -78,6 +78,8 @@ const PostDetail = ({ route }) => {
               handleReplyPress={handleReplyPress}
               setActiveComment={setActiveComment}
               activeComment={activeComment}
+              setFlag={setFlag}
+              flag={flag}
             ></Post>
           )}
         </ScrollView>

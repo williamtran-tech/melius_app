@@ -228,6 +228,8 @@ const Post = ({
             comments={post.comments}
             setActiveComment={setActiveComment}
             activeComment={activeComment}
+            setFlag={setFlag}
+            flag={flag}
           ></Comment>
         )}
       </View>

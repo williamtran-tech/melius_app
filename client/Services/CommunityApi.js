@@ -206,3 +206,28 @@ export const ReactPost = async (postId) => {
     return null; // Return null or handle the error as needed
   }
 };
+export const updateComment = async (commentId, content) => {
+  try {
+    const response = await HandleApi.serverGeneral.patch(
+      `/v1/community/posts/post-details/comments?id=${commentId}&comment=${content}&isAnonymous=false`
+    );
+    console.log(response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching post:", error.message);
+    return null; // Return null or handle the error as needed
+  }
+};
+export const deleteComment = async (commentId) => {
+  try {
+    console.log(`/v1/community/posts/post-details/comments?id=${commentId}`);
+    const response = await HandleApi.serverGeneral.delete(
+      `/v1/community/posts/post-details/comments?id=${commentId}`
+    );
+    console.log(response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching post:", error.message);
+    return null; // Return null or handle the error as needed
+  }
+};
