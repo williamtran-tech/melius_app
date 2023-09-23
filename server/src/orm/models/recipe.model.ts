@@ -11,6 +11,8 @@ import {
 } from "sequelize-typescript";
 import { MealPlan } from "./meal.plan.model";
 import { PlanDetail } from "./plan.detail.model";
+import { Category } from "./category.model";
+import { RecipeCategory } from "./recipe.category.model";
 
 @Table({
   tableName: "recipes",
@@ -70,4 +72,7 @@ export class Recipe extends Model {
 
   @BelongsToMany(() => MealPlan, () => PlanDetail)
   plans!: MealPlan[];
+
+  @BelongsToMany(() => Category, () => RecipeCategory)
+  categories!: Category[];
 }

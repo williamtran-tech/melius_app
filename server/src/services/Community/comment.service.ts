@@ -15,9 +15,6 @@ export default class CommentService {
                 attributes: ['id', 'gender', 'fullName', 'img']
             });
 
-            const a = 3;
-            const b = "Asd";
-
             const comment = await Comment.findOne({
                 attributes: ["id", "comment", "isAnonymous", "postId", "parentId", 
                 [sequelize.fn("COALESCE", sequelize.literal("(SELECT CAST(SUM(isLike) AS SIGNED) FROM comment_reacts WHERE comment_reacts.commentId = Comment.id)"), 0), "likes"],
@@ -37,7 +34,7 @@ export default class CommentService {
                         model: Comment,
                         as: 'replies',
                         attributes: ["id", "comment", "isAnonymous", "postId", "parentId",
-                        [sequelize.fn("COALESCE", sequelize.literal("(SELECT CAST(SUM(isLike) AS SIGNED) FROM comment_reacts WHERE comment_reacts.commentId = Comment.id)"), 0), "likes"],
+                        [sequelize.fn("COALESCE", sequelize.literal("(SELECT CAST(SUM(isLike) AS SIGNED) FROM comment_reacts WHERE comment_reacts.commentId = replies.id)"), 0), "likes"],
                         "createdAt", "updatedAt"],
                         include: [
                             {

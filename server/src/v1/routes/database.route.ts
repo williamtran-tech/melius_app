@@ -14,6 +14,7 @@ import { TagPostRels } from "../../orm/models/tag.post.rel.model";
 import { Tag } from "../../orm/models/tag.model";
 import { Topic } from "../../orm/models/topic.model";
 import { CommentReact } from "../../orm/models/comment.react.model";
+import { Category } from "../../orm/models/category.model";
 export const databaseRouter = Router();
 
 databaseRouter.post("/create-models", async (req, res) => {
@@ -31,24 +32,38 @@ databaseRouter.post("/create-models", async (req, res) => {
     // Alter tables
     // await User.sync({ alter: true }); => Alter table to match with model (add new column, remove column)
     // By default, the Index file will sync all models with database
-    await CommentReact.sync({ alter: true });
-    await Comment.sync({ alter: true });
-    await View.sync({ alter: true });
-    await React.sync({ alter: true });
-    await Post.sync({ alter: true });
-    await TagPostRels.sync({ alter: true });
-    await Topic.sync({ alter: true });
+    // await CommentReact.sync({ alter: true });
+    // await Comment.sync({ alter: true });
+    // await View.sync({ alter: true });
+    // await React.sync({ alter: true });
+    // await Post.sync({ alter: true });
+    // await TagPostRels.sync({ alter: true });
+    // await Topic.sync({ alter: true });
     // await Tag.sync({ alter: true });
 
     // Init models
     
+    const recipe = await Category.findAll({
+        include: [
+            {
+                model: Recipe,
+                as: "recipes",
+                attributes: ["id", "name", "cookTime", "nSteps", "steps", "nIngredients", "ingredients"],
+                through: {
+                    attributes: [],
+                },
+            },
+        ],
+        attributes: ["id", "name"],
+    })
 
     if (userRole[1]) {
         console.log(chalk.green("Doctor Role created"));
     }
 
     res.status(200).json({
-        msg: "Models created"
+        msg: "Models created",
+        recipe: recipe
     })
   } catch (err) {
     console.log(err);
