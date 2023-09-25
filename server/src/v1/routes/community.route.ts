@@ -44,7 +44,7 @@ communityRouter.get("/posts/post-details/comments", authMiddleware, commentContr
                 .patch("/posts/post-details/comments", authMiddleware, commentController.updateComment)
                 .delete("/posts/post-details/comments", authMiddleware, commentController.deleteComment)
                 .patch("/posts/post-details/comments/:id", authMiddleware, commentController.undoDeleteComment);
-                
+
 communityRouter.get("/topics", authMiddleware, topicController.getAllTopics);
 communityRouter.get("/topics/topic-details", authMiddleware, topicController.getAllPostsByTopic);
 

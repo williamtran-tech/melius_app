@@ -31,7 +31,11 @@ export const handleGoogleLogin = async () => {
     const login = await WebBrowser.openAuthSessionAsync(googleLoginURL);
     if (login.type === "success") {
       const token = login.url.split("token=")[1];
-      console.log("Authorization Token: ", token);
+      const authToken = token.split("?")[0];
+      const isNew = token.split("?new=")[1].split("#")[0];
+      console.log("Token: ", token.toString());
+      console.log("Authorization Token: ", authToken.toString());
+      console.log("Is New: ", isNew.toString());
     }
   } catch (error) {
     console.error("Error opening Google login URL:", error);

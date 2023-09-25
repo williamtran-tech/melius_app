@@ -42,7 +42,6 @@ databaseRouter.post("/create-models", async (req, res) => {
     // await Tag.sync({ alter: true });
 
     // Init models
-    
     const recipe = await Category.findAll({
         include: [
             {

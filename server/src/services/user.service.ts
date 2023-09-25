@@ -67,4 +67,31 @@ export default class UserService {
       throw err;
     }
   }
+
+  // Get Kid Health
+  public async getKidHealthRecords(kidId: number, userId: number) {
+    try {
+      // Check if kid belongs to the user
+      const kid = await User.findOne({
+        where: {
+          id: kidId,
+          parentId: userId,
+        },
+      });
+      if (!kid) {
+        throw new Error("Kid not found");
+      }
+      const healthRecords = await Health.findAll({
+        where: {
+          kidId: kidId
+        },
+        order: [["updatedAt", "DESC"]],
+        attributes: ["id", "weight", "height", "bmi", "tdee", "updatedAt"],
+      });
+
+      return healthRecords;
+    } catch (err) {
+      throw err;
+    }
+  }
 }

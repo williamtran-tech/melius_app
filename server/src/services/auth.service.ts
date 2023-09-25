@@ -157,7 +157,7 @@ class AuthenticationService {
         checkUserExisted.user.googleRefreshToken = user.refreshToken;
         checkUserExisted.user.img = user.img;
         await checkUserExisted.user.save();
-        return true;
+        return false;
       }
 
       // Check if email exists in external type

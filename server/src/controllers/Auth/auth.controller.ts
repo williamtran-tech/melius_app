@@ -9,6 +9,7 @@ import DecodedVerifiedToken from "../../interfaces/Auth/DecodedVerifiedToken.int
 import HttpException from "../../exceptions/HttpException";
 import jwt from "jsonwebtoken";
 import DecodedUserToken from "../../interfaces/Auth/DecodedUserToken.interface";
+import chalk from "chalk";
 
 export default class AuthController extends BaseController {
   private userProfile: any;
@@ -331,23 +332,29 @@ export default class AuthController extends BaseController {
       const createdUser = await this.authenticationService.createGoogleUser(
         userData
       );
+      console.log("User data: ", userData);
 
       if (createdUser) {
-        const token =
+        const userData = {
+          email: this.userProfile.email,
+          fullName: this.userProfile.name,
+          img: this.userProfile.picture,
+        };
+        const authentication =
           await this.authenticationService.generateAuthenticationToken(
             userData
           );
-        res.cookie("Authorization", token, {
-          maxAge: token.expiresIn * 1000,
-          // secure: true,
+        res.cookie("Authorization", authentication, {
+          maxAge: authentication.expiresIn * 1000,
           httpOnly: true,
+          secure: true,
         });
 
         // res.status(200).json({
         //   msg: "Redirect user home screen",
         // });
 
-        res.redirect("exp://192.168.31.40:19000/success?token=" + token);
+        res.redirect("exp://192.168.31.40:19000/success?token=" + authentication.token + "?new=true");
       } else {
         // User already exists in the database
         const userData = {
@@ -355,19 +362,19 @@ export default class AuthController extends BaseController {
           fullName: this.userProfile.name,
           img: this.userProfile.picture,
         };
-        const token =
+        const authentication =
           await this.authenticationService.generateAuthenticationToken(
             userData
           );
-        res.cookie("Authorization", token.token, {
+        res.cookie("Authorization", authentication.token, {
           httpOnly: true,
-          maxAge: token.expiresIn * 1000,
+          maxAge: authentication.expiresIn * 1000,
           secure: true,
         });
         // res.status(200).json({
         //   msg: "User authenticated successfully",
         // });
-        res.redirect("exp://192.168.31.40:19000/success?token=" + token.token);
+        res.redirect("exp://192.168.31.40:19000/success?token=" + authentication.token + "?new=false");
       }
     } catch (error) {
       console.log(error);
