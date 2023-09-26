@@ -1,5 +1,6 @@
 import { Linking } from "react-native";
 import * as WebBrowser from "expo-web-browser";
+import url from "url";
 
 // import { NavigationContainerRef } from "@react-navigation/native";
 import React from "react";
@@ -30,12 +31,15 @@ export const handleGoogleLogin = async () => {
   try {
     const login = await WebBrowser.openAuthSessionAsync(googleLoginURL);
     if (login.type === "success") {
-      const token = login.url.split("token=")[1];
-      const authToken = token.split("?")[0];
-      const isNew = token.split("?new=")[1].split("#")[0];
-      console.log("Token: ", token.toString());
-      console.log("Authorization Token: ", authToken.toString());
-      console.log("Is New: ", isNew.toString());
+      console.log("Login: ", login);
+      // Remove the fragment identifier if it exists
+      const url_token = login.url.split("#")[0];
+      
+      console.log("URL: ", url_token);
+      const urlParser = url.parse(url_token, true);
+      console.log("Token:", urlParser.query.token);
+      console.log("Is New:", urlParser.query.new);
+      console.log("Kid:", urlParser.query.kidIds);
     }
   } catch (error) {
     console.error("Error opening Google login URL:", error);

@@ -13,6 +13,7 @@ import LogInDTO from "../DTOs/Auth/Login.DTO";
 import InvalidCredentialsException from "../exceptions/InvalidCredentialsException";
 import { UserRole } from "../orm/models/user.role.model";
 import { Role } from "../orm/models/role.model";
+import chalk from "chalk";
 
 class AuthenticationService {
   public async generateVerifiedToken(user: RegisterUserDTO) {
@@ -65,6 +66,7 @@ class AuthenticationService {
     const expiresIn = 60 * 60 * 24 * 3; // 3 days
     const secret = process.env.JWT_SECRET!; // the ! tells the compiler that we know that the variable is defined
     let userID = user.id;
+    let kidIds: number[] = [];
     if (user.id === undefined) {
       const userData = await Account.findOne({
         where: {
@@ -74,6 +76,16 @@ class AuthenticationService {
       });
       if (userData) {
         userID = userData.userId;
+
+        const kids = await User.findAll({
+          where: {
+            parentId: userID,
+          },
+          attributes: ["id"]
+        });
+        if (kids) {
+          kidIds = kids.map(kid => kid.id);
+        }
       }
     }
     const dataStoredInToken: DataStoredInToken = {
@@ -84,12 +96,14 @@ class AuthenticationService {
       type: user.type,
     };
     console.log("Data stored in token: ", dataStoredInToken);
+    console.log(chalk.red("User kid ID: ", kidIds));
     return {
       expiresIn,
       token: jwt.sign(dataStoredInToken, secret, {
         expiresIn,
         algorithm: "HS384",
       }),
+      kidIds: kidIds
     };
   }
 
@@ -221,7 +235,6 @@ class AuthenticationService {
       throw err;
     }
   }
-
   // Sending mail service
   public async sendVerifiedEmail(email: string, verifiedCode: string) {
     try {
@@ -237,13 +250,7 @@ class AuthenticationService {
     }
   }
 
-  /** 
-  * Hash Password function
-  * @description: This function is used to hash password
-  *  @param: {password: string} password
-  *  @return: hashed password
-  */
-  public async hashPassword(password: string): Promise<string> {
+  public async hashPassword(password: string) {
     try {
       const hashedPassword = await bcrypt.hash(password, 10);
       return hashedPassword;

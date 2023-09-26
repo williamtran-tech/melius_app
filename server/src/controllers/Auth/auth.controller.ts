@@ -354,7 +354,7 @@ export default class AuthController extends BaseController {
         //   msg: "Redirect user home screen",
         // });
 
-        res.redirect("exp://192.168.31.40:19000/success?token=" + authentication.token + "?new=true");
+        res.redirect("exp://192.168.31.40:19000/success?token=" + authentication.token + "&new=true");
       } else {
         // User already exists in the database
         const userData = {
@@ -371,10 +371,11 @@ export default class AuthController extends BaseController {
           maxAge: authentication.expiresIn * 1000,
           secure: true,
         });
+        console.log(chalk.red("User kid ID: ", authentication.kidIds));
         // res.status(200).json({
         //   msg: "User authenticated successfully",
         // });
-        res.redirect("exp://192.168.31.40:19000/success?token=" + authentication.token + "?new=false");
+        res.redirect("exp://192.168.31.40:19000/success?token=" + authentication.token + "&new=false" + (authentication.kidIds!.length > 0 ? "&kidIds=" + authentication.kidIds : ""));
       }
     } catch (error) {
       console.log(error);
