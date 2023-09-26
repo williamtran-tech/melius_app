@@ -9,7 +9,6 @@ import DecodedVerifiedToken from "../../interfaces/Auth/DecodedVerifiedToken.int
 import HttpException from "../../exceptions/HttpException";
 import jwt from "jsonwebtoken";
 import DecodedUserToken from "../../interfaces/Auth/DecodedUserToken.interface";
-import chalk from "chalk";
 
 export default class AuthController extends BaseController {
   private userProfile: any;
@@ -36,7 +35,7 @@ export default class AuthController extends BaseController {
       }
 
       // Communicate with the DTO
-      const userData: RegisterUserDTO = { ...req.body, role: "User" };
+      const userData: RegisterUserDTO = { ...req.body };
       // Cast the DTO to the authentication service
       console.log(userData);
       const { token, verifiedCode } =
@@ -371,7 +370,6 @@ export default class AuthController extends BaseController {
           maxAge: authentication.expiresIn * 1000,
           secure: true,
         });
-        console.log(chalk.red("User kid ID: ", authentication.kidIds));
         // res.status(200).json({
         //   msg: "User authenticated successfully",
         // });

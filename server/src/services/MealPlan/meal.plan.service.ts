@@ -307,20 +307,40 @@ export default class MealPlanService {
     }
   }
 
-  public async deleteMealPlan(kidId: number) {
+  public async deleteMealPlan(kidId: number, force?: boolean) {
     try {
-      // Delete the latest meal plan of the kid
-      const deletedMealPlan = await MealPlan.findOne({
-        where: { kidId: kidId},
-        order: [["updatedAt", "DESC"]],
-      })
-      
       let res;
-      if (deletedMealPlan) {
-        // Delete the meal plan details
-        await this.planDetailService.deletePlanDetails(deletedMealPlan!.id);
-        // Delete the meal plan
-        res = await deletedMealPlan.destroy();
+      if (!force) {
+        // Delete the latest meal plan of the kid
+        const deletedMealPlan = await MealPlan.findOne({
+          where: { kidId: kidId},
+          order: [["updatedAt", "DESC"]],
+        });
+        console.log("Kid Id:", kidId);
+        
+        if (deletedMealPlan) {
+          // Delete the meal plan details
+          await this.planDetailService.deletePlanDetails(deletedMealPlan!.id);
+          // Delete the meal plan
+          res = await deletedMealPlan.destroy({
+            force: false,
+          });
+        }
+
+      } else {
+        const deletedMealPlans = await MealPlan.findAll({
+          where: { kidId: kidId},
+        });
+        console.log("Kid Id:", kidId);
+
+        if (deletedMealPlans.length > 0) {
+          deletedMealPlans.forEach(async (deletedMealPlan) => {
+            // Delete meal plan
+            res = await deletedMealPlan.destroy({
+              force: true,
+            });
+          });
+        }
       }
 
       return res;

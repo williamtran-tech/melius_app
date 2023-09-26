@@ -7,6 +7,7 @@ import { recipeRouter } from "./recipe.route";
 import { databaseRouter } from "./database.route";
 import { communityRouter } from "./community.route";
 import { diaryRouter } from "./diary.route";
+import { adminRouter } from "./admin.route";
 
 export const routes = express.Router();
 routes.use("/", defaultRouter);
@@ -17,3 +18,5 @@ routes.use("/recipes", recipeRouter);
 routes.use("/database", databaseRouter);
 routes.use("/community", communityRouter);
 routes.use("/diary", diaryRouter)
+
+routes.use("/admin", adminRouter);

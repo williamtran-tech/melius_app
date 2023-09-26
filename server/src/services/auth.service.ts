@@ -13,7 +13,6 @@ import LogInDTO from "../DTOs/Auth/Login.DTO";
 import InvalidCredentialsException from "../exceptions/InvalidCredentialsException";
 import { UserRole } from "../orm/models/user.role.model";
 import { Role } from "../orm/models/role.model";
-import chalk from "chalk";
 
 class AuthenticationService {
   public async generateVerifiedToken(user: RegisterUserDTO) {
@@ -96,7 +95,6 @@ class AuthenticationService {
       type: user.type,
     };
     console.log("Data stored in token: ", dataStoredInToken);
-    console.log(chalk.red("User kid ID: ", kidIds));
     return {
       expiresIn,
       token: jwt.sign(dataStoredInToken, secret, {
@@ -250,7 +248,13 @@ class AuthenticationService {
     }
   }
 
-  public async hashPassword(password: string) {
+   /** 
+  * Hash Password function
+  * @description: This function is used to hash password
+  *  @param: {password: string} password
+  *  @return: hashed password
+  */
+  public async hashPassword(password: string): Promise<string> {
     try {
       const hashedPassword = await bcrypt.hash(password, 10);
       return hashedPassword;
