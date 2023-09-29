@@ -33,7 +33,7 @@ export const handleGoogleLogin = async () => {
   try {
     const login = await WebBrowser.openAuthSessionAsync(googleLoginURL);
     if (login.type === "success") {
-      // Remove the fragment identifier if it exists
+      // console.log("Login: ", login);
       const url_token = login.url.split("#")[0];
 
       // console.log("URL: ", url_token);
@@ -41,12 +41,16 @@ export const handleGoogleLogin = async () => {
       // console.log("Token:", urlParser.query.token);
       // console.log("Is New:", urlParser.query.new);
       // console.log("Kid:", urlParser.query.kidIds);
-      // if (urlParser.query.token) {
-      //   await AsyncStorage.setItem("Authentication", urlParser.query.token);
-      // }
-      HandleApi.serverGeneral.post("v1/auth/google/verify", {
-        token: urlParser.query.token,
-      });
+
+      const verifyGoogle = await HandleApi.serverGeneral.post(
+        "v1/auth/google/verify",
+        {
+          token: urlParser.query.token,
+        }
+      );
+
+      // console.log("Header:", HandleApi.serverGeneral.defaults.headers.common["Authorization"]);
+
       return urlParser.query;
     }
   } catch (error) {
