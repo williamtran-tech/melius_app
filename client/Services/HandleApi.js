@@ -6,6 +6,8 @@ const serverGeneral = axios.create({
   baseURL: API_URL,
   headers: {
     "Content-Type": "application/x-www-form-urlencoded",
+    // Cookie:
+    //   "Authorization=Authorization=eyJhbGciOiJIUzM4NCIsInR5cCI6IkpXVCJ9.eyJpZCI6MTAsImVtYWlsIjoidmh0MTg3MjAwMkBnbWFpbC5jb20iLCJmdWxsTmFtZSI6IlZvIEhvYW5nIFRhbSIsImltZyI6Imh0dHBzOi8vbGgzLmdvb2dsZXVzZXJjb250ZW50LmNvbS9hL0FDZzhvY0t1UHNJWTJ2SzNkaG1vSzVFcW45UDllSm0wQ3M5NHVuR0llMmZiVlM4QlFqQT1zOTYtYyIsInR5cGUiOiJpbnRlcm5hbCIsImlhdCI6MTY5NTg5Njc5MywiZXhwIjoxNjk2MTU1OTkzfQ.ty5gGD08rEagqKjjQwJWXaXgS38ukyZtOL9PE8agEj0BXkf-tD9RzHDhRJ07o-89; connect.sid=s%3AliZ1R4WgOg8EGOHCX4x9dKboLr6mL1Dx.LKveIQ%2FvELxLY9NxI05mJyZY1H5MfxbdDbPJenouprw",
   },
   withCredentials: true,
 });

@@ -4,6 +4,7 @@ import url from "url";
 
 // import { NavigationContainerRef } from "@react-navigation/native";
 import React from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 const handleRedirect = (event) => {
   // On iOS, the URL is passed directly, while on Android, you need to extract it from the event
   const url = event.url || event;
@@ -31,15 +32,18 @@ export const handleGoogleLogin = async () => {
   try {
     const login = await WebBrowser.openAuthSessionAsync(googleLoginURL);
     if (login.type === "success") {
-      console.log("Login: ", login);
       // Remove the fragment identifier if it exists
       const url_token = login.url.split("#")[0];
-      
-      console.log("URL: ", url_token);
+
+      // console.log("URL: ", url_token);
       const urlParser = url.parse(url_token, true);
-      console.log("Token:", urlParser.query.token);
-      console.log("Is New:", urlParser.query.new);
-      console.log("Kid:", urlParser.query.kidIds);
+      // console.log("Token:", urlParser.query.token);
+      // console.log("Is New:", urlParser.query.new);
+      // console.log("Kid:", urlParser.query.kidIds);
+      // if (urlParser.query.token) {
+      //   await AsyncStorage.setItem("Authentication", urlParser.query.token);
+      // }
+      return urlParser.query;
     }
   } catch (error) {
     console.error("Error opening Google login URL:", error);

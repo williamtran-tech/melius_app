@@ -44,6 +44,7 @@ target 'client' do
   pod 'Firebase', :modular_headers => true
   pod 'FirebaseCore', :modular_headers => true
   pod 'GoogleUtilities', :modular_headers => true
+  pod 'react-native-cookies', :path => '../node_modules/@react-native-community/cookies/ios'
   $RNFirebaseAsStaticFramework = true
 
   use_frameworks! :linkage => podfile_properties['ios.useFrameworks'].to_sym if podfile_properties['ios.useFrameworks']

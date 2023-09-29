@@ -8,37 +8,34 @@ import { useEffect, useState } from "react";
 import { Linking, Platform } from "react-native";
 import * as WebBrowser from "expo-web-browser";
 import { useNavigation } from "@react-navigation/native";
-
-const handleRedirect = (event) => {
-  const url = event.url;
-
-  if (url && url.includes("YOUR_SUCCESS_REDIRECT_URL")) {
-    WebBrowser.dismissBrowser();
-    const navigation = useNavigation();
-    navigation.navigate("Home"); // Replace 'Home' with the name of the screen you want to navigate to
-  }
-};
+import { getUserProfile } from "../Services/RetrieveNutritionProfile";
+import { SuggestMealPlanByDate } from "../Services/SuggestMealPlan";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import HandleApi from "../Services/HandleApi";
+// import CookieManager from "@react-native-community/cookies";
 
 const StartScreen = ({ navigation }) => {
-  const handleDeepLink = (event) => {
-    const { url } = event;
-    console.log(url);
-    if (url.startsWith("exp://192.168.31.40:19000/success")) {
-      console.log("cc");
-      // Handle the deep link here, for example, navigate to the desired screen in your app.
-      WebBrowser.dismissBrowser();
-      // navigation.replace("BottomNavigation"); // Replace with the screen name you want to navigate to.
+  const googleLogin = async () => {
+    const result = await handleGoogleLogin();
+    console.log(result);
+    if (result.new == "false") {
+      if (result.kidIds) {
+        const userProfile = await getUserProfile();
+        console.log("id", userProfile.kidProfile[0].id);
+      }
     }
   };
-
   useEffect(() => {
-    // Add the event listener for handling the URL redirect after Google login
-    Linking.addEventListener("url", handleRedirect);
-
-    // Remove the event listener when the component unmounts to avoid memory leaks
-    return () => {
-      Linking.removeEventListener("url", handleRedirect);
-    };
+    // HandleApi.serverGeneral
+    //   .get("/v1/auth/logout")
+    //   .then((response) => {
+    //     console.log(response.data);
+    //     // navigation.replace("Auth");
+    //   })
+    //   .catch((error) => {
+    //     console.error(error.data);
+    //   });
+    // AsyncStorage.clear().then(console.log("cc"));
   }, []);
   return (
     <View style={styles.Container}>
@@ -58,7 +55,7 @@ const StartScreen = ({ navigation }) => {
         </TouchableOpacity>
         <Text style={{ marginTop: 40 }}>Hoặc đăng nhập bằng</Text>
         <View style={styles.IconContainer}>
-          <TouchableOpacity onPress={() => handleGoogleLogin()}>
+          <TouchableOpacity onPress={() => googleLogin()}>
             <Image
               style={[styles.icon, { marginRight: 10 }]}
               source={googleIcon}
