@@ -5,6 +5,7 @@ import url from "url";
 // import { NavigationContainerRef } from "@react-navigation/native";
 import React from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import HandleApi from "./HandleApi";
 const handleRedirect = (event) => {
   // On iOS, the URL is passed directly, while on Android, you need to extract it from the event
   const url = event.url || event;
@@ -43,6 +44,9 @@ export const handleGoogleLogin = async () => {
       // if (urlParser.query.token) {
       //   await AsyncStorage.setItem("Authentication", urlParser.query.token);
       // }
+      HandleApi.serverGeneral.post("v1/auth/google/verify", {
+        token: urlParser.query.token,
+      });
       return urlParser.query;
     }
   } catch (error) {

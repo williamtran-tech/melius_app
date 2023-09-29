@@ -22,6 +22,15 @@ const StartScreen = ({ navigation }) => {
       if (result.kidIds) {
         const userProfile = await getUserProfile();
         console.log("id", userProfile.kidProfile[0].id);
+        const mealPlan = await SuggestMealPlanByDate();
+        // const mealplan = await HandleApi.serverGeneral.get(
+        //   `/v1/users/meal-plan?kidId=${userProfile.kidProfile[0].id}`
+        // );
+        await AsyncStorage.setItem("mealPlan", JSON.stringify(mealPlan));
+
+        await AsyncStorage.setItem("Authentication", result.token);
+
+        navigation.replace("BottomNavigation");
       }
     }
   };
