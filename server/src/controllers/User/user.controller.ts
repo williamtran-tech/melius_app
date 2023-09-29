@@ -22,14 +22,23 @@ export default class UserController extends BaseController {
   constructor() {
     super();
   }
+
   public healthService = new HealthService();
+
   public userService = new UserService();
+
   public ingredientService = new IngredientService();
+
   public mealPlanService = new MealPlanService();
+
   public planDetailService = new PlanDetailService();
+
   public allergyService = new AllergyService();
+  
   public availableIngredientService = new AvailableIngredientService();
+
   public recipeService = new RecipeService();
+
   public dateTimeUtil = new dateTimeUtil();
 
   public getUserProfile = async (

@@ -24,6 +24,16 @@ const HomeScreen = () => {
     const isTokenExpired = await HandleExpireToken();
     // console.log(isTokenExpired);
 
+    // AsyncStorage.clear();
+    // HandleApi.serverGeneral
+    //         .get("/v1/auth/logout")
+    //         .then((response) => {
+    //           console.log(response.data);
+    //           navigation.replace("Auth");
+    //         })
+    //         .catch((error) => {
+    //           console.error(error.data);
+    //         });
     if (isTokenExpired) {
       AsyncStorage.removeItem("Authentication", (error) => {
         if (error) {

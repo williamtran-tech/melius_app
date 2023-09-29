@@ -4,8 +4,11 @@ import HandleApi from "./HandleApi";
 export const getUserProfile = async () => {
   try {
     const response = await HandleApi.serverGeneral.get("/v1/users/profile");
-    await AsyncStorage.setItem("userProfile", JSON.stringify(response.data));
-    return response.data;
+    console.log(response.data);
+    const save = await AsyncStorage.setItem("userProfile", JSON.stringify(response.data));
+    const res = await AsyncStorage.getItem("userProfile"); 
+     console.log("ASHAKHD",JSON.parse(res));
+    return JSON.parse(res);
   } catch (error) {
     console.error(error);
   }

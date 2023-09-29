@@ -41,6 +41,12 @@ export default class UserService {
       const kidProfiles = await User.findAll({
         where: { parentId: id},
         attributes: ["id", "fullName", "dob", "gender", "updatedAt"],
+        include: {
+          model: Health,
+          limit: 1,
+          attributes: ["id", "weight", "height", "bmi", "tdee", "updatedAt"],
+          order: [["createdAt", "DESC"]],
+        },
       });
       return kidProfiles;
     } catch (err) {
@@ -67,7 +73,7 @@ export default class UserService {
     }
   }
 
-  // Get Kid Health
+  // Get Kid Health - Status Health 
   public async getKidHealthRecords(kidId: number, userId: number) {
     try {
       // Check if kid belongs to the user

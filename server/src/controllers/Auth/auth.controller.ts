@@ -353,7 +353,7 @@ export default class AuthController extends BaseController {
         //   msg: "Redirect user home screen",
         // });
 
-        res.redirect("exp://192.168.31.40:19000/success?token=" + authentication.token + "&new=true");
+        res.redirect("exp://192.168.1.6:19000/success?token=" + authentication.token + "&new=true");
       } else {
         // User already exists in the database
         const userData = {
@@ -373,7 +373,7 @@ export default class AuthController extends BaseController {
         // res.status(200).json({
         //   msg: "User authenticated successfully",
         // });
-        res.redirect("exp://192.168.31.40:19000/success?token=" + authentication.token + "&new=false" + (authentication.kidIds!.length > 0 ? "&kidIds=" + authentication.kidIds : ""));
+        res.redirect("exp://192.168.1.6:19000/success?token=" + authentication.token + "&new=false" + (authentication.kidIds!.length > 0 ? "&kidIds=" + authentication.kidIds : ""));
       }
     } catch (error) {
       console.log(error);
@@ -430,7 +430,7 @@ export default class AuthController extends BaseController {
         });
         
         res.status(200).json({
-          msg: "User authenticated successfully Google verified"
+          msg: "User authenticated successfully Google verified",
         });
       } else {
         throw new HttpException(401, "User authentication failed");

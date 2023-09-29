@@ -19,7 +19,7 @@ const HealthIndex = () => {
   const fetchData = async () => {
     try {
       const value = await AsyncStorage.getItem("userProfile");
-      console.log({ value });
+      console.log("value" , JSON.parse(value));
       if (value) {
         const userProfile = JSON.parse(value);
         // console.log("userProfile:", userProfile.kidProfile[0].healthRecord[0]);

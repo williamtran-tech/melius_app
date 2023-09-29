@@ -28,6 +28,7 @@ const RegisterForm = ({ navigation, setStage, setConfirmMethod }) => {
   const handleSubmitButton = (values) => {
     setLoading(true);
     // setStage("stage2");
+    console.log(values);
     HandleApi.serverGeneral
       .post("v1/auth/register", qs.stringify(values))
       .then((response) => {
@@ -66,6 +67,7 @@ const RegisterForm = ({ navigation, setStage, setConfirmMethod }) => {
               phone: "",
               email: "",
               verifiedMethod: "",
+              role:"User"
             }}
             validateOnChange
             validationSchema={Validation.registerValidationSchema}
