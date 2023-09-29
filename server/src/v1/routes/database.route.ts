@@ -20,14 +20,14 @@ export const databaseRouter = Router();
 databaseRouter.post("/create-models", async (req, res) => {
   try {
     // Add new record to table
-    const userRole = await Role.findOrCreate({
-        where: {
-            name: "Doctor",
-        },
-        defaults: {
-            name: "Doctor",
-        },
-    })
+    // const userRole = await Role.findOrCreate({
+    //     where: {
+    //         name: "Doctor",
+    //     },
+    //     defaults: {
+    //         name: "Doctor",
+    //     },
+    // })
 
     // Alter tables
     // await User.sync({ alter: true }); => Alter table to match with model (add new column, remove column)
@@ -42,27 +42,48 @@ databaseRouter.post("/create-models", async (req, res) => {
     // await Tag.sync({ alter: true });
 
     // Init models
-    const recipe = await Category.findAll({
+
+    const recipe2 = await Recipe.findAll({
+        attributes: ["id", "name", "cookTime", "nSteps", "steps", "nIngredients", "ingredients"],
         include: [
             {
-                model: Recipe,
-                as: "recipes",
-                attributes: ["id", "name", "cookTime", "nSteps", "steps", "nIngredients", "ingredients"],
+                model: Category,
+                attributes: ["id", "name"],
+                through: {
+                    attributes: [],
+                },
+                where: {
+                    name: "Other"
+                }
+            },
+        ],
+        limit: 10,
+        order: sequelize.literal("rand()"),
+    });
+
+    const recipeDetails = await Recipe.findOne({
+        attributes: ["id", "name", "cookTime", "nSteps", "steps", "nIngredients", "ingredients"],
+        include: [
+            {
+                model: Category,
+                attributes: ["id", "name"],
                 through: {
                     attributes: [],
                 },
             },
         ],
-        attributes: ["id", "name"],
-    })
+        where: {
+            id: Number(req.body.id)
+        }
+    });
 
-    if (userRole[1]) {
-        console.log(chalk.green("Doctor Role created"));
-    }
+    // if (userRole[1]) {
+    //     console.log(chalk.green("Doctor Role created"));
+    // }
 
     res.status(200).json({
         msg: "Models created",
-        recipe: recipe
+        response: recipeDetails
     })
   } catch (err) {
     console.log(err);

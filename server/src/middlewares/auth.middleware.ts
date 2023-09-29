@@ -10,6 +10,7 @@ async function authMiddleware(
   next: NextFunction
 ) {
   const cookies = request.cookies;
+  console.log(cookies);
   if (cookies && cookies.Authorization) {
     const secret = process.env.JWT_SECRET!;
     try {

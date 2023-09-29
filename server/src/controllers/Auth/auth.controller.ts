@@ -395,4 +395,48 @@ export default class AuthController extends BaseController {
       });
     }
   };
+
+  public googleVerify = async (req: express.Request, res: express.Response, next: express.NextFunction) => {
+    try {
+      if (req.cookies["Authorization"]) {
+        if (jwt.verify(req.cookies.Authorization, process.env.JWT_SECRET!)) {
+          throw new HttpException(400, "Already logged in");
+        } else {
+          res.clearCookie("Authorization");
+        }
+      }
+      const token = req.body.token;
+      const decodedToken = jwt.verify(
+        token,
+        process.env.JWT_SECRET!
+      ) as any;
+
+      const userData = {
+        id: decodedToken.id,
+        email: decodedToken.email,
+        fullName: decodedToken.fullName,
+        img: decodedToken.img,
+        type: "external",
+      };
+
+      const authentication = await this.authenticationService.generateAuthenticationToken(userData);
+
+      if (decodedToken) {
+        
+        res.cookie("Authorization", authentication.token, {
+          httpOnly: true,
+          maxAge: authentication.expiresIn * 1000,
+          // secure: true,
+        });
+        
+        res.status(200).json({
+          msg: "User authenticated successfully Google verified"
+        });
+      } else {
+        throw new HttpException(401, "User authentication failed");
+      }
+    } catch (error) {
+      next(error);
+    }
+  }
 }

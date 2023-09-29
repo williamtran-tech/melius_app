@@ -57,5 +57,6 @@ authRouter.get("/google", authController.googleLogin);
 authRouter.get("/google/callback", authController.googleCallback);
 authRouter.get("/google/callback/success", authController.success);
 authRouter.get("/google/callback/error", authController.error);
+authRouter.post("/google/verify", authController.googleVerify);
 // Login with Facebook
 // Login with Twitter
