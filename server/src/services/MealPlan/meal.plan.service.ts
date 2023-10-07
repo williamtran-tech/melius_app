@@ -12,6 +12,7 @@ import { Op, literal } from "sequelize";
 import MealPlanDTO from "../../DTOs/MealPlan/MealPlan.DTO";
 import MealPlanData from "../../interfaces/MealPlan/MealPlanData.interface";
 import chalk from "chalk";
+import RecipeService from "./recipe.service";
 
 // Recipes Describe Data of nutrition
 // 'calories','total fat (PDV)','sugar (PDV)','sodium (PDV)','protein (PDV)','saturated fat (PDV)','carbohydrates (PDV)']] = df[['calories','total fat (PDV)','sugar (PDV)','sodium (PDV)','protein (PDV)','saturated fat (PDV)','carbohydrates (PDV)'
@@ -20,6 +21,7 @@ export default class MealPlanService {
   public USDAService = new USDAService();
   public healthService = new HealthService();
   private planDetailService = new PlanDetailService();
+  private recipeService = new RecipeService();
 
   private CALORIES_BASE = 2000;
   private TOTAL_FAT_BASE = 78;
@@ -56,7 +58,7 @@ export default class MealPlanService {
 
   }
 
-  private convertPDVtoGram(mealNutrient: any) {
+  public convertPDVtoGram(mealNutrient: any) {
     var mealNutrientsInGrams = {
       calories: Number(mealNutrient.calories.toFixed(2)),
       totalFat: Number((mealNutrient.totalFat * this.TOTAL_FAT_BASE / 100).toFixed(2)),
@@ -393,15 +395,50 @@ export default class MealPlanService {
     console.log(chalk.yellow("Available Array: ", availableArray));
     
     let suggestedMeals: any = [];
-    let suggestedMeal = await Recipe.findAll({
-      // limit: numberOfMeals,
-      limit: nMeal,
-      order: Sequelize.literal("rand()"),
-    });
-    // push the suggested meals to the array
-    for (let i = 0; i < suggestedMeal.length; i++) {
-      suggestedMeals.push(suggestedMeal[i]);
+
+    // Get random meals based on the Category of Recipe
+    enum MainCourseCategory {
+      "Breakfast",
+      "Lunch",
+      "Dinner",
     }
+    const MainCourseCategoryLength = Object.keys(MainCourseCategory).length / 2;
+
+    for (let i = 0; i < MainCourseCategoryLength; i++) {
+      let suggestedMeal: any;
+      console.log(chalk.yellow("Find meal for ",MainCourseCategory[i].toString()));
+      do {
+        suggestedMeal = await this.recipeService.getRecipeByCategory(MainCourseCategory[i]);
+
+      } while (suggestedMeal!.mealType == "Side dish");
+      
+      suggestedMeals.push(suggestedMeal);
+    }
+
+    suggestedMeals.map((meal: any) => {
+      const {mealNutrientsInGrams, servingSize} = this.convertPDVtoGram(meal.nutrition);
+      // Convert the nutrition from PDV to gram 
+
+      // Total nutrition of the meals per day
+      TOTAL_CALORIES += mealNutrientsInGrams.calories;
+      TOTAL_FAT += mealNutrientsInGrams.totalFat;
+      TOTAL_SUGAR += mealNutrientsInGrams.sugar;
+      TOTAL_CARBS += mealNutrientsInGrams.carbohydrates;
+      TOTAL_PROTEIN += mealNutrientsInGrams.protein;
+      TOTAL_SATURATED_FAT += mealNutrientsInGrams.saturatedFat;
+      TOTAL_SODIUM += mealNutrientsInGrams.sodium;
+    });
+
+     // Calculate the estimated nutrition of the meals
+    const estimatedNutrition = {
+      calories: Math.round(TOTAL_CALORIES),
+      totalFat: Math.round(TOTAL_FAT),
+      sugar: Math.round(TOTAL_SUGAR),
+      sodium: Math.round(TOTAL_SODIUM),
+      protein: Math.round(TOTAL_PROTEIN),
+      saturatedFat: Math.round(TOTAL_SATURATED_FAT),
+      carbohydrates: Math.round(TOTAL_CARBS),
+    };
 
     // Find meal contains the available ingredients
     if (numberOfMeals < nMeal) {
@@ -427,71 +464,7 @@ export default class MealPlanService {
       //   throw new HttpException(400, "No meals matched with the available ingredients");
       // }
     }
-
-    const responseMeals = suggestedMeals.map((meal: any) => {
-      const ingredientData = meal.ingredients.replace(/'/g, '"');
-      let ingredientsArray: string[] = [];
-      ingredientsArray = JSON.parse(ingredientData);
-
-      const stepData = meal.steps.replace(/'/g, '"');
-      let stepsArray: string[] = [];
-      stepsArray = JSON.parse(stepData);
-
-      const nutritionData = meal.nutrition.replace(/'/g, '"');
-      let nutritionArray: number[] = [];
-      nutritionArray = JSON.parse(nutritionData);
-
-      const mealNutrition = {
-        calories: nutritionArray[0],
-        totalFat: nutritionArray[1],
-        sugar: nutritionArray[2],
-        sodium: nutritionArray[3],
-        protein: nutritionArray[4],
-        saturatedFat: nutritionArray[5],
-        carbohydrates: nutritionArray[6],
-      };
-
-      // Convert the nutrition from PDV to gram - Recipe Dataset contains nutrition in PDV
-      const {mealNutrientsInGrams, servingSize} = this.convertPDVtoGram(mealNutrition);
-
-      // Calculate the total nutrition of the meals
-      TOTAL_CALORIES += mealNutrientsInGrams.calories;
-      TOTAL_FAT += mealNutrientsInGrams.totalFat;
-      TOTAL_SUGAR += mealNutrientsInGrams.sugar;
-      TOTAL_CARBS += mealNutrientsInGrams.carbohydrates;
-      TOTAL_PROTEIN += mealNutrientsInGrams.protein;
-      TOTAL_SATURATED_FAT += mealNutrientsInGrams.saturatedFat;
-      TOTAL_SODIUM += mealNutrientsInGrams.sodium;
-
-      // For TESTING PURPOSES
-      // Insert RECIPE ID to the MEAL PLAN DETAILS - Default is 3 meals per day
-
-      return {
-        id: meal.id,
-        name: meal.name,
-        nSteps: meal.nSteps,
-        nIngredients: meal.nIngredients,
-        ingredients: ingredientsArray,
-        steps: stepsArray,
-        nutrition: mealNutrientsInGrams,
-        portion: {
-          servingSize: servingSize,
-          unit: "G",
-        },
-      };
-    });
-
-     // Calculate the estimated nutrition of the meals
-    const estimatedNutrition = {
-      calories: Math.round(TOTAL_CALORIES),
-      totalFat: Math.round(TOTAL_FAT),
-      sugar: Math.round(TOTAL_SUGAR),
-      sodium: Math.round(TOTAL_SODIUM),
-      protein: Math.round(TOTAL_PROTEIN),
-      saturatedFat: Math.round(TOTAL_SATURATED_FAT),
-      carbohydrates: Math.round(TOTAL_CARBS),
-    };
-    return [responseMeals, estimatedNutrition];
+    return [suggestedMeals, estimatedNutrition];
   }
 
   // Check the constraints of the meal based on allergies, nutrients target, available ingredients of the kid

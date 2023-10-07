@@ -4,10 +4,17 @@ import { AvailableIngredient } from "../../orm/models/available.ingredient.model
 import CombinationIngredientUtil from "../../utils/combination.ingredient.util";
 import natural from "natural";
 import chalk from "chalk";
+import { Category } from "../../orm/models/category.model";
+import HttpException from "../../exceptions/HttpException";
 
 export default class RecipeService {
-  constructor() {}
+  constructor() {
+    this.recipeMaxId = 833900;
+    this.recipeMinId = 652746;
+  }
   
+  private recipeMinId: number;
+  private recipeMaxId: number;
   private TOTAL_FAT_BASE = 78;
   private SUGAR_BASE = 50;
   private SODIUM_BASE = 2.3;
@@ -157,6 +164,15 @@ export default class RecipeService {
       const recipe = await Recipe.findOne({
         where: { id: id },
         attributes: ["id", "name", "nSteps", "nIngredients", "ingredients", "steps", "nutrition", "cookTime"],
+        include: [
+          {
+              model: Category,
+              attributes: ["id", "name"],
+              through: {
+                  attributes: [],
+              }
+          },
+      ],
       });
       
       if (recipe) {
@@ -196,6 +212,7 @@ export default class RecipeService {
           nSteps: recipe.nSteps,
           cookTime: recipe.cookTime,
           nIngredients: recipe.nIngredients,
+          categories: recipe.categories,
           ingredients: ingredientsArray,
           steps: stepsArray,
           servingSize: servingSize,
@@ -354,6 +371,62 @@ export default class RecipeService {
       } catch (err) {
           throw err;
       }
+  }
+
+  public async getRecipeByCategory(category: string) {
+    try {
+      let recipe: any;
+      let limit = 10;
+      do {
+          // Get random number from minId to maxId
+          // Math.random() * (max - min) + min;
+          const randomId = Math.floor(Math.random() * (this.recipeMaxId - this.recipeMinId + 1) + this.recipeMinId);
+          console.log(chalk.green(randomId));
+          recipe = await Recipe.findOne({
+              attributes: ["id"],
+              include: [
+                  {
+                      model: Category,
+                      attributes: ["id", "name"],
+                      through: {
+                          attributes: [],
+                      },
+                      where: {
+                          name: category
+                      }
+                  },
+              ],
+              where: {
+                  id: randomId
+              },
+          });
+      } while (!recipe && limit-- > 0);
+      if (!recipe) {
+        console.log("No recipe found");
+        recipe = await Recipe.findOne({
+          attributes: ["id"],
+          include: [
+              {
+                  model: Category,
+                  attributes: ["id", "name"],
+                  through: {
+                      attributes: [],
+                  },
+                  where: {
+                      name: category
+                  }
+              },
+          ],
+          order: sequelize.literal("rand()"),
+        });
+      }
+      
+      return this.getRecipeById(recipe.id);
+
+    } catch (error) {
+      console.log(error);
+      throw new HttpException(404, "Recipe not found");
+    }
   }
   
 }
