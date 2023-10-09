@@ -253,3 +253,24 @@ export const getAllPostByTag = async (id) => {
     return null; // Return null or handle the error as needed
   }
 };
+
+export const undoDeleteAndReact = async (id, isReact) => {
+  try {
+    if (isReact) {
+      const response = await HandleApi.serverGeneral.patch(
+        `/v1/community/posts/post-details/comments/${id}?react=1`
+      );
+      // console.log(response.data);
+      return response.data;
+    } else {
+      const response = await HandleApi.serverGeneral.patch(
+        `/v1/community/posts/post-details/comments/${id}`
+      );
+      // console.log(response.data);
+      return response.data;
+    }
+  } catch (error) {
+    console.error("Error fetching post:", error.message);
+    return null; // Return null or handle the error as needed
+  }
+};

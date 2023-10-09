@@ -13,8 +13,16 @@ import React, { useEffect, useRef, useState } from "react";
 import Post from "../../components/Post";
 import HeaderText from "../../components/HeaderText";
 import { set } from "react-native-reanimated";
-import { CommentPost, GetPostDetail } from "../../Services/CommunityApi";
+import {
+  CommentPost,
+  DeletePost,
+  GetPostDetail,
+} from "../../Services/CommunityApi";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import BottomSheetModal from "@gorhom/bottom-sheet";
+import NewPostForm from "../../components/NewPostForm";
+import SubText from "../../components/SubText";
+import { useNavigation } from "@react-navigation/native";
 
 const PostDetail = ({ route }) => {
   const { data } = route.params;
@@ -23,6 +31,13 @@ const PostDetail = ({ route }) => {
   const [message, setMessage] = useState();
   const textInputRef = useRef(null);
   const [activeComment, setActiveComment] = useState();
+  const [activePost, setActivePost] = useState();
+  const [dataNewPost, setDataNewPost] = useState();
+  const bottomSheetRef = useRef(null);
+
+  const [visible, setVisible] = useState(false);
+  const bottomSheetRefInf = useRef(null);
+  const navigation = useNavigation();
   const handleReplyPress = () => {
     if (textInputRef.current) {
       textInputRef.current.focus();
@@ -48,6 +63,46 @@ const PostDetail = ({ route }) => {
   //     scrollViewRef.current.scrollTo({ y: scrollPosition, animated: true });
   //   }
   // };
+  const handleDelete = async () => {
+    await DeletePost(activePost);
+    bottomSheetRefInf.current.close();
+    // setModalVisible(true);
+    setTimeout(() => {
+      // setModalVisible(false);
+      setActivePost(null);
+    }, 3000);
+    navigation.goBack();
+  };
+
+  const handleUndo = async () => {
+    await UndoDeletePost(activePost);
+    setModalVisible(false);
+    setActivePost(null);
+    setFlag(!flag);
+  };
+  const handleUpdate = async () => {
+    // await UndoDeletePost(activePost);
+    // setFlag(!flag);
+    bottomSheetRefInf.current.close();
+    if (bottomSheetRef.current) {
+      bottomSheetRef.current.expand();
+    }
+  };
+
+  const handleClose = () => {
+    bottomSheetRefInf.current.close();
+  };
+  const handleCloseNewPost = () => {
+    bottomSheetRef.current.close();
+  };
+  const handleNewPostPress = () => {
+    // console.log(bottomSheetRef.current);
+    setDataNewPost();
+    if (bottomSheetRef.current) {
+      bottomSheetRef.current.expand();
+    }
+  };
+  const handleClosePress = () => bottomSheetRef.current.close();
   const retrievePostData = async () => {
     const dataPost = await GetPostDetail(data);
     console.log(dataPost);
@@ -83,6 +138,9 @@ const PostDetail = ({ route }) => {
               handleReplyPress={handleReplyPress}
               setActiveComment={setActiveComment}
               activeComment={activeComment}
+              setDataNewPost={setDataNewPost}
+              setVisible={setVisible}
+              setActivePost={setActivePost}
               setFlag={setFlag}
               flag={flag}
               userId={userId}
@@ -110,6 +168,48 @@ const PostDetail = ({ route }) => {
             </TouchableOpacity>
           )}
         </View>
+        <BottomSheetModal
+          ref={bottomSheetRef}
+          snapPoints={["100%"]} // Define your snap points here
+          index={-1} // The initial snap point (0 means the first snap point)
+          enablePanDownToClose
+        >
+          <NewPostForm
+            dataNewPost={dataNewPost}
+            flag={flag}
+            setFlag={setFlag}
+            handleCloseNewPost={handleCloseNewPost}
+          ></NewPostForm>
+        </BottomSheetModal>
+
+        <BottomSheetModal
+          ref={bottomSheetRefInf}
+          enablePanDownToClose
+          snapPoints={["25%"]}
+          index={visible ? 0 : -1}
+          onChange={(index) => {
+            if (index === -1) setVisible(false);
+          }}
+        >
+          <View
+            style={{
+              flex: 1,
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "space-around",
+            }}
+          >
+            <TouchableOpacity onPress={() => handleUpdate()}>
+              <SubText>Update</SubText>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => handleDelete()}>
+              <SubText>Delete</SubText>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => handleDelete()}>
+              <SubText>Cancel</SubText>
+            </TouchableOpacity>
+          </View>
+        </BottomSheetModal>
       </View>
     </KeyboardAvoidingView>
   );
