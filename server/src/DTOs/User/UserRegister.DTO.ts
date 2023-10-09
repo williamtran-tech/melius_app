@@ -4,7 +4,9 @@ import {
   IsPhoneNumber,
   Matches,
   IsOptional,
+  isString,
 } from "class-validator";
+import { IsArray } from "sequelize-typescript";
 class RegisterUserDTO {
   @IsString()
   public fullName: string;
@@ -19,20 +21,20 @@ class RegisterUserDTO {
 
   public isVerified: boolean;
 
-  public role: string;
+  public role: string[];
 
   constructor(
     fullName: string,
     email: string,
     phone?: string,
     isVerified: boolean = false,
-    role?: string
+    role?: string[]
   ) {
     this.fullName = fullName;
     this.email = email;
     this.phone = phone || undefined;
     this.isVerified = isVerified;
-    this.role = role || "User";
+    this.role = role || ["User"];
   }
 }
 

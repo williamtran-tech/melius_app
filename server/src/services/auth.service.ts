@@ -16,7 +16,7 @@ import { Role } from "../orm/models/role.model";
 import chalk from "chalk";
 
 class AuthenticationService {
-  public async generateVerifiedToken(user: RegisterUserDTO) {
+  public async generateVerifiedToken(user: RegisterUserDTO, reset?: boolean) {
     // Check phone number duplicate
     // if (user.phone) {
     //   if (
@@ -28,20 +28,35 @@ class AuthenticationService {
     //   }
     // }
     // Generate 4 digit code
-    // Send email with code
     const verifiedCode = Math.floor(1000 + Math.random() * 9000);
     // Generate a token for verifying email of user
-    console.log("Verified: ", user);
-    const token = jwt.sign(
-      {
-        user: user,
-        verifiedCode: verifiedCode.toString(),
-      },
-      process.env.JWT_SECRET!,
-      {
-        expiresIn: "1h",
-      }
-    );
+    console.log("Verified: ", verifiedCode);
+
+    let token: string;
+    // Send email with code
+    if (!reset) {
+      token = jwt.sign(
+        {
+          user: user,
+          verifiedCode: verifiedCode.toString(),
+        },
+        process.env.JWT_SECRET!,
+        {
+          expiresIn: "1h",
+        }
+      );
+    } else {
+      token = jwt.sign(
+        {
+          user: user,
+          verifiedCode: verifiedCode.toString(),
+        },
+        process.env.JWT_SECRET!,
+        {
+          expiresIn: "15m",
+        }
+      );
+    }
     console.log(user);
     return { token, verifiedCode: verifiedCode.toString() };
   }
@@ -111,14 +126,21 @@ class AuthenticationService {
   public async findAccountByEmail(email: string) {
     try {
       const account = await Account.findOne({
+        attributes: ["id", "email", "type", "userId"],
         where: {
           email: email,
         },
       });
       if (account) {
-        return true;
+        return {
+          exists: true,
+          account: account,
+        };
       }
-      return false;
+      return {
+        exists: false,
+        account: null,
+      };
     } catch (err) {
       throw err;
     }
@@ -239,7 +261,6 @@ class AuthenticationService {
   public async sendVerifiedEmail(email: string, verifiedCode: string) {
     try {
       const mailUtil = new MailUtil();
-      // Saver https://developers.google.com/oauthplayground/?code=4/0AbUR2VNYjBxZjzhS37rSnSBYK2hxiQEVEPPHALsZwewxPU8hA-Er92alWZEWmIDPDl73AQ&scope=https://mail.google.com/
       mailUtil.sendMail(
         email,
         "[Melius Application] Verify your email [Do not reply]",

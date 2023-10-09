@@ -1,5 +1,4 @@
 import sequelize from "sequelize";
-
 import { Post } from "../../orm/models/post.model";
 import { User } from "../../orm/models/user.model";
 import { Tag } from "../../orm/models/tag.model";
@@ -14,6 +13,7 @@ import HttpException from "../../exceptions/HttpException";
 import PostImageService from "./post.image.service";
 
 import AWSS3Util from "../../utils/aws.s3.util";
+import { CommentReact } from "../../orm/models/comment.react.model";
 
 
 export default class PostService {
@@ -262,7 +262,7 @@ export default class PostService {
      * }
      * }
      */
-    public async getPost(postId: number, userId: number): Promise<Post> {
+    public async getPost(postId: number, userId: number) {
         try {
             const post = await Post.findOne({
                 attributes: [
@@ -271,16 +271,25 @@ export default class PostService {
                     "isAnonymous",
                     "createdAt",
                     "updatedAt",
-                    [sequelize.literal("(SELECT COUNT(view) FROM views WHERE views.postId = Post.id)"), "views"],
-                    [sequelize.fn("COALESCE", sequelize.literal("(SELECT CAST(SUM(isLike) AS SIGNED) FROM reacts WHERE reacts.postId = Post.id)"), 0), "likes"],
-                    [sequelize.fn("COALESCE", sequelize.literal("(SELECT CAST(SUM(isDislike) AS SIGNED) FROM reacts WHERE reacts.postId = Post.id)"), 0), "dislikes"],
+                    [
+                        sequelize.literal('(SELECT COUNT(view) FROM views WHERE views.postId = post.id)'),
+                        'views'
+                    ],
+                    [
+                        sequelize.fn("COALESCE", sequelize.literal('(SELECT CAST(SUM(isLike) AS SIGNED) FROM reacts WHERE reacts.postId = post.id)'), 0),
+                        'likes'
+                    ],
+                    [
+                        sequelize.fn("COALESCE", sequelize.literal('(SELECT CAST(SUM(isDislike) AS SIGNED) FROM reacts WHERE reacts.postId = post.id)'), 0),
+                        'dislikes'
+                    ],
                 ],
                 include: [
                     {
                         model: User,
                         attributes: [
-                            [sequelize.literal(`IF(Post.isAnonymous = 1 AND user.id != ${userId}, null, user.id)`), 'id'], 
-                            [sequelize.literal(`IF(Post.isAnonymous = 1 AND user.id != ${userId}, null, user.fullName)`), 'fullName'], 
+                            [sequelize.literal(`IF(Post.isAnonymous = 1 AND user.id != ${userId}, null, user.id)`), 'id'],
+                            [sequelize.literal(`IF(Post.isAnonymous = 1 AND user.id != ${userId}, null, user.fullName)`), 'fullName'],
                             [sequelize.literal(`IF(Post.isAnonymous = 1 AND user.id != ${userId}, null, user.gender)`), 'gender'],
                             [sequelize.literal(`IF(Post.isAnonymous = 1 AND user.id != ${userId}, null, user.img)`), 'img'],
                         ],
@@ -289,9 +298,9 @@ export default class PostService {
                         model: Tag,
                         attributes: ["id", "name"],
                         through: {
-                        attributes: [],
+                            attributes: [],
                         },
-                        required: false
+                        required: false,
                     },
                     {
                         model: Topic,
@@ -299,52 +308,80 @@ export default class PostService {
                     },
                     {
                         model: Comment,
-                        attributes: ["id", "comment", "isAnonymous", "createdAt", "updatedAt",
-                        [sequelize.fn("COALESCE", sequelize.literal("(SELECT CAST(SUM(isLike) AS SIGNED) FROM comment_reacts WHERE comment_reacts.commentId = comments.id)"), 0), "likes"],],
-                        as: "comments",
+                        attributes: [
+                            "id",
+                            "comment",
+                            "isAnonymous",
+                            "createdAt",
+                            "updatedAt",
+                            [
+                                sequelize.fn(
+                                    "COALESCE",
+                                    sequelize.literal('(SELECT CAST(SUM(isLike) AS SIGNED) FROM comment_reacts WHERE comment_reacts.commentId = comments.id)'),
+                                    0
+                                ),
+                                "likes",
+                            ],
+                        ],
                         where: {
-                            postId: sequelize.col("Post.id"),
+                            postId: sequelize.col('Post.id'),
                             parentId: null, // Get only parent comments
                         },
                         order: [["updatedAt", "DESC"]],
                         include: [
                             {
                                 model: User,
-                                attributes: ["id", "fullName", 'img'],
+                                attributes: ["id", "fullName", "img"],
                             },
                             {
                                 model: Comment,
                                 as: "replies",
-                                attributes: ["id", "comment", "isAnonymous", "createdAt", "updatedAt",
-                                [sequelize.fn("COALESCE", sequelize.literal("(SELECT CAST(SUM(isLike) AS SIGNED) FROM comment_reacts WHERE comment_reacts.commentId = comments.id)"), 0), "likes"]],
+                                attributes: [
+                                    "id",
+                                    "comment",
+                                    "isAnonymous",
+                                    "createdAt",
+                                    "updatedAt",
+                                    [sequelize.fn(
+                                        "COALESCE",
+                                        sequelize.literal('(SELECT CAST(SUM(isLike) AS SIGNED) FROM comment_reacts WHERE comment_reacts.commentId = comments.id)'),
+                                        0
+                                    ),
+                                    "likes"],
+                                ],
                                 where: {
-                                    parentId: sequelize.col("comments.id"),
+                                    parentId: sequelize.col('Comments.id'),
                                 },
                                 order: [["updatedAt", "DESC"]],
                                 include: [
                                     {
                                         model: User,
-                                        attributes: ["id", "fullName", 'img']
+                                        attributes: ["id", "fullName", "img"],
                                     }
                                 ],
                                 required: false,
                             },
                         ],
-                        required: false
+                        required: false,
                     },
                     {
                         model: PostImage,
-                        attributes: ["id", "imagePath", "caption"],
+                        attributes: ["id", "imagePath", "caption", "postId"],
                         where: {
                             postId: sequelize.col("Post.id"),
                         },
-                        required: false
+                        required: false,
                     },
-                    ],
-                    where: {
-                        id: postId,
-                    },
-                });
+                ],
+                where: {
+                    id: postId,
+                },
+            });
+
+
+            
+              
+            // console.log(chalk.green("Get post successfully"), JSON.stringify(post!.comments[2], null, 2));
             // Check post exists
             if (!post) {
                 console.log(chalk.green("Get post Failed"));
@@ -368,8 +405,9 @@ export default class PostService {
                     console.log(chalk.green("View updated successfully"));
                 }
             }
-            return post as Post;
+            return post;
         } catch (err) {
+            console.log(err);
             throw err;
         }
     }
