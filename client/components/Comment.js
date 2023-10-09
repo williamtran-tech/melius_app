@@ -14,6 +14,7 @@ import { formatTimeElapsed } from "../Services/FormatTimeElapsed";
 import {
   CommentPost,
   deleteComment,
+  undoDeleteAndReact,
   updateComment,
 } from "../Services/CommunityApi";
 
@@ -42,6 +43,11 @@ const Comment = ({
     setActionComment();
     setUpdateComment();
     setComment();
+    setFlag(!flag);
+  };
+  const handleLikeComment = async (id) => {
+    const response = await undoDeleteAndReact(id, true);
+
     setFlag(!flag);
   };
   useEffect(() => {
@@ -188,7 +194,11 @@ const Comment = ({
                     )}
                   </View>
                   <View style={styles.actionConatiner}>
-                    <TouchableOpacity>
+                    <TouchableOpacity
+                      onPress={() => {
+                        handleLikeComment(item.id);
+                      }}
+                    >
                       <View style={styles.interactContainer}>
                         <Image
                           style={styles.interact}
@@ -338,7 +348,11 @@ const Comment = ({
                       )}
                     </View>
                     <View style={styles.actionConatiner}>
-                      <TouchableOpacity>
+                      <TouchableOpacity
+                        onPress={() => {
+                          handleLikeComment(reply.id);
+                        }}
+                      >
                         <View style={styles.interactContainer}>
                           <Image
                             style={styles.interact}
