@@ -14,6 +14,7 @@ import PostImageService from "./post.image.service";
 
 import AWSS3Util from "../../utils/aws.s3.util";
 import { CommentReact } from "../../orm/models/comment.react.model";
+import { children } from "cheerio/lib/api/traversing";
 
 
 export default class PostService {
@@ -272,15 +273,15 @@ export default class PostService {
                     "createdAt",
                     "updatedAt",
                     [
-                        sequelize.literal('(SELECT COUNT(view) FROM views WHERE views.postId = post.id)'),
+                        sequelize.literal('(SELECT COUNT(view) FROM views WHERE views.postId = Post.id)'),
                         'views'
                     ],
                     [
-                        sequelize.fn("COALESCE", sequelize.literal('(SELECT CAST(SUM(isLike) AS SIGNED) FROM reacts WHERE reacts.postId = post.id)'), 0),
+                        sequelize.fn("COALESCE", sequelize.literal('(SELECT CAST(SUM(isLike) AS SIGNED) FROM reacts WHERE reacts.postId = Post.id)'), 0),
                         'likes'
                     ],
                     [
-                        sequelize.fn("COALESCE", sequelize.literal('(SELECT CAST(SUM(isDislike) AS SIGNED) FROM reacts WHERE reacts.postId = post.id)'), 0),
+                        sequelize.fn("COALESCE", sequelize.literal('(SELECT CAST(SUM(isDislike) AS SIGNED) FROM reacts WHERE reacts.postId = Post.id)'), 0),
                         'dislikes'
                     ],
                 ],
@@ -308,6 +309,7 @@ export default class PostService {
                     },
                     {
                         model: Comment,
+                        as: "comments",
                         attributes: [
                             "id",
                             "comment",
@@ -342,21 +344,20 @@ export default class PostService {
                                     "isAnonymous",
                                     "createdAt",
                                     "updatedAt",
-                                    [sequelize.fn(
-                                        "COALESCE",
-                                        sequelize.literal('(SELECT CAST(SUM(isLike) AS SIGNED) FROM comment_reacts WHERE comment_reacts.commentId = comments.id)'),
-                                        0
-                                    ),
-                                    "likes"],
                                 ],
                                 where: {
-                                    parentId: sequelize.col('Comments.id'),
+                                    parentId: sequelize.col('comments.id'),
                                 },
                                 order: [["updatedAt", "DESC"]],
                                 include: [
                                     {
                                         model: User,
                                         attributes: ["id", "fullName", "img"],
+                                    },
+                                    {
+                                        model: CommentReact,
+                                        as: "reacts",
+                                        attributes: ["id"],
                                     }
                                 ],
                                 required: false,
@@ -377,16 +378,28 @@ export default class PostService {
                     id: postId,
                 },
             });
-
-
-            
-              
-            // console.log(chalk.green("Get post successfully"), JSON.stringify(post!.comments[2], null, 2));
-            // Check post exists
-            if (!post) {
-                console.log(chalk.green("Get post Failed"));
-                throw new HttpException(404, "Post not found");
+            // Loop through the replies and update "likes" to 0 if there are no likes
+            console.log("Parent comments of post", post?.comments.length);
+            if (post?.comments.length && post?.comments.length > 0) {
+                const firstParentComment = post.comments[0];
+                console.log("Child comments of first parent comment", firstParentComment.replies?.length);
             }
+            post?.comments.map((comment) => {
+                if (comment.replies?.length && comment.replies?.length > 0) {
+                    comment.replies.map((reply) => {
+                        if (reply.reacts?.length && reply.reacts?.length > 0) {
+                            reply.setDataValue("likes", reply.reacts.length)
+                            delete reply.dataValues.reacts;
+                        }
+                        else {
+                            reply.setDataValue("likes", 0);
+                            delete reply.dataValues.reacts;
+                        }
+                    });
+                }
+            })
+
+            // console.log("Child comments of first parent comment", post?.comments.replies.length);
             // Update views
             if (userId) {
                 const updateView = await View.findOrCreate({
