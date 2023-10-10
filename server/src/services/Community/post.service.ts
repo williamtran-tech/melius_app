@@ -162,7 +162,6 @@ export default class PostService {
                     topicId: topic.id,
                 },
                 order: [["createdAt", "DESC"]],
-                group: ["Post.id"],
                 limit: limit,
             })
             return [topic, posts];
@@ -241,7 +240,6 @@ export default class PostService {
                     },
                     ],
                     order: [["createdAt", "DESC"]],
-                    group: ["Post.id"],
                     limit: limit,
             });
             
