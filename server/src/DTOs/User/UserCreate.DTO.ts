@@ -5,6 +5,7 @@ import {
   IsStrongPassword,
   IsOptional,
 } from "class-validator";
+import { IsArray } from "sequelize-typescript";
 
 class CreateUserDTO {
   @IsString()
@@ -32,8 +33,7 @@ class CreateUserDTO {
   })
   public password: string;
 
-  @IsOptional()
-  public role?: string;
+  public role?: string[];
 
   constructor(
     fullName: string,
@@ -42,7 +42,7 @@ class CreateUserDTO {
     DOB: Date,
     gender: string,
     phone?: string,
-    role?: string
+    role?: string[]
   ) {
     this.fullName = fullName;
     this.email = email;
@@ -50,8 +50,9 @@ class CreateUserDTO {
     this.phone = phone || undefined;
     this.DOB = DOB;
     this.gender = gender;
-    this.role = role || "User";
+    this.role = role || ["User"];
   }
 }
 
 export default CreateUserDTO;
+

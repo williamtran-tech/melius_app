@@ -9,11 +9,12 @@ import DecodedVerifiedToken from "../../interfaces/Auth/DecodedVerifiedToken.int
 import HttpException from "../../exceptions/HttpException";
 import jwt from "jsonwebtoken";
 import DecodedUserToken from "../../interfaces/Auth/DecodedUserToken.interface";
-
+import UserService from "../../services/user.service";
 export default class AuthController extends BaseController {
   private userProfile: any;
 
-  public authenticationService = new AuthenticationService();
+  private authenticationService = new AuthenticationService();
+  private userService = new UserService();
   constructor() {
     super();
     this.userProfile = {};
@@ -27,10 +28,10 @@ export default class AuthController extends BaseController {
   ) => {
     try {
       // MySQL check for duplicate email
-      const dupAccount = await this.authenticationService.findAccountByEmail(
+      const account = await this.authenticationService.findAccountByEmail(
         req.body.email
       );
-      if (dupAccount) {
+      if (account.exists) {
         throw new HttpException(401, "Email already registered");
       }
 
@@ -87,6 +88,7 @@ export default class AuthController extends BaseController {
         DOB: new Date(),
         gender: "female",
         password: password,
+        role: ["User"],
       };
       console.log(decodedToken.user, userData);
       const user = await this.authenticationService.createUser(
@@ -182,38 +184,35 @@ export default class AuthController extends BaseController {
       next(err);
     }
   };
-
-  // Not fixed yet
-
   public forgotPassword = async (
     req: express.Request,
     res: express.Response,
     next: express.NextFunction
   ) => {
     try {
-      // const user = await User.findOne({
-      //   email: req.body.email,
-      // });
-      // if (!user) {
-      //   throw new HttpException(404, "User not found");
-      // }
-      // const userData: RegisterUserDTO = {
-      //   email: user.email,
-      //   fullName: user.fullName,
-      //   isVerified: false,
-      // };
-      // const { token, verifiedCode } =
-      //   await this.authenticationService.generateVerifiedToken(userData);
-      // res.cookie("token", token, {
-      //   httpOnly: true,
-      //   // maxAge for 15 minutes
-      //   maxAge: 900000,
-      // });
-      // this.authenticationService.sendVerifiedEmail(user.email, verifiedCode);
-      // res.status(200).json({
-      //   msg: "Verified Code sent to your email",
-      //   verifiedCode: verifiedCode,
-      // });
+      const email = req.body.email;
+      const {exists, account} = await this.authenticationService.findAccountByEmail(email);
+      if (!exists) {
+        throw new HttpException(404, "User not found");
+      } else {
+        const userProfile = await this.userService.getUserProfile(account!.userId);
+        const userData = {
+          id: account!.userId,
+          email: account!.email,
+          fullName: userProfile!.user.fullName,
+          isVerified: true,
+          type: account!.type,
+          role: userProfile!.user.roles.map(role => role.name),
+        }
+        const { token, verifiedCode } =
+        await this.authenticationService.generateVerifiedToken(userData);
+        console.log(token, verifiedCode);
+    
+        // this.authenticationService.sendVerifiedEmail(email, "1234");
+        res.status(200).json({
+          msg: "Email sent successfully",
+        });
+      }
     } catch (error: any) {
       next(error);
     }

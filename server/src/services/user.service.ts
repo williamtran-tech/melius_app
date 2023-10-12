@@ -9,17 +9,33 @@ import sequelize from "sequelize";
 import MealPlanService from "./MealPlan/meal.plan.service";
 
 export default class UserService {
+  static getUserProfile(userId: number) {
+    throw new Error("Method not implemented.");
+  }
   private mealPlanService = new MealPlanService();
   public async getUserProfile(userId: number) {
     try {
       const userProfile = await Account.findOne({
         where: { userId: userId },
         attributes: ["email", "type"],
-        include: {
-          model: User,
-          attributes: ["id", "fullName", "gender", "DOB", "img", "updatedAt"],
-        },
+        include: [
+          {
+            model: User,
+            attributes: ["id", "fullName", "gender", "DOB", "img", "updatedAt"],
+            include: [
+              {
+                model: Role,
+                attributes: ["name"],
+                through: {
+                  attributes: [],
+                }
+              }
+            ]
+          },
+          
+        ],
       });
+      
       return userProfile;
     } catch (err) {
       throw err;

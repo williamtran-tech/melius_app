@@ -1,5 +1,4 @@
 import sequelize from "sequelize";
-
 import { Post } from "../../orm/models/post.model";
 import { User } from "../../orm/models/user.model";
 import { Tag } from "../../orm/models/tag.model";
@@ -14,6 +13,8 @@ import HttpException from "../../exceptions/HttpException";
 import PostImageService from "./post.image.service";
 
 import AWSS3Util from "../../utils/aws.s3.util";
+import { CommentReact } from "../../orm/models/comment.react.model";
+import { children } from "cheerio/lib/api/traversing";
 
 
 export default class PostService {
@@ -161,7 +162,6 @@ export default class PostService {
                     topicId: topic.id,
                 },
                 order: [["createdAt", "DESC"]],
-                group: ["Post.id"],
                 limit: limit,
             })
             return [topic, posts];
@@ -240,7 +240,6 @@ export default class PostService {
                     },
                     ],
                     order: [["createdAt", "DESC"]],
-                    group: ["Post.id"],
                     limit: limit,
             });
             
@@ -262,7 +261,7 @@ export default class PostService {
      * }
      * }
      */
-    public async getPost(postId: number, userId: number): Promise<Post> {
+    public async getPost(postId: number, userId: number) {
         try {
             const post = await Post.findOne({
                 attributes: [
@@ -271,16 +270,25 @@ export default class PostService {
                     "isAnonymous",
                     "createdAt",
                     "updatedAt",
-                    [sequelize.literal("(SELECT COUNT(view) FROM views WHERE views.postId = Post.id)"), "views"],
-                    [sequelize.fn("COALESCE", sequelize.literal("(SELECT CAST(SUM(isLike) AS SIGNED) FROM reacts WHERE reacts.postId = Post.id)"), 0), "likes"],
-                    [sequelize.fn("COALESCE", sequelize.literal("(SELECT CAST(SUM(isDislike) AS SIGNED) FROM reacts WHERE reacts.postId = Post.id)"), 0), "dislikes"],
+                    [
+                        sequelize.literal('(SELECT COUNT(view) FROM views WHERE views.postId = Post.id)'),
+                        'views'
+                    ],
+                    [
+                        sequelize.fn("COALESCE", sequelize.literal('(SELECT CAST(SUM(isLike) AS SIGNED) FROM reacts WHERE reacts.postId = Post.id)'), 0),
+                        'likes'
+                    ],
+                    [
+                        sequelize.fn("COALESCE", sequelize.literal('(SELECT CAST(SUM(isDislike) AS SIGNED) FROM reacts WHERE reacts.postId = Post.id)'), 0),
+                        'dislikes'
+                    ],
                 ],
                 include: [
                     {
                         model: User,
                         attributes: [
-                            [sequelize.literal(`IF(Post.isAnonymous = 1 AND user.id != ${userId}, null, user.id)`), 'id'], 
-                            [sequelize.literal(`IF(Post.isAnonymous = 1 AND user.id != ${userId}, null, user.fullName)`), 'fullName'], 
+                            [sequelize.literal(`IF(Post.isAnonymous = 1 AND user.id != ${userId}, null, user.id)`), 'id'],
+                            [sequelize.literal(`IF(Post.isAnonymous = 1 AND user.id != ${userId}, null, user.fullName)`), 'fullName'],
                             [sequelize.literal(`IF(Post.isAnonymous = 1 AND user.id != ${userId}, null, user.gender)`), 'gender'],
                             [sequelize.literal(`IF(Post.isAnonymous = 1 AND user.id != ${userId}, null, user.img)`), 'img'],
                         ],
@@ -289,9 +297,9 @@ export default class PostService {
                         model: Tag,
                         attributes: ["id", "name"],
                         through: {
-                        attributes: [],
+                            attributes: [],
                         },
-                        required: false
+                        required: false,
                     },
                     {
                         model: Topic,
@@ -299,57 +307,97 @@ export default class PostService {
                     },
                     {
                         model: Comment,
-                        attributes: ["id", "comment", "isAnonymous", "createdAt", "updatedAt",
-                        [sequelize.fn("COALESCE", sequelize.literal("(SELECT CAST(SUM(isLike) AS SIGNED) FROM comment_reacts WHERE comment_reacts.commentId = comments.id)"), 0), "likes"],],
                         as: "comments",
+                        attributes: [
+                            "id",
+                            "comment",
+                            "isAnonymous",
+                            "createdAt",
+                            "updatedAt",
+                            [
+                                sequelize.fn(
+                                    "COALESCE",
+                                    sequelize.literal('(SELECT CAST(SUM(isLike) AS SIGNED) FROM comment_reacts WHERE comment_reacts.commentId = comments.id)'),
+                                    0
+                                ),
+                                "likes",
+                            ],
+                        ],
                         where: {
-                            postId: sequelize.col("Post.id"),
+                            postId: sequelize.col('Post.id'),
                             parentId: null, // Get only parent comments
                         },
                         order: [["updatedAt", "DESC"]],
                         include: [
                             {
                                 model: User,
-                                attributes: ["id", "fullName", 'img'],
+                                attributes: ["id", "fullName", "img"],
                             },
                             {
                                 model: Comment,
                                 as: "replies",
-                                attributes: ["id", "comment", "isAnonymous", "createdAt", "updatedAt",
-                                [sequelize.fn("COALESCE", sequelize.literal("(SELECT CAST(SUM(isLike) AS SIGNED) FROM comment_reacts WHERE comment_reacts.commentId = comments.id)"), 0), "likes"]],
+                                attributes: [
+                                    "id",
+                                    "comment",
+                                    "isAnonymous",
+                                    "createdAt",
+                                    "updatedAt",
+                                ],
                                 where: {
-                                    parentId: sequelize.col("comments.id"),
+                                    parentId: sequelize.col('comments.id'),
                                 },
                                 order: [["updatedAt", "DESC"]],
                                 include: [
                                     {
                                         model: User,
-                                        attributes: ["id", "fullName", 'img']
+                                        attributes: ["id", "fullName", "img"],
+                                    },
+                                    {
+                                        model: CommentReact,
+                                        as: "reacts",
+                                        attributes: ["id"],
                                     }
                                 ],
                                 required: false,
                             },
                         ],
-                        required: false
+                        required: false,
                     },
                     {
                         model: PostImage,
-                        attributes: ["id", "imagePath", "caption"],
+                        attributes: ["id", "imagePath", "caption", "postId"],
                         where: {
                             postId: sequelize.col("Post.id"),
                         },
-                        required: false
+                        required: false,
                     },
-                    ],
-                    where: {
-                        id: postId,
-                    },
-                });
-            // Check post exists
-            if (!post) {
-                console.log(chalk.green("Get post Failed"));
-                throw new HttpException(404, "Post not found");
+                ],
+                where: {
+                    id: postId,
+                },
+            });
+            // Loop through the replies and update "likes" to 0 if there are no likes
+            console.log("Parent comments of post", post?.comments.length);
+            if (post?.comments.length && post?.comments.length > 0) {
+                const firstParentComment = post.comments[0];
+                console.log("Child comments of first parent comment", firstParentComment.replies?.length);
             }
+            post?.comments.map((comment) => {
+                if (comment.replies?.length && comment.replies?.length > 0) {
+                    comment.replies.map((reply) => {
+                        if (reply.reacts?.length && reply.reacts?.length > 0) {
+                            reply.setDataValue("likes", reply.reacts.length)
+                            delete reply.dataValues.reacts;
+                        }
+                        else {
+                            reply.setDataValue("likes", 0);
+                            delete reply.dataValues.reacts;
+                        }
+                    });
+                }
+            })
+
+            // console.log("Child comments of first parent comment", post?.comments.replies.length);
             // Update views
             if (userId) {
                 const updateView = await View.findOrCreate({
@@ -368,8 +416,9 @@ export default class PostService {
                     console.log(chalk.green("View updated successfully"));
                 }
             }
-            return post as Post;
+            return post;
         } catch (err) {
+            console.log(err);
             throw err;
         }
     }

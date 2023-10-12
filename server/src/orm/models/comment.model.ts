@@ -85,7 +85,8 @@ import {
     
     @HasMany(() => CommentReact, {
       onDelete: "CASCADE",
+      as: "reacts"
     })
-    commentReacts!: CommentReact[];
+    reacts!: CommentReact[];
   }
   
