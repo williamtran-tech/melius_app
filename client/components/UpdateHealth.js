@@ -5,7 +5,11 @@ import SubText from "./SubText";
 import { Formik } from "formik";
 import HandleApi from "../Services/HandleApi";
 import { getUserProfile } from "../Services/RetrieveNutritionProfile";
-import { createMealPlan, getMealPlan } from "../Services/SuggestMealPlan";
+import {
+  createMealPlan,
+  getMealPlan,
+  SuggestMealPlanByDate,
+} from "../Services/SuggestMealPlan";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const UpdateHealth = ({
@@ -26,7 +30,7 @@ const UpdateHealth = ({
         { kidId: healthRecord.id, ...values }
       );
       //   const updateUserMealPlan = await createMealPlan(healthRecord.id);
-      const mealplan = await getMealPlan();
+      const mealplan = await SuggestMealPlanByDate();
       const getUserInf = await getUserProfile();
       //   const mealplan = await HandleApi.serverGeneral.get(
       //     `/v1/users/meal-plan?kidId=${healthRecord.id}`
@@ -45,8 +49,8 @@ const UpdateHealth = ({
       <View style={styles.modalView}>
         <Formik
           initialValues={{
-            weight: healthRecord.healthRecord[0]?.weight || "",
-            height: healthRecord.healthRecord[0]?.height || "",
+            weight: healthRecord.healthRecord[0].weight.toString(),
+            height: healthRecord.healthRecord[0].height.toString(),
           }}
           validationSchema={Validation.validationChildRecordSchema}
           onSubmit={handleSubmit}
@@ -101,8 +105,16 @@ const UpdateHealth = ({
                   {errors.height && <Text>{errors.height}</Text>}
                 </View>
               </View>
-
-              <Button onPress={handleSubmit} title="Submit" />
+              <View
+                style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <Button onPress={handleSubmit} title="Submit" />
+                <Button onPress={() => setModalVisible(false)} title="Cancel" />
+              </View>
             </View>
           )}
         </Formik>

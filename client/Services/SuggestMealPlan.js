@@ -47,7 +47,7 @@ export const getMealPlan = async (date) => {
   console.log("getMealPlan dateTime:", dateTime);
   try {
     const value = await AsyncStorage.getItem("userProfile");
-    // console.log(JSON.parse(value)?.mealPlan);
+    console.log("JSON.parse(value)?.mealPlan", JSON.parse(value)?.mealPlan);
     const kidId = JSON.parse(value)?.kidProfile[0].id;
     // console.log(kidId);
     const response = await HandleApi.serverGeneral.get(`v1/users/meal-plan`, {
