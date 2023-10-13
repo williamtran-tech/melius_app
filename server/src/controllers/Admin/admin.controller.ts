@@ -10,6 +10,7 @@ export default class AdminController extends BaseController {
         super();
     }
     public userService = new UserService();
+
     // USER MANAGEMENT FUNCTIONS
     public getAllUser = async (req: Request, res: Response, next: NextFunction) => {
         try {
@@ -68,4 +69,8 @@ export default class AdminController extends BaseController {
             next(error);
         }
     }
+
+    public createDoctor = async (req: Request, res: Response, next: NextFunction) => {}
+    public createMassiveDoctor = async (req: Request, res: Response, next: NextFunction) => {}
+    
 }

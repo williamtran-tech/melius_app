@@ -14,7 +14,7 @@ userRouter.get("/profile", authMiddleware, authorize(["User"]), userController.g
 // Kid Preferences
 userRouter.get("/profile/kid", authMiddleware,authorize(["User"]),checkKidIDMiddleware, userController.getKidProfile)
           .post("/create-child", authMiddleware, userController.createChild)
-          .patch("/child-health", authMiddleware, userController.updateChildHealth);
+          .patch("/child-health", authMiddleware, checkKidIDMiddleware, userController.updateChildHealth);
 
 // ALLERGIES
 // Add ingredient to allergy list of kid

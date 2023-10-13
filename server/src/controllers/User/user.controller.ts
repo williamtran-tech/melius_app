@@ -115,6 +115,9 @@ export default class UserController extends BaseController {
       console.log(chalk.bgBlue("Update Child Health"));
       const kidId = Number(req.body.kidId);
       const kidInfo = await this.userService.getKidProfile(kidId);
+      if (kidInfo.length === 0) {
+        throw new HttpException(404, "Kid not found");
+      }
       const kidData: KidHealthDTO = {
         kidId: kidInfo[0].id,
         weight: req.body.weight,
@@ -122,6 +125,7 @@ export default class UserController extends BaseController {
         DOB: kidInfo[0].dob,
         PAL: req.body.PAL ? req.body.PAL : 1.5,
         gender: kidInfo[0].gender,
+        updatedAt: new Date()
       };
 
       // Update Health Record
