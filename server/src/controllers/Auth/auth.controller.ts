@@ -113,36 +113,11 @@ export default class AuthController extends BaseController {
           user: user,
         });
       }
-      // THe code below used for updating password
-      // First query to check user exist or not, then execute the update
-      // else {
-      //   const hash = await this.authenticationService.hashPassword(password);
-      //   await User.findOneAndUpdate(
-      //     { email: decodedToken.user.email },
-      //     { password: hash }
-      //   );
-
-      //   const updatedUser = await User.findOne({
-      //     email: decodedToken.user.email,
-      //   });
-      //   const { expiresIn, token } =
-      //     this.authenticationService.generateAuthenticationToken(updatedUser);
-      //   res.cookie("token", "", { maxAge: 0 });
-      //   res.clearCookie("token");
-      //   res.cookie("Authorization", token, {
-      //     httpOnly: true,
-      //     maxAge: expiresIn * 1000,
-      //   });
-      //   res.status(200).json({
-      //     msg: "Password set successfully - Direct user to App without login again",
-      //   });
-      // }
     } catch (error: any) {
       next(error);
     }
   };
 
-  // Use for both MySQL and MongoDB
   public verifyUser = async (
     req: express.Request,
     res: express.Response,
@@ -205,14 +180,57 @@ export default class AuthController extends BaseController {
           role: userProfile!.user.roles.map(role => role.name),
         }
         const { token, verifiedCode } =
-        await this.authenticationService.generateVerifiedToken(userData);
+        await this.authenticationService.generateVerifiedToken(userData, true);
         console.log(token, verifiedCode);
+        res.clearCookie("token");
+        res.cookie("token", token, {
+          httpOnly: true,
+          // maxAge for 15m
+          maxAge: 900000,
+        });
     
-        // this.authenticationService.sendVerifiedEmail(email, "1234");
+        this.authenticationService.sendVerifiedEmail(email, verifiedCode);
         res.status(200).json({
           msg: "Email sent successfully",
+          verifiedCode: verifiedCode,
         });
       }
+    } catch (error: any) {
+      next(error);
+    }
+  };
+
+  public changePassword = async (
+    req: express.Request,
+    res: express.Response,
+    next: express.NextFunction
+  ) => {
+    try {
+      if (!req.cookies.token) {
+        throw new HttpException(401, "Unauthorized access");
+      }
+      const decodedToken = jwt.verify(
+        req.cookies.token,
+        process.env.JWT_SECRET!
+      ) as any;
+
+      const { password, confirmPassword } = req.body;
+      if (password !== confirmPassword) {
+        throw new HttpException(400, "Password does not match");
+      }
+      if (!decodedToken.user.isVerified) {
+        throw new HttpException(400, "User not verified");
+      }
+
+      // Update password 
+      const user = await this.authenticationService.updatePassword(decodedToken.user.id, password);
+
+      res.clearCookie("token");
+      res.cookie("Authorization", "", { maxAge: 0 });
+
+      res.status(200).json({
+        msg: "Password changed successfully - Redirect user to login screen",
+      });
     } catch (error: any) {
       next(error);
     }

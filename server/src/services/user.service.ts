@@ -7,8 +7,11 @@ import HttpException from "../exceptions/HttpException";
 import sequelize from "sequelize";
 
 import MealPlanService from "./MealPlan/meal.plan.service";
+import AWSS3Util from "../utils/aws.s3.util";
+import PostImageService from "./Community/post.image.service";
 
 export default class UserService {
+  public awsS3Util = new AWSS3Util();
   static getUserProfile(userId: number) {
     throw new Error("Method not implemented.");
   }
@@ -37,6 +40,52 @@ export default class UserService {
       });
       
       return userProfile;
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  public async updateProfile(userId: number, updateProfileDTO: any): Promise<User> {
+    try {
+      const user = await User.findOne({
+        where: { id: userId },
+      });
+
+      // Save the new avatar - AWS S3
+      let imagePath: string = user?.img || "";
+      if (updateProfileDTO.img.avatar != null) {
+        // console.log(updateProfileDTO.img);
+        console.log(chalk.yellow("Update avatar"));
+        if (imagePath.length > 0) {
+          // Delete old avatar
+          console.log(chalk.yellow("Delete old avatar"));
+          const key = imagePath;
+          await this.awsS3Util.deleteImage([key]);
+        }
+        const imagePaths = await this.awsS3Util.updateAvatar(userId, updateProfileDTO.img);
+        imagePath = imagePaths;
+      }
+
+      const updatedData = {
+        dob: updateProfileDTO.dob,
+        fullName: updateProfileDTO.fullName,
+        img: (imagePath.length > 0) ? imagePath : null,
+        gender: updateProfileDTO.gender
+      }
+
+      await User.update({
+        fullName: updatedData.fullName,
+        dob: updatedData.dob,
+        gender: updatedData.gender,
+        img: updatedData.img,
+      }, {
+        where: { id: userId },
+      });
+      
+      const updatedUser = await User.findOne({
+        where: { id: userId },
+      });
+      return updatedUser!;
     } catch (err) {
       throw err;
     }

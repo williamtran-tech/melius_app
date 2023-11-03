@@ -271,6 +271,24 @@ class AuthenticationService {
     }
   }
 
+  public async updatePassword(userId: number, password: string) {
+    try {
+      const hashedPassword = await this.hashPassword(password);
+      const updatedAccount = await Account.update(
+        {
+          password: hashedPassword,
+        },
+        {
+          where: {
+            userId: userId,
+          },
+        }
+      );
+      return updatedAccount;
+    } catch (err) {
+      throw err;
+    }
+  }
   public async hashPassword(password: string) {
     try {
       const hashedPassword = await bcrypt.hash(password, 10);
