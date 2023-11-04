@@ -30,7 +30,7 @@ export const createPost = async (
     const formData = new FormData();
     formData.append("content", content);
     formData.append("isAnonymous", isAnonymous);
-    formData.append("topicId", 1);
+    formData.append("topicId", topicId);
     if (tags) {
       formData.append("tags", tags.join(","));
       console.log(tags);

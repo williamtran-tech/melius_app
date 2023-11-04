@@ -6,7 +6,7 @@ import IconWithText from "./IconWithText";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import moment from "moment";
 
-const PersonalInf = () => {
+const PersonalInf = ({ flag }) => {
   const [momInfor, setMomInfor] = useState();
   const fetchData = async () => {
     try {
@@ -33,7 +33,7 @@ const PersonalInf = () => {
 
     // // Clean up the timer when the component unmounts
     // return () => clearTimeout(timer);
-  }, []);
+  }, [flag]);
   return (
     <View>
       <View style={styles.titleContainer}>

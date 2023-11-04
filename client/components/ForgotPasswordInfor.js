@@ -12,11 +12,11 @@ import Validation from "../Services/Authorizations/Validation";
 import SubText from "./SubText";
 import HeaderText from "./HeaderText";
 import { Formik } from "formik";
+import HandleApi from "../Services/HandleApi";
 
 const ForgotPasswordInfor = ({ setStage, setConfirmMethod }) => {
-  const handleFormSubmit = (values) => {
+  const handleFormSubmit = async (values) => {
     console.log(values);
-
     const { emailOrPhone } = values;
     if (emailOrPhone.includes("@")) {
       setConfirmMethod("email");
@@ -25,6 +25,10 @@ const ForgotPasswordInfor = ({ setStage, setConfirmMethod }) => {
       setConfirmMethod("phone");
       console.log("Phone:", emailOrPhone);
     }
+    const response = await HandleApi.serverGeneral.post(
+      "v1/auth/forgot-password",
+      { email: emailOrPhone }
+    );
     setStage("stage3");
   };
   return (

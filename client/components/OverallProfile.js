@@ -6,14 +6,16 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import HeaderText from "./HeaderText";
 import { LinearGradient } from "expo-linear-gradient";
 import SubText from "./SubText";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import BottomSheetModal from "@gorhom/bottom-sheet";
 
-const OverallProfile = () => {
+const OverallProfile = ({ openBottomSheetModal, flag }) => {
   const [momInfor, setMomInfor] = useState();
+
   const fetchData = async () => {
     try {
       const value = await AsyncStorage.getItem("userProfile");
@@ -40,7 +42,7 @@ const OverallProfile = () => {
 
     // // Clean up the timer when the component unmounts
     // return () => clearTimeout(timer);
-  }, []);
+  }, [flag]);
   return (
     <View style={styles.container}>
       <ImageBackground
@@ -53,14 +55,20 @@ const OverallProfile = () => {
         ></LinearGradient>
       </ImageBackground>
       <View style={styles.containerProfile}>
-        <View style={styles.avatarContainer}>
-          <Image
-            style={styles.avatar}
-            source={
-              imageSource ? imageSource : require("../assets/images/Logo.png")
-            }
-          ></Image>
-        </View>
+        <TouchableOpacity
+          onPress={() => {
+            openBottomSheetModal();
+          }}
+        >
+          <View style={styles.avatarContainer}>
+            <Image
+              style={styles.avatar}
+              source={
+                imageSource ? imageSource : require("../assets/images/Logo.png")
+              }
+            ></Image>
+          </View>
+        </TouchableOpacity>
         <View style={{ flex: 1 }}>
           <View style={styles.containerName}>
             <HeaderText style={styles.nameMom}>

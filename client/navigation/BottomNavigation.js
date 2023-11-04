@@ -114,7 +114,11 @@ function BottomNavigation() {
         listeners={{
           focus: () => setSelectedTab("Setting"), // Set the selected tab as "Setting" when it is focused
         }}
-        options={{ tabBarActiveTintColor: "black", tabBarLabel: () => null }} // Set active tint color for the tab
+        options={{
+          tabBarActiveTintColor: "black",
+          unmountOnBlur: true,
+          tabBarLabel: () => null,
+        }} // Set active tint color for the tab
       />
     </Tab.Navigator>
   );
