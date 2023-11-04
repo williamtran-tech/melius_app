@@ -1,5 +1,4 @@
 import { IsDate, IsEnum, IsNumber, IsOptional } from "class-validator";
-
 class KidHealthDTO {
   @IsNumber()
   public kidId: number;
@@ -20,13 +19,17 @@ class KidHealthDTO {
   @IsEnum(["female", "male"])
   public gender: string;
 
+  @IsDate()
+  public updatedAt: Date;
+
   constructor(
     kidId: number,
     weight: number,
     height: number,
     DOB: Date,
     PAL: number,
-    gender: string
+    gender: string,
+    updatedAt: Date
   ) {
     this.kidId = kidId;
     this.weight = weight;
@@ -34,6 +37,7 @@ class KidHealthDTO {
     this.DOB = DOB;
     this.PAL = PAL;
     this.gender = gender;
+    this.updatedAt = updatedAt;
   }
 }
 

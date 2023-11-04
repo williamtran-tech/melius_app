@@ -4,17 +4,29 @@ import validationMiddleware from "../../middlewares/validation.middleware";
 import authMiddleware from "../../middlewares/auth.middleware";
 import checkKidIDMiddleware from "../../middlewares/checkKidUser.middleware";
 import { authorize } from "../../middlewares/authorize.middleware";
+import multer from "multer";
 
 export const userRouter = Router();
 const userController = new UserController();
 
+// Limit file size to 5MB
+const upload = multer({
+    limits: {
+        fileSize: 5 * 1024 * 1024,
+    },
+});
+
+
 // Profile User
-userRouter.get("/profile", authMiddleware, authorize(["User"]), userController.getUserProfile);
+userRouter.get("/profile", authMiddleware, authorize(["User"]), userController.getProfile);
+// Handle avatar upload
+// Form-data only works with POST method
+userRouter.post("/profile", authMiddleware, authorize(["User"]), upload.fields([{ name: 'avatar', maxCount: 1 }]), userController.updateProfile);
 
 // Kid Preferences
 userRouter.get("/profile/kid", authMiddleware,authorize(["User"]),checkKidIDMiddleware, userController.getKidProfile)
           .post("/create-child", authMiddleware, userController.createChild)
-          .patch("/child-health", authMiddleware, userController.updateChildHealth);
+          .patch("/child-health", authMiddleware, checkKidIDMiddleware, userController.updateChildHealth);
 
 // ALLERGIES
 // Add ingredient to allergy list of kid

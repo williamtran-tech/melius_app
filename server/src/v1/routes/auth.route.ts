@@ -19,21 +19,12 @@ authRouter.post(
   authController.register
 );
 
-// authRouter.post(
-//   "/register-sql",
-//   registerMiddleware,
-//   validationMiddleware(RegisterUserDTO, false),
-//   authController.registerSQL
-// );
 // Verify via email
 authRouter.post("/verify", authController.verifyUser);
 // Verify via phone
 
 // Set password
 authRouter.post("/password", authController.setPassword);
-
-// authRouter.post("/password-sql", authController.setPasswordSQL);
-// Change password
 
 // Forgot password
 authRouter.post(
@@ -42,8 +33,8 @@ authRouter.post(
   validationMiddleware(ResetPasswordDTO, false),
   authController.forgotPassword
 );
-// Reset password
-authRouter.patch("/password", registerMiddleware, authController.setPassword);
+// Change password
+authRouter.patch("/password", registerMiddleware, authController.changePassword);
 
 authRouter.post(
   "/login",

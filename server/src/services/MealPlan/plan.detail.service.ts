@@ -7,6 +7,7 @@ import dateTimeUtil from "../../utils/dateTime";
 import { MealPlan } from "../../orm/models/meal.plan.model";
 import MealPlanData from "../../interfaces/MealPlan/MealPlanData.interface";
 import chalk from "chalk";
+import { Category } from "../../orm/models/category.model";
 
 export default class PlanDetailService {
     public recipeService = new RecipeService();
@@ -99,11 +100,23 @@ export default class PlanDetailService {
                 },
                 order: [["mealTime", "DESC"]],
                 attributes: ["id", "mealTime", "session", "type", "nutritionRange", "updatedAt"],
-                include: {
-                    model: Recipe,
-                    attributes: ["id", "name", "cookTime", "nSteps", "nIngredients", "ingredients", "steps", "nutrition"],
-                }
+                include: [
+                    {
+                        model: Recipe,
+                        attributes: ["id", "name", "cookTime", "nSteps", "nIngredients", "ingredients", "steps", "nutrition"],
+                        include: [
+                            {
+                                model: Category,
+                                attributes: ["id", "name"],
+                                through: {
+                                    attributes: [],
+                                },
+                            }
+                        ]
+                    },
+                ]
             });
+
 
             let calories = 0;
             let fat = 0;
@@ -149,6 +162,12 @@ export default class PlanDetailService {
                             nIngredients: planDetail.recipes.nIngredients,
                             ingredients: parsedIngre,
                             steps: parsedStep,
+                            categories: planDetail.recipes.categories.map((category: any) => {
+                                return {
+                                    id: category.id,
+                                    name: category.name,
+                                }
+                            }),
                         },
                         nutrition: {
                             'calories': nutritionInGrams.mealNutrientsInGrams["calories"],

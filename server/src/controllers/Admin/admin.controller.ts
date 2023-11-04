@@ -2,6 +2,7 @@ import { BaseController } from "../abstractions/base.controller";
 import { Request, Response, NextFunction } from "express";
 
 import UserService from "../../services/user.service";
+import AdminService from "../../services/Admin/admin.service";
 import chalk from "chalk";
 import HttpException from "../../exceptions/HttpException";
 
@@ -9,12 +10,14 @@ export default class AdminController extends BaseController {
     constructor() {
         super();
     }
-    public userService = new UserService();
-    // USER MANAGEMENT FUNCTIONS
-    public getAllUser = async (req: Request, res: Response, next: NextFunction) => {
+    private userService = new UserService();
+    private adminService = new AdminService();
+
+    // USER (Mother) MANAGEMENT FUNCTIONS
+    public getAllMothers = async (req: Request, res: Response, next: NextFunction) => {
         try {
             let result = [];
-            const role = req.query.role ? req.query.role : "User";
+            const role = "User";
             let kidProfiles;
             const users = await this.userService.getAllUser(role.toString());
             if (users.length === 0) {
@@ -42,30 +45,45 @@ export default class AdminController extends BaseController {
         }
     }
 
-    public deleteUser = async (req: Request, res: Response, next: NextFunction) => {
+    // DOCTOR MANAGEMENT FUNCTIONS
+    public getAllDoctors = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            console.log(chalk.red("Delete user"));
-            const user = await this.userService.deleteUser(Number(req.query.id), Boolean(Number(req.query.force)));
-
+            const role = "Doctor"
+            const doctors = await this.userService.getAllUser(role.toString());
+            if (doctors.length === 0) {
+                throw new HttpException(404, "No doctor found");
+            }
             res.status(200).json({
-                msg: "Delete user successfully",
-                user: user
-            })
-        } catch (error) {
-            next(error);
-        }
-    }
-
-    public undoDeleteUser = async (req: Request, res: Response, next: NextFunction) => {
-        try {
-            const user = await this.userService.undoDeleteUser(Number(req.query.id));
-
-            res.status(200).json({
-                msg: "Undo delete user successfully",
-                user: user
+                msg: "Get all doctors successfully",
+                doctors: doctors
             });
-        } catch (error) {
-            next(error);
+        } catch (err) {
+            next(err);
         }
     }
+    public createDoctor = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const userData = {
+                email: req.body.email,
+                fullName: req.body.fullName,
+                gender: req.body.gender,
+                dob: new Date(),
+                type: "internal",
+                role: "Doctor"
+            }
+
+            const doctor = await this.adminService.createUser(userData);
+            res.status(200).json({
+                msg: "Create doctor successfully",
+                doctor: doctor
+            });
+        } catch (err) {
+            next(err);
+        }
+    }
+    public createMassiveDoctor = async (req: Request, res: Response, next: NextFunction) => {}
+    public updateUser = async (req: Request, res: Response, next: NextFunction) => {}
+    public deleteUser = async (req: Request, res: Response, next: NextFunction) => {}
+    public undoDeleteUser = async (req: Request, res: Response, next: NextFunction) => {}
+
 }

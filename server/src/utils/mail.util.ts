@@ -1,5 +1,4 @@
 import nodemailer from "nodemailer";
-import { OAuth2Client } from "google-auth-library";
 
 export default class MailUtil {
   public sendMail(

@@ -85,4 +85,42 @@ export default class AWSS3Util {
             console.log(chalk.green("Image deleted successfully", key));
         });
     }
+
+    public async updateAvatar(userId: number, files: Record<string, Express.Multer.File[]>) {
+        try {
+            // mkdir of user if not exist
+            const accessKeyId = process.env.AWS_ACCESS_KEY_ID!;
+            const secretAccessKey = process.env.AWS_SECRET_ACCESS_KEY!;
+            const region = process.env.AWS_REGION!;
+            const Bucket = process.env.AWS_BUCKET_NAME!;
+            const hashId = bcrypt.hashSync(userId.toString(), 5);
+            const timestamp = Date.parse(new Date().toISOString());
+            const key = `users/${userId}/${timestamp}-${hashId}-${files.avatar[0].originalname}`;
+            // Create an S3 Client
+            const s3 = new S3Client({
+                credentials: {
+                    accessKeyId,
+                    secretAccessKey,
+                },
+                region,
+            });
+
+            // upload to S3
+            new Upload({
+                client: s3,
+                params: {
+                    Bucket,
+                    Key: key,
+                    Body: files.avatar[0].buffer
+                },
+            }).done();
+
+            let imagePath = `${process.env.AWS_URL!}${key}`;
+            console.log(chalk.green("Image uploaded successfully", imagePath));
+            return imagePath;
+        } catch (err) {
+            throw err;
+        }
+    }
+
 }

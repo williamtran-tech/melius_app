@@ -14,7 +14,6 @@ import PostImageService from "./post.image.service";
 
 import AWSS3Util from "../../utils/aws.s3.util";
 import { CommentReact } from "../../orm/models/comment.react.model";
-import { children } from "cheerio/lib/api/traversing";
 
 
 export default class PostService {

@@ -17,6 +17,12 @@ export const adminRouter = Router();
 const adminController = new AdminController();
 
 // Authorize Admin later
-adminRouter.get("/users", authMiddleware, authorize(["Admin"]), adminController.getAllUser)
+adminRouter.get("/users", authMiddleware, authorize(["Admin"]), adminController.getAllMothers)
             .delete("/users", authMiddleware, authorize(["Admin"]), adminController.deleteUser)
             .patch("/users", authMiddleware, authorize(["Admin"]), adminController.undoDeleteUser);
+
+adminRouter.get("/users/doctors", authMiddleware, authorize(["Admin"]), adminController.getAllDoctors)
+            .post("/users/doctors", authMiddleware, authorize(["Admin"]), adminController.createDoctor)
+            .delete("/users/doctors", authMiddleware, authorize(["Admin"]), adminController.deleteUser)
+            .patch("/users/doctors", authMiddleware, authorize(["Admin"]), adminController.undoDeleteUser)
+            .patch("/users/doctors/details", authMiddleware, authorize(["Admin"]), adminController.updateUser);

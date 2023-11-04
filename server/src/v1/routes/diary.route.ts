@@ -23,7 +23,6 @@ const upload = multer({
 });
 
 diaryRouter.get("/kid", authMiddleware, diaryController.getKidHealth);
-diaryRouter.get("/mother", authMiddleware, diaryController.getMotherNotes);
 diaryRouter.get("/handbooks", authMiddleware, diaryController.getHandbooks);
 
 // diaryRouter.post("/posts", authMiddleware, upload.fields([{ name: 'photos', maxCount: 5}]), formDataValidationMiddleware(CreatePostDTO), communityController.createPost);

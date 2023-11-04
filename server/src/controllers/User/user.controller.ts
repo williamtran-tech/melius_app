@@ -41,7 +41,7 @@ export default class UserController extends BaseController {
 
   public dateTimeUtil = new dateTimeUtil();
 
-  public getUserProfile = async (
+  public getProfile = async (
     req: express.Request,
     res: express.Response,
     next: NextFunction
@@ -55,6 +55,43 @@ export default class UserController extends BaseController {
         msg: "Get user profile successfully",
         userProfile: userProfile,
         kidProfile: kidProfile,
+      });
+    } catch (err) {
+      next(err);
+    }
+  };
+
+  public updateProfile = async (req: express.Request, res: express.Response, next: NextFunction) => {
+    try {
+      // Handling image upload - avatar
+      if (req.files && req.body.avatar) {
+        const files = req.files as Record<string, Express.Multer.File[]>;
+        // Check if the images is valid images type
+        if (!files.avatar.every((file) => file.mimetype.includes("image"))) {
+          return res.status(400).json({
+            msg: "Invalid image type",
+          });
+        }
+      }
+
+      const userProfile = await this.userService.getUserProfile(req.userData.id);
+      this.dateTimeUtil.setUTCDateTime(req.body.dob);
+      const date = this.dateTimeUtil.getUTCDateTime();
+
+      // Get the update profile data
+      const updateProfileDTO = {
+        fullName: req.body.fullName ? req.body.fullName : userProfile?.user.fullName,
+        gender: req.body.gender ? ((req.body.gender == 0) ? "female" : "male") : userProfile?.user.gender,
+        dob: date ? date : userProfile?.user.dob,
+        img: req.files ? req.files : null,
+      };
+      // console.log(updateProfileDTO.img);
+      // Update the user profile
+      const updatedProfile = await this.userService.updateProfile(req.userData.id, updateProfileDTO);
+
+      res.status(200).json({
+        msg: "Update user profile successfully",
+        updatedProfile: updatedProfile,
       });
     } catch (err) {
       next(err);
@@ -115,6 +152,9 @@ export default class UserController extends BaseController {
       console.log(chalk.bgBlue("Update Child Health"));
       const kidId = Number(req.body.kidId);
       const kidInfo = await this.userService.getKidProfile(kidId);
+      if (kidInfo.length === 0) {
+        throw new HttpException(404, "Kid not found");
+      }
       const kidData: KidHealthDTO = {
         kidId: kidInfo[0].id,
         weight: req.body.weight,
@@ -122,6 +162,7 @@ export default class UserController extends BaseController {
         DOB: kidInfo[0].dob,
         PAL: req.body.PAL ? req.body.PAL : 1.5,
         gender: kidInfo[0].gender,
+        updatedAt: new Date()
       };
 
       // Update Health Record

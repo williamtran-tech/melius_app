@@ -22,17 +22,7 @@ export default class DiaryController extends BaseController {
             next(err);
         }
     }
-    
-    public getMotherNotes = async (req: Request, res: Response, next: NextFunction) => {
-        try {
-    
-            res.status(200).json({
-                msg: "Get all mother's notes successfully",
-            });
-        } catch (err) {
-            next(err);
-        }
-    }
+
     public getHandbooks = async (req: Request, res: Response, next: NextFunction) => {
         try {
             res.status(200).json({

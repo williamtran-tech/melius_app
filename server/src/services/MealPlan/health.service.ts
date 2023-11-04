@@ -126,9 +126,11 @@ export default class HealthService {
         order: [["createdAt", "DESC"]],
       });
 
+      const d1 = moment(latestHealthRecord!.updatedAt);
+      const d2 = moment(kidData.updatedAt);
       if (latestHealthRecord) {
         // Check if the latest health record is the same as the incoming data
-        if (latestHealthRecord.weight == kidData.weight && latestHealthRecord.height == kidData.height) {
+        if (latestHealthRecord.weight == kidData.weight && latestHealthRecord.height == kidData.height && d1 == d2) {
           console.log(chalk.blue("Nothing Changed - Not update Health Record"));
           return [latestHealthRecord, isChanged, latestHealthRecord.tdee];
         }
