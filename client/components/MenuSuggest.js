@@ -14,7 +14,7 @@ import HandleApi from "../Services/HandleApi";
 import { imageSearchEngine } from "../Services/FoodSearching";
 import { useNavigation } from "@react-navigation/native";
 
-const MenuSuggest = () => {
+const MenuSuggest = ({ handleOpenMenu }) => {
   const navigation = useNavigation();
   const [searchResults, setSearchResults] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -82,13 +82,9 @@ const MenuSuggest = () => {
                 <TouchableOpacity
                   key={menuItem.id}
                   onPress={() => {
-                    navigation.navigate(
-                      navigation.navigate("Menu", {
-                        screen: "MenuDetail",
-                        params: {
-                          data: menuItem,
-                        },
-                      })
+                    handleOpenMenu(
+                      menuItem,
+                      recipeImages && { uri: recipeImages[menuItem.id] }
                     );
                   }}
                 >

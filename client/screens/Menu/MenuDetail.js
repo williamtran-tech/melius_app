@@ -15,6 +15,7 @@ import IngredientList from "../../components/IngredientList";
 import { ScrollView } from "react-native-gesture-handler";
 import InstructionCook from "../../components/InstructionCook";
 import { useNavigation } from "@react-navigation/native";
+import NutritionFact from "../../components/NutritionFact";
 
 const MenuDetail = ({ route }) => {
   const { selectedDate, setSelectedDate, data } = route.params;
@@ -29,7 +30,7 @@ const MenuDetail = ({ route }) => {
   };
   useEffect(() => {
     if (data && data.name) {
-      searchEngine(data.name);
+      searchEngine(data.recipe.name);
     }
   }, []);
   return (
@@ -86,22 +87,33 @@ const MenuDetail = ({ route }) => {
               ></Image>
             )}
           </View>
+          <View style={{ paddingTop: 25, paddingHorizontal: 25 }}>
+            <HeaderText style={{ color: "#518B1A", fontSize: 18 }}>
+              NutritionFact
+            </HeaderText>
+          </View>
+          <View>
+            <NutritionFact
+              nutrition={data.nutrition}
+              servingSize={data.servingSize}
+            ></NutritionFact>
+          </View>
           <View style={{ padding: 25 }}>
             <HeaderText style={{ color: "#518B1A", fontSize: 18 }}>
-              Ingredients
+              Ingredients ({data.recipe.nIngredients})
             </HeaderText>
           </View>
 
-          <View style={{ flex: 3 }}>
-            <IngredientList data={data}></IngredientList>
+          <View>
+            <IngredientList data={data.recipe}></IngredientList>
           </View>
           <View style={{ padding: 25 }}>
             <HeaderText style={{ color: "#518B1A", fontSize: 18 }}>
-              Ingredients
+              Instruction
             </HeaderText>
           </View>
-          <View style={{ flex: 3 }}>
-            <InstructionCook data={data}></InstructionCook>
+          <View>
+            <InstructionCook data={data.recipe}></InstructionCook>
           </View>
         </ScrollView>
       </View>

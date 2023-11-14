@@ -57,7 +57,7 @@ const Menu = ({
               style={styles.recipeBtn}
               onPress={() => {
                 navigation.navigate("MenuDetail", {
-                  data: item.recipe,
+                  data: item,
                 });
               }}
             >

@@ -2,9 +2,17 @@
 // https://aboutreact.com/react-native-login-and-signup/
 
 // Import React and Component
-import React from "react";
+import React, { useRef } from "react";
 import { useState, useEffect } from "react";
-import { View, Text, SafeAreaView, StyleSheet } from "react-native";
+import {
+  View,
+  Text,
+  SafeAreaView,
+  StyleSheet,
+  ScrollView,
+  ActivityIndicator,
+  Image,
+} from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import WelcomHeader from "../components/WelcomHeader";
 import DailyInfo from "../components/DailyInfo";
@@ -16,9 +24,17 @@ import HandleApi from "../Services/HandleApi";
 import { getUserProfile } from "../Services/RetrieveNutritionProfile";
 import Loader from "../components/Loader";
 import { ImagePicker } from "expo-image-multiple-picker";
+import BottomSheetModal from "@gorhom/bottom-sheet";
+import HeaderText from "../components/HeaderText";
+import NutritionFact from "../components/NutritionFact";
+import IngredientList from "../components/IngredientList";
+import InstructionCook from "../components/InstructionCook";
 const HomeScreen = () => {
   const navigation = useNavigation();
   const [loading, setLoading] = useState(false);
+  const [recipe, setRecipe] = useState();
+  const [imageUriDetail, setImageUriDetail] = useState();
+  const bottomSheetRefInf = useRef();
 
   const CheckTokenExpired = async () => {
     const isTokenExpired = await HandleExpireToken();
@@ -53,6 +69,12 @@ const HomeScreen = () => {
       });
     }
   };
+  const handleOpenMenu = (data, uriDetail) => {
+    console.log("uriDetail,", uriDetail);
+    setRecipe(data);
+    setImageUriDetail(uriDetail);
+    bottomSheetRefInf.current.expand();
+  };
   useEffect(() => {
     CheckTokenExpired();
   }, []);
@@ -69,9 +91,64 @@ const HomeScreen = () => {
           <Remind></Remind>
         </View>
         <View style={styles.MenuContainer}>
-          <MenuSuggest></MenuSuggest>
+          <MenuSuggest handleOpenMenu={handleOpenMenu}></MenuSuggest>
         </View>
       </View>
+      <BottomSheetModal
+        ref={bottomSheetRefInf}
+        enablePanDownToClose
+        snapPoints={["95%"]}
+        index={-1}
+        // onChange={(index) => {
+        //   if (index === -1) setVisible(false);
+        // }}
+      >
+        {recipe && (
+          <View style={{ flex: 1 }}>
+            <ScrollView style={{ flex: 1 }}>
+              <View style={{ flex: 1, paddingHorizontal: 25 }}>
+                <Image
+                  source={imageUriDetail}
+                  style={{
+                    flex: 1,
+                    resizeMode: "cover",
+                    aspectRatio: 16 / 9,
+                    borderRadius: 15,
+                  }}
+                ></Image>
+              </View>
+              <View style={{ paddingTop: 25, paddingHorizontal: 25 }}>
+                <HeaderText style={{ color: "#518B1A", fontSize: 18 }}>
+                  NutritionFact
+                </HeaderText>
+              </View>
+              <View>
+                <NutritionFact
+                  nutrition={recipe.nutrition}
+                  servingSize={recipe.servingSize}
+                ></NutritionFact>
+              </View>
+              <View style={{ padding: 25 }}>
+                <HeaderText style={{ color: "#518B1A", fontSize: 18 }}>
+                  Ingredients ({recipe.nIngredients})
+                </HeaderText>
+              </View>
+
+              <View>
+                <IngredientList data={recipe}></IngredientList>
+              </View>
+              <View style={{ padding: 25 }}>
+                <HeaderText style={{ color: "#518B1A", fontSize: 18 }}>
+                  Instruction
+                </HeaderText>
+              </View>
+              <View>
+                <InstructionCook data={recipe}></InstructionCook>
+              </View>
+            </ScrollView>
+          </View>
+        )}
+      </BottomSheetModal>
     </View>
   );
 };
