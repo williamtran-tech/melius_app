@@ -9,9 +9,9 @@ import {
 import React, { useRef, useState } from "react";
 import HandleApi from "../Services/HandleApi";
 import SubText from "./SubText";
-import { findAndAdd } from "../Services/IngredientApi";
+import { findAndAdd, findAndAddAllergy } from "../Services/IngredientApi";
 
-const IngredientSearch = ({ updateFlag, setUpdateFlag }) => {
+const IngredientSearch = ({ updateFlag, setUpdateFlag, allergy, kidId }) => {
   const [searchResults, setSearchResults] = useState([]);
   const [ingreSelected, setIngreSelected] = useState([]);
   const [searchText, setSearchText] = useState("");
@@ -44,7 +44,12 @@ const IngredientSearch = ({ updateFlag, setUpdateFlag }) => {
   };
   const addNewIngredient = async (fdcId) => {
     console.log(fdcId);
-    await findAndAdd(fdcId);
+    if (allergy) {
+      await findAndAddAllergy(fdcId, kidId);
+    } else {
+      await findAndAdd(fdcId);
+    }
+
     setUpdateFlag(!updateFlag);
   };
   return (
@@ -55,6 +60,7 @@ const IngredientSearch = ({ updateFlag, setUpdateFlag }) => {
           placeholder="Enter search text"
           value={searchText}
           onChangeText={handleInputChange}
+          autoFocus
         />
         {/* <TouchableOpacity onPress={handleClosePress}>
               <Text>Close</Text>

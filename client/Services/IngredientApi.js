@@ -57,6 +57,16 @@ export const findAndAdd = async (fdcId) => {
     console.error(error);
   }
 };
+//findAndAdd list Allergy by FDCID
+export const findAndAddAllergy = async (fdcId, kidId) => {
+  try {
+    const ingreID = await findIngredient(fdcId);
+    // console.log(ingreID.id);
+    const findIngre = await addNewAllergy(kidId, fdcId);
+  } catch (error) {
+    console.error(error);
+  }
+};
 //Find list IngreID
 export const findListIngredient = async (listIngreName) => {
   //   console.log(listIngreName);
@@ -92,6 +102,20 @@ export const addNewIngredient = async (ingreId) => {
     console.error(error);
   }
 };
+export const addNewAllergy = async (kidId, ingreId) => {
+  try {
+    const addNewIngre = await HandleApi.serverGeneral.post(
+      "/v1/users/allergy",
+      {
+        fdcId: ingreId,
+        kidId: kidId,
+      }
+    );
+    // console.log(addNewIngre.data);
+  } catch (error) {
+    console.error(error);
+  }
+};
 export const deleteIngredient = async (ingreId) => {
   console.log(ingreId);
   try {
@@ -100,6 +124,21 @@ export const deleteIngredient = async (ingreId) => {
       {
         params: {
           id: ingreId,
+        },
+      }
+    );
+  } catch (error) {
+    console.error(error);
+  }
+};
+export const deleteAllergy = async (ingreId, kidId) => {
+  try {
+    const deleteIngre = await HandleApi.serverGeneral.delete(
+      "/v1/users/allergy",
+      {
+        params: {
+          id: ingreId,
+          kidId: kidId,
         },
       }
     );

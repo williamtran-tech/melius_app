@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import { LinearGradient } from "expo-linear-gradient";
 import HeaderText from "../../components/HeaderText";
 import BabyDiary from "./BabyDiary";
+import Allergy from "./Allergy";
 
 const DiaryHome = () => {
   const [activeTab, setActiveTab] = useState("Baby");
@@ -13,8 +14,8 @@ const DiaryHome = () => {
     switch (activeTab) {
       case "Baby":
         return <BabyDiary></BabyDiary>;
-      case "Community":
-
+      case "Allergy":
+        return <Allergy></Allergy>;
       default:
         return null;
     }
@@ -50,9 +51,9 @@ const DiaryHome = () => {
               </HeaderText>
             </TouchableOpacity>
             <TouchableOpacity
-              onPress={() => handleTabPress("Mother")}
+              onPress={() => handleTabPress("Allergy")}
               style={
-                activeTab === "Mother"
+                activeTab === "Allergy"
                   ? {
                       ...styles.tab,
                       borderBottomWidth: 2,
@@ -62,9 +63,11 @@ const DiaryHome = () => {
               }
             >
               <HeaderText
-                style={activeTab === "Mother" ? styles.Text : styles.TextActive}
+                style={
+                  activeTab === "Allergy" ? styles.Text : styles.TextActive
+                }
               >
-                Mother
+                Allergy
               </HeaderText>
             </TouchableOpacity>
             <TouchableOpacity

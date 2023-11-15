@@ -1,5 +1,5 @@
 import { StyleSheet, Text, View, Image } from "react-native";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import HeaderText from "../../components/HeaderText";
 import SubText from "../../components/SubText";
 import IconWithText from "../../components/IconWithText";
@@ -7,40 +7,29 @@ import { Svg, Path } from "react-native-svg";
 import * as shape from "d3-shape";
 import HealthIndex from "../../components/HealthIndex";
 import { ScrollView } from "react-native-gesture-handler";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { getChildHistory } from "../../Services/RetrieveNutritionProfile";
+import moment from "moment";
 
 const BabyDiary = () => {
-  const createHalfDonutPath = (percentage) => {
-    const radius = 50; // Adjust the radius as needed
-    const centerX = 100; // Adjust the X-coordinate as needed
-    const centerY = 100; // Adjust the Y-coordinate as needed
-
-    // Calculate the angle for the given percentage
-    const angle = (Math.PI * 50) / 100;
-
-    // Define the starting and ending points of the arc
-    const startX = centerX + radius * Math.cos(angle + -270);
-    const startY = centerY - radius * Math.sin(angle + -270);
-    const endX = centerX + radius * Math.cos(-angle + -270);
-    const endY = centerY - radius * Math.sin(-angle + -270);
-
-    // Create the path data string
-    const pathData = `M ${startX} ${startY} A ${radius} ${radius} 0 1 0 ${endX} ${endY} L ${centerX} ${centerY} Z`;
-
-    return pathData;
+  const [kidHistory, setKidHistory] = useState();
+  const fetchData = async () => {
+    try {
+      const value = await AsyncStorage.getItem("userProfile");
+      console.log("value", JSON.parse(value));
+      if (value) {
+        const userProfile = JSON.parse(value);
+        // console.log(userProfile.kidProfile[0].id);
+        const result = await getChildHistory(userProfile.kidProfile[0].id);
+        setKidHistory(result.healthRecords);
+      }
+    } catch (error) {
+      console.error(error);
+    }
   };
-
-  const HalfDonutChart = ({ percentage }) => {
-    const path = createHalfDonutPath(percentage);
-
-    return (
-      <View>
-        <Svg width="200" height="200">
-          <Path d={path} fill="blue" />
-          <Path d={path} fill="red" />
-        </Svg>
-      </View>
-    );
-  };
+  useEffect(() => {
+    fetchData();
+  }, []);
   return (
     <View style={{ flex: 1 }}>
       <View style={styles.InfContainer}>
@@ -79,584 +68,53 @@ const BabyDiary = () => {
         <HeaderText style={styles.HeaderText}>History</HeaderText>
         <View style={styles.historyListContainer}>
           <ScrollView>
-            <View style={styles.historyRow}>
-              <View
-                style={{
-                  flex: 1,
-                  alignItems: "center",
-                }}
-              >
-                <SubText>5 Kg</SubText>
-              </View>
-              <View
-                style={{
-                  flex: 1,
-                  alignItems: "center",
-                }}
-              >
-                <SubText>50 cm</SubText>
-              </View>
-              <View
-                style={{
-                  flex: 1,
-                  alignItems: "center",
-                }}
-              >
-                <SubText>20 BMI</SubText>
-              </View>
-              <View
-                style={{
-                  flex: 1,
-                  alignItems: "center",
-                }}
-              >
-                <SubText>5/5/2023</SubText>
-              </View>
-            </View>
-            <View style={styles.historyRow}>
-              <View
-                style={{
-                  flex: 1,
-                  alignItems: "center",
-                }}
-              >
-                <SubText>5 Kg</SubText>
-              </View>
-              <View
-                style={{
-                  flex: 1,
-                  alignItems: "center",
-                }}
-              >
-                <SubText>50 cm</SubText>
-              </View>
-              <View
-                style={{
-                  flex: 1,
-                  alignItems: "center",
-                }}
-              >
-                <SubText>20 BMI</SubText>
-              </View>
-              <View
-                style={{
-                  flex: 1,
-                  alignItems: "center",
-                }}
-              >
-                <SubText>5/5/2023</SubText>
-              </View>
-            </View>
-            <View style={styles.historyRow}>
-              <View
-                style={{
-                  flex: 1,
-                  alignItems: "center",
-                }}
-              >
-                <SubText>5 Kg</SubText>
-              </View>
-              <View
-                style={{
-                  flex: 1,
-                  alignItems: "center",
-                }}
-              >
-                <SubText>50 cm</SubText>
-              </View>
-              <View
-                style={{
-                  flex: 1,
-                  alignItems: "center",
-                }}
-              >
-                <SubText>20 BMI</SubText>
-              </View>
-              <View
-                style={{
-                  flex: 1,
-                  alignItems: "center",
-                }}
-              >
-                <SubText>5/5/2023</SubText>
-              </View>
-            </View>
-            <View style={styles.historyRow}>
-              <View
-                style={{
-                  flex: 1,
-                  alignItems: "center",
-                }}
-              >
-                <SubText>5 Kg</SubText>
-              </View>
-              <View
-                style={{
-                  flex: 1,
-                  alignItems: "center",
-                }}
-              >
-                <SubText>50 cm</SubText>
-              </View>
-              <View
-                style={{
-                  flex: 1,
-                  alignItems: "center",
-                }}
-              >
-                <SubText>20 BMI</SubText>
-              </View>
-              <View
-                style={{
-                  flex: 1,
-                  alignItems: "center",
-                }}
-              >
-                <SubText>5/5/2023</SubText>
-              </View>
-            </View>
-            <View style={styles.historyRow}>
-              <View
-                style={{
-                  flex: 1,
-                  alignItems: "center",
-                }}
-              >
-                <SubText>5 Kg</SubText>
-              </View>
-              <View
-                style={{
-                  flex: 1,
-                  alignItems: "center",
-                }}
-              >
-                <SubText>50 cm</SubText>
-              </View>
-              <View
-                style={{
-                  flex: 1,
-                  alignItems: "center",
-                }}
-              >
-                <SubText>20 BMI</SubText>
-              </View>
-              <View
-                style={{
-                  flex: 1,
-                  alignItems: "center",
-                }}
-              >
-                <SubText>5/5/2023</SubText>
-              </View>
-            </View>
-            <View style={styles.historyRow}>
-              <View
-                style={{
-                  flex: 1,
-                  alignItems: "center",
-                }}
-              >
-                <SubText>5 Kg</SubText>
-              </View>
-              <View
-                style={{
-                  flex: 1,
-                  alignItems: "center",
-                }}
-              >
-                <SubText>50 cm</SubText>
-              </View>
-              <View
-                style={{
-                  flex: 1,
-                  alignItems: "center",
-                }}
-              >
-                <SubText>20 BMI</SubText>
-              </View>
-              <View
-                style={{
-                  flex: 1,
-                  alignItems: "center",
-                }}
-              >
-                <SubText>5/5/2023</SubText>
-              </View>
-            </View>
-            <View style={styles.historyRow}>
-              <View
-                style={{
-                  flex: 1,
-                  alignItems: "center",
-                }}
-              >
-                <SubText>5 Kg</SubText>
-              </View>
-              <View
-                style={{
-                  flex: 1,
-                  alignItems: "center",
-                }}
-              >
-                <SubText>50 cm</SubText>
-              </View>
-              <View
-                style={{
-                  flex: 1,
-                  alignItems: "center",
-                }}
-              >
-                <SubText>20 BMI</SubText>
-              </View>
-              <View
-                style={{
-                  flex: 1,
-                  alignItems: "center",
-                }}
-              >
-                <SubText>5/5/2023</SubText>
-              </View>
-            </View>
-            <View style={styles.historyRow}>
-              <View
-                style={{
-                  flex: 1,
-                  alignItems: "center",
-                }}
-              >
-                <SubText>5 Kg</SubText>
-              </View>
-              <View
-                style={{
-                  flex: 1,
-                  alignItems: "center",
-                }}
-              >
-                <SubText>50 cm</SubText>
-              </View>
-              <View
-                style={{
-                  flex: 1,
-                  alignItems: "center",
-                }}
-              >
-                <SubText>20 BMI</SubText>
-              </View>
-              <View
-                style={{
-                  flex: 1,
-                  alignItems: "center",
-                }}
-              >
-                <SubText>5/5/2023</SubText>
-              </View>
-            </View>
-            <View style={styles.historyRow}>
-              <View
-                style={{
-                  flex: 1,
-                  alignItems: "center",
-                }}
-              >
-                <SubText>5 Kg</SubText>
-              </View>
-              <View
-                style={{
-                  flex: 1,
-                  alignItems: "center",
-                }}
-              >
-                <SubText>50 cm</SubText>
-              </View>
-              <View
-                style={{
-                  flex: 1,
-                  alignItems: "center",
-                }}
-              >
-                <SubText>20 BMI</SubText>
-              </View>
-              <View
-                style={{
-                  flex: 1,
-                  alignItems: "center",
-                }}
-              >
-                <SubText>5/5/2023</SubText>
-              </View>
-            </View>
-            <View style={styles.historyRow}>
-              <View
-                style={{
-                  flex: 1,
-                  alignItems: "center",
-                }}
-              >
-                <SubText>5 Kg</SubText>
-              </View>
-              <View
-                style={{
-                  flex: 1,
-                  alignItems: "center",
-                }}
-              >
-                <SubText>50 cm</SubText>
-              </View>
-              <View
-                style={{
-                  flex: 1,
-                  alignItems: "center",
-                }}
-              >
-                <SubText>20 BMI</SubText>
-              </View>
-              <View
-                style={{
-                  flex: 1,
-                  alignItems: "center",
-                }}
-              >
-                <SubText>5/5/2023</SubText>
-              </View>
-            </View>
-            <View style={styles.historyRow}>
-              <View
-                style={{
-                  flex: 1,
-                  alignItems: "center",
-                }}
-              >
-                <SubText>5 Kg</SubText>
-              </View>
-              <View
-                style={{
-                  flex: 1,
-                  alignItems: "center",
-                }}
-              >
-                <SubText>50 cm</SubText>
-              </View>
-              <View
-                style={{
-                  flex: 1,
-                  alignItems: "center",
-                }}
-              >
-                <SubText>20 BMI</SubText>
-              </View>
-              <View
-                style={{
-                  flex: 1,
-                  alignItems: "center",
-                }}
-              >
-                <SubText>5/5/2023</SubText>
-              </View>
-            </View>
-            <View style={styles.historyRow}>
-              <View
-                style={{
-                  flex: 1,
-                  alignItems: "center",
-                }}
-              >
-                <SubText>5 Kg</SubText>
-              </View>
-              <View
-                style={{
-                  flex: 1,
-                  alignItems: "center",
-                }}
-              >
-                <SubText>50 cm</SubText>
-              </View>
-              <View
-                style={{
-                  flex: 1,
-                  alignItems: "center",
-                }}
-              >
-                <SubText>20 BMI</SubText>
-              </View>
-              <View
-                style={{
-                  flex: 1,
-                  alignItems: "center",
-                }}
-              >
-                <SubText>5/5/2023</SubText>
-              </View>
-            </View>
-            <View style={styles.historyRow}>
-              <View
-                style={{
-                  flex: 1,
-                  alignItems: "center",
-                }}
-              >
-                <SubText>5 Kg</SubText>
-              </View>
-              <View
-                style={{
-                  flex: 1,
-                  alignItems: "center",
-                }}
-              >
-                <SubText>50 cm</SubText>
-              </View>
-              <View
-                style={{
-                  flex: 1,
-                  alignItems: "center",
-                }}
-              >
-                <SubText>20 BMI</SubText>
-              </View>
-              <View
-                style={{
-                  flex: 1,
-                  alignItems: "center",
-                }}
-              >
-                <SubText>5/5/2023</SubText>
-              </View>
-            </View>
-            <View style={styles.historyRow}>
-              <View
-                style={{
-                  flex: 1,
-                  alignItems: "center",
-                }}
-              >
-                <SubText>5 Kg</SubText>
-              </View>
-              <View
-                style={{
-                  flex: 1,
-                  alignItems: "center",
-                }}
-              >
-                <SubText>50 cm</SubText>
-              </View>
-              <View
-                style={{
-                  flex: 1,
-                  alignItems: "center",
-                }}
-              >
-                <SubText>20 BMI</SubText>
-              </View>
-              <View
-                style={{
-                  flex: 1,
-                  alignItems: "center",
-                }}
-              >
-                <SubText>5/5/2023</SubText>
-              </View>
-            </View>
-            <View style={styles.historyRow}>
-              <View
-                style={{
-                  flex: 1,
-                  alignItems: "center",
-                }}
-              >
-                <SubText>5 Kg</SubText>
-              </View>
-              <View
-                style={{
-                  flex: 1,
-                  alignItems: "center",
-                }}
-              >
-                <SubText>50 cm</SubText>
-              </View>
-              <View
-                style={{
-                  flex: 1,
-                  alignItems: "center",
-                }}
-              >
-                <SubText>20 BMI</SubText>
-              </View>
-              <View
-                style={{
-                  flex: 1,
-                  alignItems: "center",
-                }}
-              >
-                <SubText>5/5/2023</SubText>
-              </View>
-            </View>
-            <View style={styles.historyRow}>
-              <View
-                style={{
-                  flex: 1,
-                  alignItems: "center",
-                }}
-              >
-                <SubText>5 Kg</SubText>
-              </View>
-              <View
-                style={{
-                  flex: 1,
-                  alignItems: "center",
-                }}
-              >
-                <SubText>50 cm</SubText>
-              </View>
-              <View
-                style={{
-                  flex: 1,
-                  alignItems: "center",
-                }}
-              >
-                <SubText>20 BMI</SubText>
-              </View>
-              <View
-                style={{
-                  flex: 1,
-                  alignItems: "center",
-                }}
-              >
-                <SubText>5/5/2023</SubText>
-              </View>
-            </View>
-            <View style={styles.historyRow}>
-              <View
-                style={{
-                  flex: 1,
-                  alignItems: "center",
-                }}
-              >
-                <SubText>5 Kg</SubText>
-              </View>
-              <View
-                style={{
-                  flex: 1,
-                  alignItems: "center",
-                }}
-              >
-                <SubText>50 cm</SubText>
-              </View>
-              <View
-                style={{
-                  flex: 1,
-                  alignItems: "center",
-                }}
-              >
-                <SubText>20 BMI</SubText>
-              </View>
-              <View
-                style={{
-                  flex: 1,
-                  alignItems: "center",
-                }}
-              >
-                <SubText>5/5/2023</SubText>
-              </View>
-            </View>
+            {kidHistory &&
+              kidHistory?.map((historyItem) => (
+                <View style={styles.historyRow} key={historyItem.id}>
+                  <View
+                    style={{
+                      flex: 1,
+                      alignItems: "center",
+                    }}
+                  >
+                    <SubText>{historyItem.weight} Kg</SubText>
+                  </View>
+                  <View
+                    style={{
+                      flex: 1,
+                      alignItems: "center",
+                    }}
+                  >
+                    <SubText>{historyItem.height} cm</SubText>
+                  </View>
+                  <View
+                    style={{
+                      flex: 1,
+                      alignItems: "center",
+                    }}
+                  >
+                    <SubText>{Math.round(historyItem.bmi)} BMI</SubText>
+                  </View>
+                  <View
+                    style={{
+                      flex: 1,
+                      alignItems: "center",
+                    }}
+                  >
+                    <SubText>{Math.round(historyItem.tdee)} Calo</SubText>
+                  </View>
+                  <View
+                    style={{
+                      flex: 1,
+                      alignItems: "center",
+                    }}
+                  >
+                    <SubText>
+                      {moment(historyItem.updatedAt).format("DD/MM/YY")}
+                    </SubText>
+                  </View>
+                </View>
+              ))}
           </ScrollView>
         </View>
       </View>
@@ -703,6 +161,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     marginTop: 10,
+    paddingHorizontal: 25,
   },
   chart: {
     transform: [{ rotate: "270deg" }], // Rotate chart to make it a half-circle

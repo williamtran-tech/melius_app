@@ -1,12 +1,19 @@
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import React, { useEffect, useState } from "react";
 import {
+  deleteAllergy,
   deleteIngredient,
   getAvailableIngredient,
 } from "../Services/IngredientApi";
 import SubText from "./SubText";
 
-const AvailableIngredient = ({ ingredient, updateFlag, setUpdateFlag }) => {
+const AvailableIngredient = ({
+  ingredient,
+  updateFlag,
+  setUpdateFlag,
+  allergy,
+  kidId,
+}) => {
   // const [ingredient, setingredient] = useState();
   // const handleGetIngredient = async () => {
   //   const response = await getAvailableIngredient();
@@ -20,10 +27,14 @@ const AvailableIngredient = ({ ingredient, updateFlag, setUpdateFlag }) => {
     const response = await deleteIngredient(id);
     setUpdateFlag(!updateFlag);
   };
+  const deleteAller = async (id) => {
+    const response = await deleteAllergy(id, kidId);
+    setUpdateFlag(!updateFlag);
+  };
   return (
     <View style={{}}>
       <SubText style={{ color: "#8C8C8C", fontSize: 14, paddingVertical: 10 }}>
-        Selected {ingredient.length}
+        Selected {ingredient && ingredient.length}
       </SubText>
       <View style={styles.ingreContainer}>
         {ingredient &&
@@ -31,7 +42,9 @@ const AvailableIngredient = ({ ingredient, updateFlag, setUpdateFlag }) => {
             <TouchableOpacity
               style={styles.ingredientTag}
               key={index}
-              onPress={() => deleteIngre(ingre.id)}
+              onPress={() => {
+                allergy ? deleteAller(ingre.id) : deleteIngre(ingre.id);
+              }}
             >
               <Text>{ingre.ingredient.name}</Text>
             </TouchableOpacity>
