@@ -8,7 +8,7 @@ import moment from "moment";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import UpdateHealth from "./UpdateHealth";
 
-const ChildrenInf = () => {
+const ChildrenInf = ({ openBottomSheetModal, flag, setBottomSheetState }) => {
   const [childInf, setChildInf] = useState();
 
   useEffect(() => {
@@ -25,7 +25,13 @@ const ChildrenInf = () => {
             <HeaderText style={{ color: "#518B1A", fontSize: 18 }}>
               Children's information
             </HeaderText>
-            <TouchableOpacity style={styles.updatebtn}>
+            <TouchableOpacity
+              style={styles.updatebtn}
+              onPress={() => {
+                setBottomSheetState("child");
+                openBottomSheetModal();
+              }}
+            >
               <SubText style={styles.updateText}>Edit</SubText>
             </TouchableOpacity>
           </View>

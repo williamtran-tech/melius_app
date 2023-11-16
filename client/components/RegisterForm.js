@@ -67,7 +67,7 @@ const RegisterForm = ({ navigation, setStage, setConfirmMethod }) => {
               phone: "",
               email: "",
               verifiedMethod: "",
-              role:"User"
+              role: "User",
             }}
             validateOnChange
             validationSchema={Validation.registerValidationSchema}

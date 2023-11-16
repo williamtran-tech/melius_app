@@ -13,7 +13,11 @@ import SubText from "./SubText";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import BottomSheetModal from "@gorhom/bottom-sheet";
 
-const OverallProfile = ({ openBottomSheetModal, flag }) => {
+const OverallProfile = ({
+  openBottomSheetModal,
+  flag,
+  setBottomSheetState,
+}) => {
   const [momInfor, setMomInfor] = useState();
 
   const fetchData = async () => {
@@ -57,6 +61,7 @@ const OverallProfile = ({ openBottomSheetModal, flag }) => {
       <View style={styles.containerProfile}>
         <TouchableOpacity
           onPress={() => {
+            setBottomSheetState("avatar");
             openBottomSheetModal();
           }}
         >
@@ -138,6 +143,7 @@ const styles = StyleSheet.create({
   coverImage: {
     flex: 1,
     width: "100%",
+    height: 200,
   },
   avatarContainer: {
     backgroundColor: "#fff",

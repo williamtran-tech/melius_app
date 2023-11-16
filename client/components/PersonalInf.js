@@ -6,7 +6,7 @@ import IconWithText from "./IconWithText";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import moment from "moment";
 
-const PersonalInf = ({ flag }) => {
+const PersonalInf = ({ openBottomSheetModal, flag, setBottomSheetState }) => {
   const [momInfor, setMomInfor] = useState();
   const fetchData = async () => {
     try {
@@ -23,7 +23,7 @@ const PersonalInf = ({ flag }) => {
     }
   };
   useEffect(() => {
-    console.log("Mount");
+    console.log("Mountttttttt");
     fetchData();
     // Add a delay of 2 seconds before calling fetchData()
     // const delay = 2000; // 2 seconds in milliseconds
@@ -40,7 +40,13 @@ const PersonalInf = ({ flag }) => {
         <HeaderText style={{ color: "#518B1A", fontSize: 18 }}>
           Personal informationnnn
         </HeaderText>
-        <TouchableOpacity style={styles.updatebtn}>
+        <TouchableOpacity
+          style={styles.updatebtn}
+          onPress={() => {
+            setBottomSheetState("parent");
+            openBottomSheetModal();
+          }}
+        >
           <SubText style={styles.updateText}>Edit</SubText>
         </TouchableOpacity>
       </View>
