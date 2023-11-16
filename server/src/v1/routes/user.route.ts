@@ -26,6 +26,7 @@ userRouter.post("/profile", authMiddleware, authorize(["User"]), upload.fields([
 // Kid Preferences
 userRouter.get("/profile/kid", authMiddleware,authorize(["User"]),checkKidIDMiddleware, userController.getKidProfile)
           .post("/create-child", authMiddleware, userController.createChild)
+          .patch("/profile/kid", authMiddleware, checkKidIDMiddleware, userController.updateKidProfile)
           .patch("/child-health", authMiddleware, checkKidIDMiddleware, userController.updateChildHealth);
 
 // ALLERGIES
