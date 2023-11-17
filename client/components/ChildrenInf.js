@@ -15,7 +15,7 @@ const ChildrenInf = ({ openBottomSheetModal, flag, setBottomSheetState }) => {
     AsyncStorage.getItem("userProfile").then((value) => {
       setChildInf(JSON.parse(value).kidProfile[0]);
     });
-  }, []);
+  }, [flag]);
 
   return (
     <View style={{ flex: 1 }}>

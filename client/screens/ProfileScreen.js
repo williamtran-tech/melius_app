@@ -23,7 +23,10 @@ import HeaderText from "../components/HeaderText";
 import SubText from "../components/SubText";
 import HandleApi from "../Services/HandleApi";
 import * as MediaLibrary from "expo-media-library";
-import { getUserProfile } from "../Services/RetrieveNutritionProfile";
+import {
+  getUserProfile,
+  updateChildProfile,
+} from "../Services/RetrieveNutritionProfile";
 import { Formik } from "formik";
 import Loader from "../components/Loader";
 import Validation from "../Services/Authorizations/Validation";
@@ -34,7 +37,7 @@ import moment from "moment";
 import { ScrollView } from "react-native-gesture-handler";
 
 const ProfileScreen = ({ navigation }) => {
-  const [childInf, setChildInf] = useState();
+  const [profile, setProfile] = useState();
   const [flag, setFlag] = useState(true);
   const [childFlag, setChildFlag] = useState(true);
 
@@ -88,9 +91,18 @@ const ProfileScreen = ({ navigation }) => {
   const onRefresh = () => {
     setChildFlag(!childFlag);
   };
+  const updateChildePorfile = async (values) => {
+    await updateChildProfile(values);
+  };
+  const fetchUserProfile = async () => {
+    const value = await AsyncStorage.getItem("userProfile");
+    setProfile(JSON.parse(value));
+  };
   useEffect(() => {
-    setChildFlag(!childFlag);
-  }, [flag]);
+    fetchUserProfile();
+    // setKidId(userProfile.kidProfile[0].id);
+    // setChildFlag(!childFlag);
+  }, []);
   return (
     <ScrollView refreshControl={<RefreshControl onRefresh={onRefresh} />}>
       <View style={{ flex: 1, backgroundColor: "#FDFDFD" }}>
@@ -104,12 +116,12 @@ const ProfileScreen = ({ navigation }) => {
         <View style={{ flex: 4, paddingHorizontal: 25 }}>
           <PersonalInf
             openBottomSheetModal={openBottomSheetModal}
-            flag={flag}
+            flag={childFlag}
             setBottomSheetState={setBottomSheetState}
           ></PersonalInf>
           <ChildrenInf
             openBottomSheetModal={openBottomSheetModal}
-            flag={flag}
+            flag={childFlag}
             setBottomSheetState={setBottomSheetState}
           ></ChildrenInf>
         </View>
@@ -193,14 +205,18 @@ const ProfileScreen = ({ navigation }) => {
                 >
                   <Formik
                     initialValues={{
-                      fullName: "concak",
-                      phone: "asdasd",
-                      email: "",
-                      verifiedMethod: "",
-                      role: "User",
+                      fullName:
+                        profile && profile.userProfile
+                          ? profile?.userProfile.user.fullName
+                          : "NaN",
+                      phone: profile?.userProfile?.user?.phone,
+                      email: profile?.userProfile?.email,
+                      dob: moment(profile?.userProfile.user.DOB).toDate(),
                     }}
-                    validateOnChange
-                    validationSchema={Validation.registerValidationSchema}
+                    validateOnBlur
+                    validationSchema={
+                      Validation.registerUpdateProfileParentSchema
+                    }
                     onSubmit={(values) => handleSubmitButton(values)}
                   >
                     {({
@@ -208,6 +224,7 @@ const ProfileScreen = ({ navigation }) => {
                       handleChange,
                       handleBlur,
                       handleSubmit,
+                      setFieldValue,
                       errors,
                       touched,
                       isValid,
@@ -234,6 +251,25 @@ const ProfileScreen = ({ navigation }) => {
                               {errors.fullName}
                             </Text>
                           )}
+                        </View>
+                        <View style={styles.SectionStyleRow}>
+                          <SubText style={{ color: "#8C8C8C", fontSize: 15 }}>
+                            Birthday
+                          </SubText>
+                          {bottomSheetState == "parent" && (
+                            <DateTimePicker
+                              value={values.dob}
+                              mode="date"
+                              display="clock"
+                              onChange={(event, selectedDate) => {
+                                // setShowDatePicker(Platform.OS === "ios");
+                                const currentDate = selectedDate || values.dob;
+                                setFieldValue("dob", currentDate);
+                              }}
+                            />
+                          )}
+
+                          {errors.dob && <Text>{errors.dob}</Text>}
                         </View>
                         <View style={styles.SectionStyle}>
                           <SubText style={{ color: "#8C8C8C", fontSize: 15 }}>
@@ -275,6 +311,7 @@ const ProfileScreen = ({ navigation }) => {
                               ageInputRef.current && ageInputRef.current.focus()
                             }
                             blurOnSubmit={false}
+                            editable={false}
                           />
                           {touched.email && errors.email && (
                             <Text style={styles.errorText}>{errors.email}</Text>
@@ -310,13 +347,20 @@ const ProfileScreen = ({ navigation }) => {
                 </HeaderText>
                 <Formik
                   initialValues={{
-                    fullName: "",
-                    gender: "",
-                    dob: new Date(),
+                    fullName:
+                      profile && profile.kidProfile[0]
+                        ? profile?.kidProfile[0].fullName
+                        : "NaN",
+                    gender:
+                      profile && profile.kidProfile[0]
+                        ? profile?.kidProfile[0].gender
+                        : "NaN",
+                    dob: moment(profile?.kidProfile[0]?.dob).toDate(),
                   }}
-                  validationSchema={Validation.validationProfileChildSchema}
-                  // onSubmit={handleSubmit}
-                  validateOnChange
+                  validationSchema={
+                    Validation.validationUpdateProfileChildSchema
+                  }
+                  onSubmit={(values) => updateChildePorfile(values)}
                 >
                   {({
                     handleChange,
@@ -378,7 +422,7 @@ const ProfileScreen = ({ navigation }) => {
 
                       <TouchableOpacity
                         style={styles.buttonStyle}
-                        // onPress={handleSubmit}
+                        onPress={handleSubmit}
                         // onPress={() => setStage("stage2")}
                         // disabled={!isValid}
                       >

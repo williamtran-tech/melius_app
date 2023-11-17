@@ -1,4 +1,5 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import moment from "moment";
 import HandleApi from "./HandleApi";
 
 export const getUserProfile = async () => {
@@ -24,6 +25,29 @@ export const getChildHistory = async (id) => {
       },
     });
     return response.data;
+  } catch (error) {
+    console.error(error);
+  }
+};
+export const updateChildProfile = async (values) => {
+  try {
+    const value = await AsyncStorage.getItem("userProfile");
+
+    const userProfile = JSON.parse(value);
+
+    // setKidId(userProfile.kidProfile[0].id);
+
+    const response = await HandleApi.serverGeneral.patch(
+      "/v1/users/profile/kid",
+      {
+        kidId: userProfile.kidProfile[0].id,
+        dob: moment(values.dob).format("YYYY-MM-DD"),
+        fullName: values.fullName,
+        gender: values.gender,
+      }
+    );
+
+    await getUserProfile();
   } catch (error) {
     console.error(error);
   }

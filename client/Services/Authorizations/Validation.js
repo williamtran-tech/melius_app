@@ -71,6 +71,25 @@ const validationProfileChildSchema = yup.object().shape({
   weight: yup.number().required("Weight is required"),
   height: yup.number().required("Height is required"),
 });
+const validationUpdateProfileChildSchema = yup.object().shape({
+  fullName: yup.string().required("Full Name is required"),
+  gender: yup.string().required("Gender is required"),
+  dob: yup.date().required("Date of Birth is required"),
+});
+const registerUpdateProfileParentSchema = yup.object().shape({
+  fullName: yup
+    .string()
+    .required("Fullname is required")
+    .matches(/^[a-zA-Z]+(([',. -][a-zA-Z ])?[a-zA-Z]*)*$/, "Invalid full name"),
+  phone: yup
+    .string()
+    .required("Phone number is required")
+    .matches(/^[0-9]+$/, "Invalid phone number")
+    .min(10, "Phone number must be at least 10 digits")
+    .max(15, "Phone number can't exceed 15 digits"),
+  email: yup.string().email("Invalid email").required("Email is required"),
+  dob: yup.date().required("Date of Birth is required"),
+});
 const validationChildRecordSchema = yup.object().shape({
   weight: yup.number().required("Weight is required"),
   height: yup.number().required("Height is required"),
@@ -84,4 +103,6 @@ export default {
   EmailOrPhoneSchema,
   validationProfileChildSchema,
   validationChildRecordSchema,
+  validationUpdateProfileChildSchema,
+  registerUpdateProfileParentSchema,
 };
