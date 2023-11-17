@@ -18,6 +18,7 @@ import dateTimeUtil from "../../utils/dateTime";
 
 import MealPlanData from "../../interfaces/MealPlan/MealPlanData.interface";
 import chalk from "chalk";
+import { IsNumberString } from "class-validator";
 export default class UserController extends BaseController {
   constructor() {
     super();
@@ -77,6 +78,9 @@ export default class UserController extends BaseController {
       const userProfile = await this.userService.getUserProfile(req.userData.id);
       this.dateTimeUtil.setUTCDateTime(req.body.dob);
       const date = this.dateTimeUtil.getUTCDateTime();
+      if (req.body.phone && isNaN(req.body.phone) || req.body.phone.length > 12) {
+        throw new HttpException(401, "Invalid phone number");
+      }
 
       // Get the update profile data
       const updateProfileDTO = {
@@ -84,6 +88,7 @@ export default class UserController extends BaseController {
         gender: req.body.gender ? ((req.body.gender == 0) ? "female" : "male") : userProfile?.user.gender,
         dob: date ? date : userProfile?.user.dob,
         img: req.files ? req.files : null,
+        phone: req.body.phone ? req.body.phone : userProfile?.user.phone,
       };
       // console.log(updateProfileDTO.img);
       // Update the user profile
@@ -203,6 +208,29 @@ export default class UserController extends BaseController {
       next(error);
     }
   };
+
+  public updateKidProfile = async (req: express.Request, res: express.Response, next: NextFunction) => {
+    try {
+      const kidProfile = await this.userService.getKidProfile(Number(req.body.kidId));
+      this.dateTimeUtil.setUTCDateTime(req.body.dob);
+      const date = this.dateTimeUtil.getUTCDateTime();
+      const kidProfileDTO = {
+        kidId: Number(req.body.kidId),
+        dob: req.body.dob ? date : kidProfile[0]?.dob,
+        fullName: req.body.fullName ? req.body.fullName : kidProfile[0]?.fullName,
+        gender: req.body.gender ? ((req.body.gender == 0) ? "female" : "male") : kidProfile[0]?.gender,
+      }
+
+      const updatedKidProfile = await this.userService.updateKidProfile(kidProfileDTO);
+
+      res.status(200).json({
+        msg: "Update kid profile successfully",
+        updatedKidProfile: updatedKidProfile,
+      });
+    } catch (err) {
+      next(err);
+    }
+  }
 
   // ALLERGIES FUNCTIONS
   public addIngredientToAllergyList = async (

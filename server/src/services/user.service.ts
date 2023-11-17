@@ -4,11 +4,9 @@ import { Health } from "../orm/models/health.model";
 import { Role } from "../orm/models/role.model";
 import chalk from "chalk";
 import HttpException from "../exceptions/HttpException";
-import sequelize from "sequelize";
 
 import MealPlanService from "./MealPlan/meal.plan.service";
 import AWSS3Util from "../utils/aws.s3.util";
-import PostImageService from "./Community/post.image.service";
 
 export default class UserService {
   public awsS3Util = new AWSS3Util();
@@ -24,7 +22,7 @@ export default class UserService {
         include: [
           {
             model: User,
-            attributes: ["id", "fullName", "gender", "DOB", "img", "updatedAt"],
+            attributes: ["id", "fullName", "gender", "DOB", "img", "updatedAt", "phone"],
             include: [
               {
                 model: Role,
@@ -58,9 +56,13 @@ export default class UserService {
         console.log(chalk.yellow("Update avatar"));
         if (imagePath.length > 0) {
           // Delete old avatar
-          console.log(chalk.yellow("Delete old avatar"));
           const key = imagePath;
-          await this.awsS3Util.deleteImage([key]);
+          if (key.includes(process.env.GOOGLE_IMAGE_PATH!)) {
+            // do nothing
+          } else {
+            console.log(chalk.red("Delete old avatar"));
+            await this.awsS3Util.deleteImage([key]);
+          }
         }
         const imagePaths = await this.awsS3Util.updateAvatar(userId, updateProfileDTO.img);
         imagePath = imagePaths;
@@ -70,7 +72,8 @@ export default class UserService {
         dob: updateProfileDTO.dob,
         fullName: updateProfileDTO.fullName,
         img: (imagePath.length > 0) ? imagePath : null,
-        gender: updateProfileDTO.gender
+        gender: updateProfileDTO.gender,
+        phone: updateProfileDTO.phone
       }
 
       await User.update({
@@ -78,12 +81,14 @@ export default class UserService {
         dob: updatedData.dob,
         gender: updatedData.gender,
         img: updatedData.img,
+        phone: updatedData.phone
       }, {
         where: { id: userId },
       });
       
       const updatedUser = await User.findOne({
         where: { id: userId },
+        attributes: ["id", "fullName", "gender", "DOB", "img", "updatedAt", "phone"]
       });
       return updatedUser!;
     } catch (err) {
@@ -122,7 +127,7 @@ export default class UserService {
   // Get ONE kid profile
   public async getKidProfile(kidId: number) {
     try {
-      const kidProfiles = await User.findAll({
+      const kidProfile = await User.findAll({
         where: { id: kidId},
         attributes: ["id", "fullName", "dob", "gender", "updatedAt"],
         include: {
@@ -132,7 +137,7 @@ export default class UserService {
           order: [["createdAt", "DESC"]],
         },
       });
-      return kidProfiles;
+      return kidProfile;
     } catch (err) {
       throw err;
     }
@@ -165,6 +170,26 @@ export default class UserService {
     }
   }
 
+  public async updateKidProfile(kidProfileDTO: any) {
+      try {
+        const kidUpdated = await User.update({
+          fullName: kidProfileDTO.fullName,
+          dob: kidProfileDTO.dob,
+          gender: kidProfileDTO.gender
+        }, {
+          where: { id: kidProfileDTO.kidId },
+        });
+
+        const kid = await User.findOne({
+          where: { id: kidProfileDTO.kidId },
+          attributes: ["id", "fullName", "dob", "gender", "updatedAt"]
+        });
+
+        return kid;
+      } catch (err) {
+        throw err;
+      }
+  }
 
 
   // ADMIN PANEL - USER MANAGEMENT
