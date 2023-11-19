@@ -28,9 +28,9 @@ import {
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { BottomSheetFlatList } from "@gorhom/bottom-sheet";
 import { useNavigation } from "@react-navigation/native";
-const CommunityScreen = ({ dataTag }) => {
-  console.log(dataTag);
+const CommunityScreen = () => {
   const [activeTag, setActiveTag] = useState(0);
+  const [dataTag, setDataTag] = useState();
   const [activePost, setActivePost] = useState();
   const [dataNewPost, setDataNewPost] = useState();
   const [flag, setFlag] = useState(false);
@@ -135,19 +135,26 @@ const CommunityScreen = ({ dataTag }) => {
         </TouchableOpacity>
         <TouchableOpacity
           style={activeTag === 1 ? styles.categoryActive : styles.category}
-          onPress={() => setActiveTag(1)}
+          onPress={() => {
+            setDataTag();
+            setActiveTag(1);
+          }}
         >
           <HeaderText style={styles.categoryName}>Q&A</HeaderText>
         </TouchableOpacity>
         <TouchableOpacity
           style={activeTag === 3 ? styles.categoryActive : styles.category}
-          onPress={() => setActiveTag(3)}
+          onPress={() => {
+            setActiveTag(3);
+          }}
         >
           <HeaderText style={styles.categoryName}>Experience</HeaderText>
         </TouchableOpacity>
         <TouchableOpacity
           style={activeTag === 2 ? styles.categoryActive : styles.category}
-          onPress={() => setActiveTag(2)}
+          onPress={() => {
+            setActiveTag(2);
+          }}
         >
           <HeaderText style={styles.categoryName}>Sharing</HeaderText>
         </TouchableOpacity>
@@ -177,7 +184,7 @@ const CommunityScreen = ({ dataTag }) => {
             <TouchableOpacity
               style={styles.hashtagDeletebtn}
               onPress={() => {
-                navigation.navigate("Home");
+                setDataTag();
               }}
             >
               <Text style={styles.deleteText}>✖️</Text>
@@ -199,8 +206,10 @@ const CommunityScreen = ({ dataTag }) => {
               setDataNewPost={setDataNewPost}
               setFlag={setFlag}
               flag={flag}
+              activeTag={activeTag}
               setHashtagName={setHashtagName}
               setActiveTag={setActiveTag}
+              setDataTag={setDataTag}
             ></Post>
           ))}
         </View>

@@ -32,7 +32,9 @@ const Post = ({
   setFlag,
   flag,
   setHashtagName,
+  activeTag,
   setActiveTag,
+  setDataTag,
 }) => {
   const navigation = useNavigation();
   let commentCount = 0;
@@ -87,7 +89,15 @@ const Post = ({
           </View>
         </View>
         <View style={{ flexDirection: "row", alignItems: "center", gap: 15 }}>
-          {/* <HeaderText style={styles.tag}>{post.topic.name}</HeaderText> */}
+          <HeaderText style={styles.tag}>
+            {activeTag == 0
+              ? post?.topic?.name
+              : activeTag == 1
+              ? "Q&A"
+              : activeTag == 3
+              ? "Experient"
+              : "Sharing"}
+          </HeaderText>
           {userId === post.user?.id && (
             <TouchableOpacity
               onPress={() => {
@@ -184,7 +194,8 @@ const Post = ({
             <TouchableOpacity
               key={tag.id}
               onPress={() => {
-                navigation.navigate("Home", { dataTag: tag });
+                setDataTag(tag);
+                setActiveTag(0);
               }}
             >
               <SubText style={{ color: "rgba(26, 26, 26, 0.50)" }}>

@@ -62,7 +62,10 @@ const PersonalInf = ({ openBottomSheetModal, flag, setBottomSheetState }) => {
               momInfor && moment(momInfor.user.DOB).format("MMMM DD, YYYY")
             }
           ></IconWithText>
-          <IconWithText iconName="Iconphone" title="0921122219"></IconWithText>
+          <IconWithText
+            iconName="Iconphone"
+            title={momInfor && momInfor.user.phone}
+          ></IconWithText>
         </View>
         <View style={styles.row1}>
           <IconWithText

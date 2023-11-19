@@ -36,14 +36,19 @@ export const updateChildProfile = async (values) => {
     const userProfile = JSON.parse(value);
 
     // setKidId(userProfile.kidProfile[0].id);
-
+    console.log({
+      kidId: userProfile.kidProfile[0].id,
+      dob: moment(values.dob).format("YYYY-MM-DD"),
+      fullName: values.fullName,
+      gender: values.gender,
+    });
     const response = await HandleApi.serverGeneral.patch(
       "/v1/users/profile/kid",
       {
         kidId: userProfile.kidProfile[0].id,
         dob: moment(values.dob).format("YYYY-MM-DD"),
         fullName: values.fullName,
-        gender: values.gender,
+        gender: values.gender == "male" ? 1 : 0,
       }
     );
 

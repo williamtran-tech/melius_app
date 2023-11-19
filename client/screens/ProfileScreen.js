@@ -75,6 +75,27 @@ const ProfileScreen = ({ navigation }) => {
       console.error("An error occurred:", error.message);
     }
   };
+  const updateParentInf = async (values) => {
+    const formData = new FormData();
+
+    formData.append("dob", moment(values.dob).format("YYYY-MM-DD"));
+    formData.append("fullName", values.fullName);
+    formData.append("gender", values.gender == "male" ? 1 : 0);
+    formData.append("phone", values.phone);
+    console.log(formData);
+    try {
+      const response = await HandleApi.serverFormData.post(
+        "v1/users/profile",
+        formData
+      );
+      closeBottomSheetModal();
+      getUserProfile();
+      // setFlag(!flag);
+      console.log(response.data);
+    } catch (error) {
+      console.error("An error occurred:", error.message);
+    }
+  };
   const bottomSheetModalRef = useRef(null);
   const [bottomSheetState, setBottomSheetState] = useState();
   const [loading, setLoading] = useState("false");
@@ -93,6 +114,7 @@ const ProfileScreen = ({ navigation }) => {
   };
   const updateChildePorfile = async (values) => {
     await updateChildProfile(values);
+    closeBottomSheetModal();
   };
   const fetchUserProfile = async () => {
     const value = await AsyncStorage.getItem("userProfile");
@@ -209,6 +231,7 @@ const ProfileScreen = ({ navigation }) => {
                         profile && profile.userProfile
                           ? profile?.userProfile.user.fullName
                           : "NaN",
+                      gender: profile?.userProfile?.user?.gender,
                       phone: profile?.userProfile?.user?.phone,
                       email: profile?.userProfile?.email,
                       dob: moment(profile?.userProfile.user.DOB).toDate(),
@@ -217,7 +240,7 @@ const ProfileScreen = ({ navigation }) => {
                     validationSchema={
                       Validation.registerUpdateProfileParentSchema
                     }
-                    onSubmit={(values) => handleSubmitButton(values)}
+                    onSubmit={(values) => updateParentInf(values)}
                   >
                     {({
                       values,
@@ -271,6 +294,26 @@ const ProfileScreen = ({ navigation }) => {
 
                           {errors.dob && <Text>{errors.dob}</Text>}
                         </View>
+                        <View style={styles.SectionStyleRow}>
+                          <SubText style={{ color: "#8C8C8C", fontSize: 15 }}>
+                            Gender
+                          </SubText>
+                          <RadioGroup
+                            layout="row"
+                            radioButtons={[
+                              { id: "male", label: "Male", value: "male" },
+                              {
+                                id: "female",
+                                label: "Female",
+                                value: "female",
+                              },
+                            ]}
+                            onPress={(value) => setFieldValue("gender", value)}
+                            selectedId={values.gender}
+                            borderColor="#8C8C8C"
+                          />
+                          {errors.gender && <Text>{errors.gender}</Text>}
+                        </View>
                         <View style={styles.SectionStyle}>
                           <SubText style={{ color: "#8C8C8C", fontSize: 15 }}>
                             Phone number
@@ -320,7 +363,7 @@ const ProfileScreen = ({ navigation }) => {
 
                         <TouchableOpacity
                           style={styles.buttonStyle}
-                          // onPress={handleSubmit}
+                          onPress={handleSubmit}
                           // onPress={() => setStage("stage2")}
                           disabled={!isValid}
                         >
