@@ -6,6 +6,8 @@ import natural from "natural";
 import chalk from "chalk";
 import { Category } from "../../orm/models/category.model";
 import HttpException from "../../exceptions/HttpException";
+import { Allergy } from "../../orm/models/allergy.model";
+import { Ingredient } from "../../orm/models/ingredient.model";
 
 export default class RecipeService {
   constructor() {
@@ -304,27 +306,44 @@ export default class RecipeService {
 
     return "Main course";
   }
-  public async getRecipeByAvailableIngredients(availableIngredients: AvailableIngredient[]) {
+  public async getRecipeByAvailableIngredients(availableIngredients: AvailableIngredient[], allergyList: Allergy[]) {
       try {
+          // Get the list of allergy ingredients
+          console.log(chalk.bgRedBright("Allergy List"));
+          const allergyIngredientList = allergyList.map(allergy => {   
+            console.log(chalk.red("Allergy Ingredient:", allergy.ingredient.name.split(",")[0]));
+            return allergy.ingredient.name.split(",")[0];
+          });
+
           // Using Set for unique ingredient names
           const availableIngredientNames = new Set(availableIngredients.map(element => element.ingredient.name.split(",")[0]));
           
+          // Exclude the allergy ingredients from the available ingredients if the available ingredients contain the allergy ingredients
+          for (const allergyIngredient of allergyIngredientList) {
+            if (availableIngredientNames.has(allergyIngredient)) {
+              console.log(chalk.red("Remove Allergy from Available list:", allergyIngredient));
+              availableIngredientNames.delete(allergyIngredient);
+              availableIngredientNames.forEach(ingredient => {
+                console.log(chalk.green("Available Ingredient:", ingredient));
+              })
+            }
+          }
+
           const ingredientsToSearch = [...availableIngredientNames];
           console.log(chalk.yellow("Ingredient to Search:", ingredientsToSearch));
           
           // Combination of ingredients
           const combinationIngredients = this.combinationIngredient.combinationIngredient(ingredientsToSearch);
-          console.log(chalk.bgGreenBright("Combination Ingredients"));
-          for (const ingre of combinationIngredients) {
-              console.log(chalk.greenBright(ingre));
-          }
+          // console.log(chalk.bgGreenBright("Combination Ingredients"));
+          // for (const ingre of combinationIngredients) {
+          //     console.log(chalk.greenBright(ingre));
+          // }
           // Assuming Recipe is your Sequelize model for the recipes table
           const categorizedResults: any = {};
           
           const listOfIngredients = combinationIngredients.map(ingredients => {
             return ingredients.split(",");
           })
-          // console.log("List of Ingredients:", listOfIngredients);
 
           // Loop through each combination of ingredients
           for (let i = 0; i < listOfIngredients.length; i++) {
@@ -332,8 +351,10 @@ export default class RecipeService {
               return ingredient;
             })
 
+            console.log(chalk.green("Ingredient Element:", ingredientElement));
             const whereConditions = {
                 ingredients: {
+                  // Get the recipes that contain all the ingredients
                   [sequelize.Op.and]: ingredientElement.map(ingredients => {
                       return {
                         [sequelize.Op.and]: ingredients.split(",").map(ingredient => {
@@ -341,6 +362,12 @@ export default class RecipeService {
                             [sequelize.Op.like]: `%${ingredient.toLowerCase()}%`
                           }
                         })
+                    }
+                  }),
+                  // Remove the recipes that contain the allergy ingredients
+                  [sequelize.Op.not]: allergyIngredientList.map(allergyIngredient => {
+                    return {
+                      [sequelize.Op.like]: `%${allergyIngredient.toLowerCase()}%`
                     }
                   })
                 }

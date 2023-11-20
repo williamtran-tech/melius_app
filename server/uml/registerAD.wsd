@@ -1,0 +1,33 @@
+@startuml
+|Client|
+start
+:User opens the mobile application;
+:User selects the registration option;
+:Mobile application sends a request to the server API;
+|Server|
+:Server API validates the request;
+if (Validation successful?) then (yes)
+    :Server API generates a unique user ID;
+    :Server API prompts the user to enter their details;
+    :User enters their details;
+    :Server API stores the user details in the database;
+    :Server API sends a verification code to the user's email;
+    |Client|
+    :User receives the verification code;
+    :User enters the verification code;
+    :Mobile application sends the verification code to the server API;
+    |Server|
+    :Server API validates the verification code;
+    if (Validation successful?) then (yes)
+        :Server API marks the user as verified;
+        :Server API sends a confirmation response to the mobile application;
+    else (no)
+        :Server API sends a validation error response to the mobile application;
+    endif
+else (no)
+    :Server API sends a validation error response to the mobile application;
+endif
+|Client|
+:Mobile application displays a registration success message;
+stop
+@enduml
