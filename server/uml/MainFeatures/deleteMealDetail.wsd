@@ -1,0 +1,13 @@
+@startuml
+|Client|
+start
+:Parent navigates to the "Daily Meal" section;
+:Parent selects "Edit" button;
+:Parent selects "Delete meal" button;
+|Server|
+:Create a new meal plan details with the same attribute as the deleted meal plan;
+:Update the deleted meal plan details deletedAt attribute to the current date and time;
+|Client|
+:Display the selected meal is updated to the meal plan;
+stop
+@enduml

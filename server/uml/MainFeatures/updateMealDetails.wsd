@@ -1,0 +1,28 @@
+@startuml
+|Client|
+start
+:Parent navigates to the "Daily Meal" section;
+:Parent selects "Edit" button;
+:Parent selects "Edit meal" button;
+:Parents picks mealtime from the time picker;
+:Parent enters the dish name to find;
+|Server|
+:Return a list of matching name dishes;
+|Client|
+:Parent selects the desired meal;
+|Server|
+:Extract the meal nutritional information from the database;
+:Using MCDA to calculate the nutritional value of the meal;
+:Categorize the meal as Main Course or Side Dish using PDV checker;
+:Get the meal type;
+if (Selected meal type == Existed meal detail type) then (Yes) 
+    :Updates the selected meal to the existing meal plan;    
+else (No)
+    :Removes the existing meal from the meal plan;
+    :Adds the selected meal to the existing meal plan;
+endif
+
+|Client|
+:Display the selected meal is updated to the meal plan;
+stop
+@enduml

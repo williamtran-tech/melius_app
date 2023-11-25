@@ -5,11 +5,12 @@
 ### 1. Mothers
 **1.1. Register Flow**
 
-This features illustrate the process of mother register to create ki
-d's profile
+This features illustrate the process of mother register to create kid's profile
 
 * Register flow
-* Create Kid profile
+[Activity Diagram](../uml/MainFeatures/registerAD.wsd)
+
+* Create Kid profile [Activity Diagram](../uml/MainFeatures/createKidAD.wsd)
 
 **1.2. OAuth Google**
 

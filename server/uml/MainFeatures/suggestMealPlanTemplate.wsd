@@ -1,0 +1,43 @@
+@startuml
+|Client|
+start
+:Navigates to the "Daily Meal" section for the specific child within the application;
+if (User selected date?) then (yes) 
+:Request meal plan details of that date;
+else (no)
+:Request meal plan details of today;
+endif
+|Server|
+if (Valid request?) then (yes)
+  :Generate meal plan;
+  if (Meal plan found?) then (yes)
+    : Get the meal plan of the kid;
+    : Extract the nutrition target;
+repeat
+    :Get a random recipe from the recipe dataset;
+    :Get the next session meal time;
+    :Check the recipe is match with the session meal plan detail template;
+    if (Match with meal time session) then (yes)
+        : Insert the recipe into the meal plan detail temporary list;
+    else (no)
+        : Get the next recipe;
+    endif
+    if (Match all recipe with the meal plan detail template) then (yes)
+        :Return the list of recipe;
+    else (no)
+        :Get the next recipe;
+    endif
+repeat while (The size of meal recipe temporary list == meal plan detail template size)
+    : Calculate the estimated nutrition value of the meal plan details list;
+    : Insert the meal plan details list into the meal plan;
+    : Return meal plan details;
+  else (no)
+    :Send error message;
+  endif
+else (no)
+  :Send error message;
+endif
+|Client|
+:Display meal plan details;
+stop
+@enduml

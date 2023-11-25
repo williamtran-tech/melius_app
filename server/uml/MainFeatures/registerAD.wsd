@@ -1,0 +1,38 @@
+@startuml Registration
+|Client|
+start
+:User enters their details;
+:Sends a request to the server API;
+|Server|
+:Validates the request;
+if (Validation successful?) then (yes)
+    :Generates a unique user ID;
+    :Sends a verification code to the user's email;
+    |Client|
+    :User receives the verification code;
+    :User enters the verification code;
+    :Sends the verification code to the server API;
+    |Server|
+    :Validates the verification code;
+    if (Validation successful?) then (yes)
+        |Client|
+        :Users enter their password;
+        |Server|
+        :Stores the user details in the database;
+        :Marks the user as verified;   
+        :Return success message;
+    else (no)
+        :Return validation error;
+        stop
+    endif
+else (no)
+    :Return validation error;
+    stop
+endif
+|Client|
+:Mobile application displays a registration success message;
+stop
+@enduml
+
+
+

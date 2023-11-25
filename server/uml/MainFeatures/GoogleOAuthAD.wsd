@@ -1,0 +1,34 @@
+@startuml
+
+|Client|
+start
+:Request login using Google;
+|Server|
+:Request Google Authorization token;
+|Google|
+:Prompt user for credentials;
+|Client|
+:Accept server request;
+:Show in-app browser;
+:User login and consent;
+|Google|
+:Validate user input;
+:Return Authorization code to server;
+|Server|
+:Store key for exchange of user information;
+:Request user information;
+|Google|
+:Return user information;
+|Server|
+if (User is new?) then (yes)
+  :Create new user profile;
+else (no)
+  if (User has account with email?) then (yes)
+    :Sync profile from Google to internal user information;
+  endif
+endif
+|Client|
+:Redirect to home screen Melius app;
+stop
+
+@enduml
