@@ -1,0 +1,41 @@
+@startuml
+|Client|
+start
+:Navigates to the "Community" section within the “Expert” screen of the application;
+:Selects their post to be deleted;
+:Chooses the option to "Delete Post";
+:Confirms the deletion action;
+|Server|
+if (Valid deletion request?) then (yes)
+    :Retrieve the post to be deleted;
+    :Remove relation between the post and the user;
+    :Remove relation between the post and the topic;
+    repeat
+        :Retrieve comments associated with the post;
+        :Remove relation between the post and the comments;
+        :Delete the comments from the database;
+    repeat while (Comments exist?)
+
+    repeat
+        :Retrieve reacts associated with the post;
+        :Remove relation between the post and the likes;
+        :Delete the reacts from the database;
+    repeat while (Reacts exist?)
+
+    repeat
+        :Retrieve images associated with the post;
+        :Remove relation between the post and the images;
+        :Delete images from AWS S3 Bucket service;
+        :Delete image record from the database;
+    repeat while (Images exist?)
+    
+    :Delete the post from the database;
+    :Return a success message;
+else (no)
+    :Send error message;
+endif
+|Client|
+:Remove the post from display;
+:Show a success/deletion confirmation message;
+stop
+@enduml

@@ -1,0 +1,23 @@
+@startuml
+|Client|
+start
+:User navigates to the Expert section within the Melius App;
+:User selects a doctor from the displayed list;
+if (Communicate initialized with doctor exists?) then (yes)
+    :Establishes connection with the doctor;
+else (no)
+    :Initializes communication with doctor;
+    :Establishes connection with Firebase server;
+    :Hashes userID and sends to Firebase database;
+    |Firebase Realtime Server|
+    :Creates room ID between user and doctor in Firebase;
+endif
+:User communicates by sending text messages to the doctor;
+|Firebase Realtime Server|
+repeat
+    :Handles messages between user and doctor;
+repeat while (User sending message?)
+|Client|
+:Display back and forth message to communicate with the doctor;
+stop
+@enduml

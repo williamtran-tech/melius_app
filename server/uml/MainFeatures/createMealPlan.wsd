@@ -1,0 +1,29 @@
+@startuml
+|Client|
+start
+:Parent navigate to the Meal Plan screen;
+if (Parent choose date) then (yes)
+:Choosen date is displayed;
+else (no)
+:The current date is displayed;
+endif
+|Server|
+: Get the TDEE and RDA of the kid;
+: Check if the plan details of the kid is already created on that date or not;
+if (Plan details is not created) then (yes)
+: Create a new meal plan;
+: Update new meal plan with the nutrition target range;
+: Generate a template for the meal plan - Meal plan details;
+: Use the TDEE and RDA to create a template for the meal plan;
+: Calculate the calories and nutrients for each session match with the TDEE and RDA;
+: Save the meal plan details;
+else (no)
+: Get the plan details;
+endif
+
+: Return the plan details;
+|Client|
+: Display the plan details;
+stop
+
+@enduml

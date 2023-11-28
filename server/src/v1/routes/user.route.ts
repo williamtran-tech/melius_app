@@ -18,28 +18,28 @@ const upload = multer({
 
 
 // Profile User
-userRouter.get("/profile", authMiddleware, authorize(["User"]), userController.getProfile);
+userRouter.get("/profile", authMiddleware, authorize(["User", "Doctor"]), userController.getProfile);
 // Handle avatar upload
 // Form-data only works with POST method
-userRouter.post("/profile", authMiddleware, authorize(["User"]), upload.fields([{ name: 'avatar', maxCount: 1 }]), userController.updateProfile);
+userRouter.post("/profile", authMiddleware, authorize(["User", "Doctor"]), upload.fields([{ name: 'avatar', maxCount: 1 }]), userController.updateProfile);
 
 // Kid Preferences
 userRouter.get("/profile/kid", authMiddleware,authorize(["User"]),checkKidIDMiddleware, userController.getKidProfile)
-          .post("/create-child", authMiddleware, userController.createChild)
-          .patch("/profile/kid", authMiddleware, checkKidIDMiddleware, userController.updateKidProfile)
-          .patch("/child-health", authMiddleware, checkKidIDMiddleware, userController.updateChildHealth);
+          .post("/create-child", authMiddleware, authorize(["User"]), userController.createChild)
+          .patch("/profile/kid", authMiddleware, authorize(["User"]), checkKidIDMiddleware, userController.updateKidProfile)
+          .patch("/child-health", authMiddleware, checkKidIDMiddleware, authorize(["User"]), userController.updateChildHealth);
 
 // ALLERGIES
 // Add ingredient to allergy list of kid
-userRouter.post("/allergy", authMiddleware, checkKidIDMiddleware, userController.addIngredientToAllergyList)
+userRouter.post("/allergy", authMiddleware, authorize(["User"]), checkKidIDMiddleware, userController.addIngredientToAllergyList)
           .get("/allergy", authMiddleware, authorize(["User"]), checkKidIDMiddleware, userController.getAllergyList)
           .delete("/allergy", authMiddleware, authorize(["User"]), userController.deleteAllergy)
           .patch("/allergy", authMiddleware, authorize(["User"]), userController.undoDeleteAllergies);
 
 // AVAILABLE INGREDIENTS
 // Add ingredient to available list of mother
-userRouter.post("/available-ingredients", authMiddleware, userController.addIngredientsToAvailableList)
-          .get("/available-ingredients", authMiddleware, userController.getAvailableIngredientList)
+userRouter.post("/available-ingredients", authMiddleware, authorize(["User"]), userController.addIngredientsToAvailableList)
+          .get("/available-ingredients", authMiddleware, authorize(["User"]), userController.getAvailableIngredientList)
           .delete("/available-ingredients", authMiddleware, authorize(["User"]), userController.deleteAvailableIngredient)
           .patch("/available-ingredients", authMiddleware, authorize(["User"]), userController.undoDeleteAvailableIngredients);
 

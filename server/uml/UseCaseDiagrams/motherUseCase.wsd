@@ -1,0 +1,52 @@
+left to right direction
+
+actor Mother as M
+
+rectangle "Melius System" as Melius {
+
+    rectangle "Nutrition - Users' Preferences" as Kid {
+        M -- (Create new child)
+        M -- (CRUD allergy/available ingredient)
+        M -- (CRUD Meal Plan)
+        M -- (CRUD Meal Plan Detail)
+        M -- (View child's diary history)
+        M -- (Update users profile)
+
+        (CRUD Meal Plan) <.. (Use Suggestion Meal Plan based on kid's preference): extends
+        (CRUD allergy/available ingredient) <.. (Add by AR Scan available ingredient): extends
+        (CRUD Meal Plan Detail) <.. (Get all meals suggestion based on available/allergy ingredients): extends
+        (View child's diary history) <.. (Update Child health): extends
+        (Update users profile) <.. (Update child profile): extends
+    }
+
+    rectangle "Social Networking" as SM {
+        M -- (Chat with doctor)
+        M -- (Chat with AI Bot 24/7)
+        M -- (CRUD posts)
+        M -- (View posts in topics, hashtags)
+        M -- (View post details)
+
+        (CRUD posts) <.. (Post anonymously): extends
+        (CRUD posts) <.. (Import images): extends
+        (CRUD posts) <.. (Add new hashtags): extends
+        (View posts in topics, hashtags) <.. (Interact post): extends
+        (View post details) <.. (Interact post): extends
+        (View post details) <.. (CRUD comment): extends
+        (CRUD comment) <.. (Comment anonymously): extends
+        (CRUD comment) <.. (Interact comment): extends
+    }
+
+    rectangle "Authentication" as Auth {
+        M -- (Register new account)
+        M -- (Login)
+
+        (Login) <.. (Login with Google): extends
+        (Login with Google) <.. (Sync profile with Google): extends
+        (Login) <.. (Reset Password): extends
+    }
+
+    (Login) ..> SM : include
+    (Login) ..> Kid : include
+}
+
+@enduml

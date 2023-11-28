@@ -1,0 +1,37 @@
+@startuml
+|Client|
+start
+:User accesses the add allergies/available ingredients function on the application;
+:User enters allergies or available ingredients name on the search bar;
+:Validate input of users;
+|Server|
+:Search for allergic/available ingredients in the database;
+if (Database found allergic/available ingredients?) then (no)
+    :Fetch a list allergic/available ingredients match with ingredient name from the USDA API;
+    if (USDA API found allergic/available ingredients?) then (no)
+        :Show a 404 error message;
+        |Client|
+        :Show a message no matching allergic/available ingredients found;
+        :Return to the search bar;
+        stop
+        |Server|
+    else (yes)
+        :Store allergic/available ingredients in the database;
+        :Return a list of matching allergies or available ingredients;
+    endif
+else (yes)
+    :Return a list of matching allergies or available ingredients;
+endif
+|Client|
+:Display a list of matching allergies or available ingredients;
+:User selects allergies or available ingredients from the list;
+|Server|
+if (Allergic/available ingredientss already exist for the user?) then (yes)
+else (no)
+    :Create new allergic/available ingredients added to user profile;
+endif
+|Client|
+:Display a changed list of allergies or available ingredients of user;
+:Show a message ingredients has been added to user profile;
+stop
+@enduml

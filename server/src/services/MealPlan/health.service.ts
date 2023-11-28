@@ -39,7 +39,7 @@ export default class HealthService {
       // Ref: https://www.cambridge.org/core/journals/public-health-nutrition/article/basal-metabolic-rate-studies-in-humans-measurement-and-development-of-new-equations/61A9EA486ABFA478FEF2FCE1E70D5BEE
       
 
-      // Other formulas
+      // Other formulas - This is what we use
       // Ref: Mifflin, M. D., St Jeor, S. T., Hill, L. A., Scott, B. J., Daugherty, S. A., & Koh, Y. O. (1990). A new predictive equation for resting energy expenditure in healthy individuals. The American journal of clinical nutrition, 51(2), 241–247. https://doi.org/10.1093/ajcn/51.2.241
       // Mifflin-St Jeor formula:
       // Same with Harrus-Benedict formula: 

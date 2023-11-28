@@ -78,7 +78,7 @@ export default class UserController extends BaseController {
       const userProfile = await this.userService.getUserProfile(req.userData.id);
       this.dateTimeUtil.setUTCDateTime(req.body.dob);
       const date = this.dateTimeUtil.getUTCDateTime();
-      if (req.body.phone && isNaN(req.body.phone) || req.body.phone.length > 12) {
+      if (req.body.phone && (isNaN(req.body.phone) || req.body.phone.length > 12)) {
         throw new HttpException(401, "Invalid phone number");
       }
 
@@ -464,9 +464,10 @@ export default class UserController extends BaseController {
     try {
       // SETUP AVAILABLE INGREDIENTS
       const availableIngredients = await this.availableIngredientService.getAvailableIngredientList(req.userData.id);
+      const allergyList = await this.allergyService.getAllergyList(Number(req.query.kidId));
 
       // RECIPE SERVICE
-      const response = await this.recipeService.getRecipeByAvailableIngredients(availableIngredients);
+      const response = await this.recipeService.getRecipeByAvailableIngredients(availableIngredients, allergyList);
 
       res.status(200).json({
         msg: "Get suggested meals based on Available Ingredients successfully",

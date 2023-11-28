@@ -1,0 +1,19 @@
+@startuml 
+left to right direction
+
+actor Doctor as D
+actor Admin as A
+
+rectangle "Melius System" as Melius {
+
+    D -- (Chat with parents)
+    D -- (Update profile)
+
+    A -- (Manage Doctors/Mothers)
+    A -- (Manage Posts)
+
+    (Manage Posts) <.. (CRUD topics): extends
+    (Manage Posts) <.. (CRUD hashtags): extends
+}
+
+@enduml

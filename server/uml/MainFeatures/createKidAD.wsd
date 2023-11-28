@@ -1,0 +1,29 @@
+@startuml
+|Client|
+start
+:Enter kid details;
+:Validate kid details;
+|Server|
+:Validate kid details;
+if (Details are valid?) then (no)
+    |Server|
+    :Return error message;
+    |Client|
+    :Display error message;
+    stop
+else (yes)
+    |Server|
+  :Create kid;
+  :Associated kid with parent;
+  if (age < 2) then (yes)
+    :Calculate kid's TDEE, BMR;
+  else (no) 
+    :Calculate kid's BMI, TDEE, BMR;
+  endif
+  :Create kid health record;
+  :Save kid details;
+endif
+  |Client|
+  :Display success message;
+stop
+@enduml

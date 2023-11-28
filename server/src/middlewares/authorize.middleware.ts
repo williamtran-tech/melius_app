@@ -24,13 +24,17 @@ export const authorize = (roles: string[]) => {
         attributes: ["name"],
       });
 
-      for (let role in roles) {
-        if (roleNames[role].name.includes(roles[role])) {
-          next();
-        } else {
-          next(new HttpException(401, "Unauthorized Access"));
+      let authorized = false;
+
+      roleNames?.forEach((role) => {
+        if (roles.includes(role.name)) {
+          authorized = true;
         }
-      }
+      });
+      if (!authorized) {
+        next(new HttpException(401, "Unauthorized Access"));
+      } 
+      next();
     } catch (err) {
       next(err);
     }

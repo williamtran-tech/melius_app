@@ -1,0 +1,71 @@
+@startuml
+
+left to right direction
+
+actor Users as U
+
+rectangle "Users" {
+    U --> (Register new account)
+    U --> (Login / Logout)
+    U --> (Login with Google)
+    
+    U --> (Create new child)
+    U --> (Update Child health)
+    U --> (Create new Meal Plan)
+    U --> (Create new Meal Plan Detail)
+    U --> (Use Suggestion Meal Plan based on kid's preference)
+    U --> (CRUD allergy/available ingredient)
+    U --> (Use Get all Meal suggestion based on Available/Allergy ingredients)
+    
+    U --> (Chat with doctor)
+    U --> (View kid's diary)
+    U --> (CRUD posts in Social media)
+    U --> (View posts in topics, hashtags)
+    U --> (Interact posts)
+    U --> (Post new post anonymously)
+    U --> (Comment on post anonymously)
+    
+    (Create new Meal Plan) --> (Create new Meal Plan Detail)
+    (Use Suggestion Meal Plan based on kid's preference) --> (Create new Meal Plan)
+    (Use Suggestion Meal Plan based on kid's preference) --> (Use Get all Meal suggestion based on Available/Allergy ingredients)
+    (CRUD allergy/available ingredient) --> (Use Get all Meal suggestion based on Available/Allergy ingredients)
+    (CRUD posts in Social media) --> (View posts in topics, hashtags)
+    (CRUD posts in Social media) --> (Interact posts)
+    (Post new post anonymously) --> (Interact posts)
+    (Comment on post anonymously) --> (Interact posts)
+    
+    (Create new child) ..> (Update Child health) : <<include>>
+    (Create new Meal Plan) <.. (Create new Meal Plan Detail) : <<extends>>
+    (Use Suggestion Meal Plan based on kid's preference) ..> (Create new Meal Plan) : <<include>>
+    (Use Suggestion Meal Plan based on kid's preference) ..> (Use Get all Meal suggestion based on Available/Allergy ingredients) : <<include>>
+    (CRUD allergy/available ingredient) ..> (Use Get all Meal suggestion based on Available/Allergy ingredients) : <<include>>
+    (CRUD posts in Social media) ..> (View posts in topics, hashtags) : <<include>>
+    (CRUD posts in Social media) ..> (Interact posts) : <<include>>
+    (Post new post anonymously) ..> (Interact posts) : <<include>>
+    (Comment on post anonymously) ..> (Interact posts) : <<include>>
+}
+
+@enduml
+
+
+' Register new account
+' Login / Logout
+' Login with Google
+
+' Create new child
+' Update Child health
+' Create new Meal Plan
+' Create new Meal Plan Detail
+' Use Suggestion Meal Plan based on kid's preference
+' CRUD allergy/available ingredient
+' Use Get all Meal suggestion based on Available/Allergy ingredients
+
+' Chat with doctor
+' View kid's diary
+' CRUD posts in Social media 
+' View posts in topics, hashtags
+' Interact posts
+' Post new post anonymously
+' Comment on post anonymously
+
+' As those features, using appropriate include, and extends notations in use case diagram

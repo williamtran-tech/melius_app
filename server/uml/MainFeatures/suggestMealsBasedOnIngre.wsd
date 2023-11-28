@@ -1,0 +1,37 @@
+@startuml
+|Client|
+start
+:Navigates to the "Daily Meal" section for the specific child within the application;
+:Selects “Edit” button to access to the meal plan modified screen;
+:Selects “Add” button to access the Add meal detail screen;
+:Selects the suggestion meal from available options;
+:Request recipes suggestion for kid;
+|Server|
+if (Valid request?) then (yes)
+  :Generate recipe dataset;
+  :Gather the kid's allergic ingredients;
+  :Gather available ingredients of mother;
+  :Extract the available ingredient name;
+  :Extract the allergic ingredient name;
+  if (the available ingredient contains allergic ingredient) then (yes)
+    :Remove the allergic ingredient from the available ingredient list;
+    else (no)
+  endif
+  :Use bitwise algorithm to combine the available ingredients;
+  :Return the categorized recipe combination list;
+  repeat
+    :Find all recipes match from the recipe dataset (maximum 5 recipes);
+    if (Match with the item categorized recipe list?) then (yes)
+        : Insert the recipes into the categorized recipe list;
+    else (no)
+        : Go to the next item categorized recipe list;
+    endif
+  repeat while (The length of recipe list == list of categorized recipe list);
+: Return categorized recipe list;
+else (no)
+  :Send error message;
+endif
+|Client|
+:Display recipes list based on availalble/allergic ingredients;
+stop
+@enduml

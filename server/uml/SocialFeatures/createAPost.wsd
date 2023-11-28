@@ -1,0 +1,45 @@
+@startuml
+|Client|
+start
+:Navigates to the "Community" section within the “Expert” screen of the application;
+:Selects the option to "Create Post"; 
+:Drafts a post, including text, images content;
+if (The post having images?) then (yes)
+  :Handle the image upload less than 5 images;
+else (no)
+endif
+:Adds relevant tags to the post content;
+:Selects the option to "Post" the content;
+:Request to post the content to the server;
+|Server|
+if (Valid request?) then (yes)
+  :Get the post content;
+  :Create relation between the post and the user;
+  :Create relation between the post and the topic;
+  :Extract the tags from the post content;
+  if (The tags are existed in the database?) then (yes)
+    :Get the tags from the database;
+  else (no)
+    :Create the tags in the database;
+  endif
+  :Create relation between the post and the tags;
+  if (The post having images?) then (yes)
+  :Establish connection with the image AWS S3 Bucket service;
+    repeat 
+    :Pop the image from the post content;
+    :Save the image into temporary variable;
+    repeat while (The image list is not empty)
+  :Hash userID + postID + imageID;
+  :Create path for access the image;
+  :Upload the image to the AWS S3 Bucket service;
+  :Create relation between the post and the image in the database;
+  else (no)
+  endif
+else (no)
+  :Send error message;
+endif
+|Client|
+:Display the post content;
+:Show a success message;
+stop
+@enduml

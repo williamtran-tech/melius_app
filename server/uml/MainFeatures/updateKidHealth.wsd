@@ -1,0 +1,26 @@
+@startuml
+|Client|
+start
+:User access the update kid function on the application;
+:User enters kid weight and height;
+:Validate input of users;
+|Server|
+if (Changes made different date from the latest health record?) then (yes)
+  :Create a new record of health for that specific day;
+else (no)
+  if (Changes are different with the old one?) then (yes)
+    :Calculate the new health indexes, BMI, TDEE, RDA;
+    :Update the health record with new indexes;
+    else (no)
+    endif
+endif
+if (Check if user has a meal plan) then (yes)
+  :Create a new Meal Plan for that kid based on the new health indexes;
+else (no)
+  :Update the Meal Plan for that kid based on the new health indexes;
+endif
+|Client|
+:Display the new health record;
+:Display a feedback message;
+stop
+@enduml

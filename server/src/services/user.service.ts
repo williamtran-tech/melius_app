@@ -10,9 +10,6 @@ import AWSS3Util from "../utils/aws.s3.util";
 
 export default class UserService {
   public awsS3Util = new AWSS3Util();
-  static getUserProfile(userId: number) {
-    throw new Error("Method not implemented.");
-  }
   private mealPlanService = new MealPlanService();
   public async getUserProfile(userId: number) {
     try {
@@ -207,6 +204,10 @@ export default class UserService {
               attributes: [],
             }
           },
+          {
+            model: Account,
+            attributes: ["email", "type"],
+          }
         ],
         attributes: ["id", "fullName", "dob", "img", "phone", "createdAt", "updatedAt"]
       });
