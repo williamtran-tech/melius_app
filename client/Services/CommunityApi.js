@@ -72,9 +72,9 @@ export const updatePost = async (
 ) => {
   try {
     const formData = new FormData();
-    formData.append("content", "ddddd");
+    formData.append("content", content);
     formData.append("isAnonymous", isAnonymous);
-    formData.append("topicId", 1);
+    formData.append("topicId", topicId);
     tags && formData.append("tags", tags.join(","));
     // console.log("photos", photos);
     // console.log("original", original);

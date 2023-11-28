@@ -58,7 +58,7 @@ const MenuEdit = ({
           >
             <Image
               source={require("../assets/icon/IconDelete.png")}
-              style={{ resizeMode: "contain" }}
+              style={{ resizeMode: "contain", height: 20 }}
             />
           </TouchableOpacity>
         </View>
@@ -77,15 +77,19 @@ const MenuEdit = ({
       setUndoItem(null);
     }, 3000);
   };
+  const capitalizeFirstLetter = (str) => {
+    return str.charAt(0).toUpperCase() + str.slice(1);
+  };
   const renderListItem = (rowData) => {
     const { item } = rowData;
-    console.log("okie", item.recipe && item);
     return item.recipe ? (
       <View style={styles.ItemContainer}>
         <SubText>
           {moment(item.mealTime).subtract(7, "hours").format("HH:mm")}
         </SubText>
-        <SubText style={{ flex: 1 }}>{item.recipe.name}</SubText>
+        <SubText style={{ flex: 1 }}>
+          {capitalizeFirstLetter(item.recipe.name)}
+        </SubText>
         <TouchableOpacity
           style={styles.reciprebtn}
           onPress={() => {
@@ -289,7 +293,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     // flexDirection: "row",
     alignItems: "center",
-    padding: 5,
   },
   centeredView: {
     flex: 1,

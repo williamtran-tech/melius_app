@@ -53,15 +53,15 @@ const StartScreen = ({ navigation }) => {
           style={styles.SignInBtn}
           onPress={() => navigation.navigate("RegisterScreen")}
         >
-          <Text style={styles.btnText}>Đăng ký</Text>
+          <Text style={styles.btnText}>Sign up</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.SignUpBtn}
           onPress={() => navigation.navigate("LoginScreen")}
         >
-          <Text style={styles.btnText}>Đăng nhập</Text>
+          <Text style={styles.btnText}>Sign in</Text>
         </TouchableOpacity>
-        <Text style={{ marginTop: 40 }}>Hoặc đăng nhập bằng</Text>
+        <Text style={{ marginTop: 40 }}>Or sign in by</Text>
         <View style={styles.IconContainer}>
           <TouchableOpacity onPress={() => googleLogin()}>
             <Image

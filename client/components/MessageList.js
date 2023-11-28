@@ -11,7 +11,6 @@ import React, { useEffect } from "react";
 const MessageList = ({ messages, type }) => {
   return (
     <FlatList
-      inverted
       data={messages}
       keyExtractor={(item, index) => index.toString()}
       renderItem={({ item }) => (

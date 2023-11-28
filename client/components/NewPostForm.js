@@ -69,7 +69,7 @@ const NewPostForm = ({ flag, setFlag, handleCloseNewPost, dataNewPost }) => {
       const response = await createPost(
         content,
         false,
-        2,
+        3,
         hashtagList,
         imageUrls
       );
@@ -99,7 +99,7 @@ const NewPostForm = ({ flag, setFlag, handleCloseNewPost, dataNewPost }) => {
         dataNewPost.id,
         content,
         false,
-        2,
+        3,
         hashtagList,
         imageUrls,
         dataNewPost.images.map((image) => {

@@ -42,7 +42,7 @@ const RegisterScreen = ({ navigation }) => {
         return (
           <PasswordSetting
             navigation={navigation}
-            type={"setting"}
+            type={"newpassword"}
             setStage={setStage}
           ></PasswordSetting>
         );

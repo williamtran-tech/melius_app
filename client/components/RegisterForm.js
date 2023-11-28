@@ -39,7 +39,7 @@ const RegisterForm = ({ navigation, setStage, setConfirmMethod }) => {
       })
       .catch((error) => {
         setLoading(false);
-        console.error(error);
+        console.error(error.message);
       });
     console.log(qs.stringify(values));
     console.log(values);
@@ -67,7 +67,7 @@ const RegisterForm = ({ navigation, setStage, setConfirmMethod }) => {
               phone: "",
               email: "",
               verifiedMethod: "",
-              role: "User",
+              role: "user",
             }}
             validateOnChange
             validationSchema={Validation.registerValidationSchema}

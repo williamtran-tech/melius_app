@@ -75,6 +75,9 @@ const HomeScreen = () => {
     setImageUriDetail(uriDetail);
     bottomSheetRefInf.current.expand();
   };
+  const capitalizeFirstLetter = (str) => {
+    return str.charAt(0).toUpperCase() + str.slice(1);
+  };
   useEffect(() => {
     CheckTokenExpired();
   }, []);
@@ -106,6 +109,13 @@ const HomeScreen = () => {
         {recipe && (
           <View style={{ flex: 1 }}>
             <ScrollView style={{ flex: 1 }}>
+              <View
+                style={{ flex: 1, paddingHorizontal: 25, paddingVertical: 10 }}
+              >
+                <HeaderText style={{ color: "#518B1A", fontSize: 24 }}>
+                  {capitalizeFirstLetter(recipe.name)}
+                </HeaderText>
+              </View>
               <View style={{ flex: 1, paddingHorizontal: 25 }}>
                 <Image
                   source={imageUriDetail}

@@ -70,7 +70,14 @@ const MealTime = ({ selectedTime, setSelectedTime, data }) => {
             style={styles.dateTimePicker}
             textColor="#000"
           />
-          <Button title="Done" onPress={hideTimePicker} />
+          <TouchableOpacity
+            onPress={() => {
+              hideTimePicker();
+            }}
+            style={styles.btn}
+          >
+            <SubText style={{ color: "#FFFFFF", fontSize: 18 }}>Done</SubText>
+          </TouchableOpacity>
         </View>
       </Modal>
     </View>
@@ -95,11 +102,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     borderRadius: 8,
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
   },
   dateTimePicker: {
     backgroundColor: "#8CC840",
     color: "#000",
-    // Apply any other styles to customize the DateTimePicker
   },
   mealTimeConatiner: {
     flexDirection: "row",
@@ -107,5 +114,13 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: 10,
     marginTop: 10,
+  },
+  btn: {
+    backgroundColor: "#000",
+    color: "#FFFFFF",
+    margin: 5,
+    paddingVertical: 5,
+    paddingHorizontal: 10,
+    borderRadius: 10,
   },
 });

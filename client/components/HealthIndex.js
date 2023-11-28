@@ -75,7 +75,6 @@ const HealthIndex = () => {
             <SubText style={styles.nameItemText}>BMI</SubText>
           </View>
         </View>
-
         <TouchableOpacity
           style={styles.updatebtn}
           onPress={() => {

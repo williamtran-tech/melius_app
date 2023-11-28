@@ -29,19 +29,17 @@ const UpdateHealth = ({
         `/v1/users/child-health`,
         { kidId: healthRecord.id, ...values }
       );
-      //   const updateUserMealPlan = await createMealPlan(healthRecord.id);
+
       const mealplan = await SuggestMealPlanByDate();
       const getUserInf = await getUserProfile();
-      //   const mealplan = await HandleApi.serverGeneral.get(
-      //     `/v1/users/meal-plan?kidId=${healthRecord.id}`
-      //   );
+
       await AsyncStorage.setItem("mealPlan", JSON.stringify(mealplan));
       setUpdateFlag(!updateFlag);
       setModalVisible(false);
       console.log(response.data);
     } catch (error) {
       console.error(error);
-      // You can handle the error here
+
     }
   };
   return (
@@ -83,6 +81,7 @@ const UpdateHealth = ({
                     placeholder="Kg"
                     keyboardType="numeric"
                   />
+                  <SubText>Kg</SubText>
                   {errors.weight && <Text>{errors.weight}</Text>}
                 </View>
                 <View
@@ -102,6 +101,7 @@ const UpdateHealth = ({
                     placeholder="Cm"
                     keyboardType="numeric"
                   />
+                  <SubText>Cm</SubText>
                   {errors.height && <Text>{errors.height}</Text>}
                 </View>
               </View>
@@ -110,10 +110,15 @@ const UpdateHealth = ({
                   flexDirection: "row",
                   alignItems: "center",
                   justifyContent: "center",
+                  paddingVertical: 10,
                 }}
               >
                 <Button onPress={handleSubmit} title="Submit" />
-                <Button onPress={() => setModalVisible(false)} title="Cancel" />
+                <Button
+                  onPress={() => setModalVisible(false)}
+                  title="Cancel"
+                  color={"#FF0000"}
+                />
               </View>
             </View>
           )}

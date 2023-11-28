@@ -98,14 +98,14 @@ const ListChatBox = () => {
                 ></Image>
                 <View style={styles.message}>
                   <HeaderText style={{ color: "#518B1A", fontSize: 16 }}>
-                    Dr. Nguyen Thi Thuy Vy
+                    {index == 0 ? "Dr. Nguyen Thi Thuy Vy" : "Dr. Emily"}
                   </HeaderText>
                   <SubText
                     style={{ color: "rgba(0, 0, 0, 0.50)", fontSize: 14 }}
                     numberOfLines={1}
                     ellipsizeMode="tail"
                   >
-                    {message.latestMessage.message}
+                    {message.latestMessage?.message}
                   </SubText>
                 </View>
                 <SubText style={{ color: "rgba(0, 0, 0, 0.50)", fontSize: 12 }}>
