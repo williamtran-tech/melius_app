@@ -9,7 +9,6 @@ export const getUserInfor = async () => {
 };
 export const suggestMealPlan = async (date) => {
   const dateTime = date ? date : moment().format("YYYY-MM-DD");
-
   try {
     console.log("dateTime:", date);
     const value = await AsyncStorage.getItem("userProfile");
@@ -96,16 +95,6 @@ export const SuggestMealPlanByDate = async (date) => {
       return MealPlan;
       // console.log("200");
     }
-    // if (!mealPlanDate.isSame(moment(), "day") || !mealPlanDate || !value) {
-    //   const mealPlanData = await suggestMealPlan();
-    //   const MealPlan = await getMealPlan();
-    //   return MealPlan;
-    // } else {
-    //   const mealPlanData = JSON.parse(value);
-    //   const MealPlan = await getMealPlan();
-    //   // console.log(MealPlan);
-    //   return MealPlan;
-    // }
   } catch (error) {
     console.error("Error fetching meal plan:", error);
   }
@@ -143,13 +132,12 @@ export const patchUpdateMealPlan = async (id, mealTime, recipeId) => {
 
   try {
     const response = await HandleApi.serverGeneral.patch(
-      `v1/users/meal-plan/meal-detail?id=${params.id}&kidId=${params.kidId}&mealTime=${params.mealTime}&recipeId=${params.recipeId}`
+      `v1/users/meal-plan/meal-detail?id=${params.id}&kidId=${params.kidId}
+      &mealTime=${params.mealTime}&recipeId=${params.recipeId}`
     );
     console.log("PATCH request successful:", response.data);
-    // You can handle the response data here
   } catch (error) {
     console.error("Error making PATCH request:", error);
-    // You can handle the error here
   }
 };
 export const deleteMeal = async (id) => {
@@ -202,11 +190,9 @@ export const addNewMealPlan = async (mealTime, recipeId, type) => {
       params
     );
     console.log("Add new meal successful:", response.data);
-    // You can handle the response data here
   } catch (error) {
     console.error("Error making new meal request:", error);
     console.error("Error response data:", error.response?.data);
-    // You can handle the error here
   }
 };
 export const createMealPlan = async (kidId) => {
@@ -240,9 +226,23 @@ export const createMealPlanByDate = async (date) => {
     return mealPlanResponse.status;
   } catch (error) {
     if (error.response) {
-      // console.error("API Error Response", error.response.status);
-      // console.error("API Error Data:", error.response.data);
       return error.response.status;
     }
+  }
+};
+export const getRecipeIngredient = async () => {
+  const value = await AsyncStorage.getItem("userProfile");
+  const kidId = JSON.parse(value)?.kidProfile[0].id;
+
+  try {
+    const response = await HandleApi.serverGeneral.get(
+      `/v1/users/suggested-meal-plan/beta`,
+      { params: { kidId: kidId } }
+    );
+    console.log(response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Error making new meal request:", error);
+    console.error("Error response data:", error.response?.data);
   }
 };

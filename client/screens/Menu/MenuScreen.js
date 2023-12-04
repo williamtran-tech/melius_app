@@ -31,7 +31,6 @@ const MenuScreen = ({ route }) => {
       const mealPlanData = await SuggestMealPlanByDate(DateMeal);
       setMealPlan(mealPlanData);
       setLoading(false);
-      // console.log(mealPlanData);
     } catch (error) {
       console.error("Error fetching meal plan:", error);
     }
@@ -41,7 +40,6 @@ const MenuScreen = ({ route }) => {
       const mealPlanData = await RefreshMealPlanByDate(DateMeal);
       setMealPlan(mealPlanData);
       setLoading(false);
-      // console.log(mealPlanData);
     } catch (error) {
       console.error("Error fetching meal plan:", error);
     }
@@ -147,9 +145,11 @@ const MenuScreen = ({ route }) => {
         </View>
         <View style={{ paddingHorizontal: 25 }}>{renderCalendar()}</View>
       </View>
-      <View style={{ paddingHorizontal: 25, marginTop: 10 }}>
-        <ProjectNutrition></ProjectNutrition>
-      </View>
+      {activeTab != "month" && (
+        <View style={{ paddingHorizontal: 25, marginTop: 10 }}>
+          <ProjectNutrition></ProjectNutrition>
+        </View>
+      )}
       <View style={{ marginTop: 20, flex: 1 }}>
         {mealPlan && (
           <Menu

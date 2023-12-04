@@ -6,14 +6,20 @@ import {
   FlatList,
   Image,
   TouchableOpacity,
+  ScrollView,
+  ActivityIndicator,
 } from "react-native";
 import React, { useEffect, useRef, useState } from "react";
 import HandleApi from "../Services/HandleApi";
 import { imageSearchEngine } from "../Services/FoodSearching";
 import SubText from "./SubText";
+import HeaderText from "./HeaderText";
+import { getRecipeIngredient } from "../Services/SuggestMealPlan";
+import Loader from "./Loader";
 
 const SearchRecipe = ({ setRecipeId, setType }) => {
   const [searchResults, setSearchResults] = useState([]);
+  const [recipeIngre, setRecipeIngre] = useState();
   const [searchText, setSearchText] = useState("");
   const debounceTimeoutRef = useRef(null);
 
@@ -30,7 +36,17 @@ const SearchRecipe = ({ setRecipeId, setType }) => {
       })
       .catch((error) => console.log(error));
   };
+  const getRecipeIngre = async () => {
+    const result = await getRecipeIngredient();
+    const mappedArray = Object.entries(result.recipes).map(
+      ([ingre, recipes]) => {
+        return { ingre, recipes };
+      }
+    );
 
+    console.log("mappedArray:", mappedArray);
+    setRecipeIngre(mappedArray);
+  };
   const handleInputChange = (text) => {
     setSearchText(text);
     // Perform search operation here based on the input text
@@ -48,21 +64,30 @@ const SearchRecipe = ({ setRecipeId, setType }) => {
   const [recipeImages, setRecipeImages] = useState({});
 
   const searchEngine = async (name) => {
-    // Assuming imageSearchEngine returns the URL of the recipe image
     const url = await imageSearchEngine(name);
     return url;
   };
   useEffect(() => {
     const fetchRecipeImages = async () => {
       const imageUrls = {};
-      for (const recipe of searchResults) {
-        const imageUrl = await searchEngine(recipe.name);
-        imageUrls[recipe.id] = imageUrl;
+      if (searchText == "") {
+        for (const recipes of recipeIngre) {
+          for (const recipe of recipes.recipes) {
+            const imageUrl = await searchEngine(recipe.name);
+            imageUrls[recipe.id] = imageUrl;
+          }
+        }
+      } else {
+        for (const recipe of searchResults) {
+          const imageUrl = await searchEngine(recipe.name);
+          imageUrls[recipe.id] = imageUrl;
+        }
       }
+
       setRecipeImages(imageUrls);
     };
-
     fetchRecipeImages();
+    getRecipeIngre();
   }, [searchResults]);
   return (
     <View>
@@ -78,43 +103,127 @@ const SearchRecipe = ({ setRecipeId, setType }) => {
             </TouchableOpacity> */}
       </View>
       <View style={{ paddingBottom: 50 }}>
-        {searchResults && searchResults && (
-          <FlatList
-            data={searchResults}
-            renderItem={({ item }) => {
-              console.log("recipeeeee:", item);
-              return (
-                <TouchableOpacity
-                  onPress={() => {
-                    console.log(item.id);
-                    setRecipeId(item.id);
-                    setType(item.type);
-                  }}
-                >
-                  <View style={styles.recipecontainer}>
-                    <View style={{ flex: 2 }}>
-                      <Image
-                        source={{ uri: recipeImages[item.id] }}
-                        style={{ flex: 1, aspectRatio: 16 / 14 }}
-                      />
+        {searchText == "" ? (
+          <ScrollView>
+            {recipeIngre &&
+              recipeIngre?.map((item, index) =>
+                item.recipes.map((recipe) => (
+                  <TouchableOpacity
+                    onPress={() => {
+                      console.log(recipe.id);
+                      setRecipeId(recipe.id);
+                    }}
+                  >
+                    <View style={styles.recipecontainer}>
+                      <View style={{ flex: 2 }}>
+                        {recipeImages[recipe.id] ? (
+                          <Image
+                            source={{
+                              uri:
+                                recipeImages[recipe.id] &&
+                                recipeImages[recipe.id],
+                            }}
+                            style={{ flex: 1, aspectRatio: 16 / 14 }}
+                          />
+                        ) : (
+                          <ActivityIndicator
+                            animating={true}
+                            color="#000000"
+                            size="large"
+                            style={styles.activityIndicator}
+                          />
+                        )}
+                      </View>
+                      <View style={{ flex: 2, paddingLeft: 10 }}>
+                        <SubText>{capitalizeFirstLetter(recipe.name)}</SubText>
+                      </View>
+                      <View
+                        style={{
+                          flex: 1,
+                          alignItems: "flex-end",
+                        }}
+                      ></View>
                     </View>
-                    <View style={{ flex: 2, paddingLeft: 10 }}>
-                      <SubText>{capitalizeFirstLetter(item.name)}</SubText>
+                  </TouchableOpacity>
+                ))
+              )}
+          </ScrollView>
+        ) : (
+          // <FlatList
+          //   data={recipeIngre}
+          //   renderItem={({ item }) => {
+          //     console.log("recipeeeee:", item);
+          //     return (
+          //       <TouchableOpacity
+          //         onPress={() => {
+          //           console.log(item.id);
+          //           setRecipeId(item.id);
+          //           setType(item.type);
+          //         }}
+          //       >
+          //         <View style={styles.recipecontainer}>
+          //           <View style={{ flex: 2 }}>
+          //             <Image
+          //               source={{ uri: recipeImages[item.id] }}
+          //               style={{ flex: 1, aspectRatio: 16 / 14 }}
+          //             />
+          //           </View>
+          //           <View style={{ flex: 2, paddingLeft: 10 }}>
+          //             <SubText>{capitalizeFirstLetter(item.name)}</SubText>
+          //           </View>
+          //           <View
+          //             style={{
+          //               flex: 1,
+          //               alignItems: "flex-end",
+          //             }}
+          //           >
+          //             <SubText>{item.nSteps}</SubText>
+          //           </View>
+          //         </View>
+          //       </TouchableOpacity>
+          //     );
+          //   }}
+          //   keyExtractor={(item) => item.id.toString()}
+          // />
+          searchResults &&
+          searchResults && (
+            <FlatList
+              data={searchResults}
+              renderItem={({ item }) => {
+                console.log("recipeeeee:", item);
+                return (
+                  <TouchableOpacity
+                    onPress={() => {
+                      console.log(item.id);
+                      setRecipeId(item.id);
+                      setType(item.type);
+                    }}
+                  >
+                    <View style={styles.recipecontainer}>
+                      <View style={{ flex: 2 }}>
+                        <Image
+                          source={{ uri: recipeImages[item.id] }}
+                          style={{ flex: 1, aspectRatio: 16 / 14 }}
+                        />
+                      </View>
+                      <View style={{ flex: 2, paddingLeft: 10 }}>
+                        <SubText>{capitalizeFirstLetter(item.name)}</SubText>
+                      </View>
+                      <View
+                        style={{
+                          flex: 1,
+                          alignItems: "flex-end",
+                        }}
+                      >
+                        <SubText>{item.nSteps}</SubText>
+                      </View>
                     </View>
-                    <View
-                      style={{
-                        flex: 1,
-                        alignItems: "flex-end",
-                      }}
-                    >
-                      <SubText>{item.nSteps}</SubText>
-                    </View>
-                  </View>
-                </TouchableOpacity>
-              );
-            }}
-            keyExtractor={(item) => item.id.toString()}
-          />
+                  </TouchableOpacity>
+                );
+              }}
+              keyExtractor={(item) => item.id.toString()}
+            />
+          )
         )}
       </View>
     </View>
@@ -146,5 +255,9 @@ const styles = StyleSheet.create({
     paddingVertical: 5,
     borderBottomColor: "#8CC840",
     borderBottomWidth: 1,
+  },
+  activityIndicator: {
+    alignItems: "center",
+    height: 80,
   },
 });

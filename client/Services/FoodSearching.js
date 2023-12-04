@@ -39,6 +39,7 @@ export const imageSearchEngine = async (foodName) => {
       return "https://eagle-sensors.com/wp-content/uploads/unavailable-image.jpg";
   } catch (error) {
     console.error("Error fetching images:", error.message);
+    return "https://eagle-sensors.com/wp-content/uploads/unavailable-image.jpg";
   }
   // return "https://eagle-sensors.com/wp-content/uploads/unavailable-image.jpg";
 };
