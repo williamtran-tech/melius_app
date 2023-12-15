@@ -57,7 +57,8 @@ export const getMealPlan = async (date) => {
     });
     return response.data;
   } catch (error) {
-    console.error("Error fetching meal plan:", error);
+    // console.error("Error fetching meal plan:", error);
+    return null;
   }
 };
 export const updateMealPlan = async () => {

@@ -74,7 +74,9 @@ const Menu = ({
     return str.charAt(0).toUpperCase() + str.slice(1);
   };
 
-  useEffect(() => {}, [updateFlag]);
+  useEffect(() => {
+    console.log(moment(DateMeal).isSameOrBefore(moment()), DateMeal);
+  }, [updateFlag]);
   return (
     <View style={{ flex: 1 }}>
       <View style={{}}>
@@ -83,15 +85,17 @@ const Menu = ({
             BEE's menu !
           </HeaderText>
           <View style={styles.action}>
-            <TouchableOpacity
-              style={styles.refreshbtn}
-              onPress={() => {
-                refreshMealPlan();
-                setLoading(true);
-              }}
-            >
-              <SubText style={styles.refreshText}>↻</SubText>
-            </TouchableOpacity>
+            {moment(DateMeal).isSameOrAfter(moment().format("YYYY-MM-DD")) && (
+              <TouchableOpacity
+                style={styles.refreshbtn}
+                onPress={() => {
+                  refreshMealPlan();
+                  setLoading(true);
+                }}
+              >
+                <SubText style={styles.refreshText}>↻</SubText>
+              </TouchableOpacity>
+            )}
             <TouchableOpacity
               style={styles.updatebtn}
               onPress={() =>

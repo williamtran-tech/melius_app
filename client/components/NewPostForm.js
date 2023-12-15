@@ -16,19 +16,28 @@ import RNPickerSelect from "react-native-picker-select";
 import SubText from "./SubText";
 import { ImagePicker } from "expo-image-multiple-picker";
 import { createPost, deleteImage, updatePost } from "../Services/CommunityApi";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import SwitchSelector from "react-native-switch-selector";
 
-const NewPostForm = ({ flag, setFlag, handleCloseNewPost, dataNewPost }) => {
-  const [topic, setTopic] = useState();
+const NewPostForm = ({
+  flag,
+  setFlag,
+  handleCloseNewPost,
+  dataNewPost,
+  activeTag,
+}) => {
+  const [topic, setTopic] = useState(activeTag);
   const [content, setContent] = useState();
+  const [isAnonymous, setisAnonymous] = useState(false);
   const [hashtag, setHashtag] = useState();
   const [hashtagList, setHashtagList] = useState();
   const [showHashtagInput, setShowHashtagInput] = useState(false);
-
+  const [userInf, setuserInf] = useState();
   //for image in server
   const [deleteImageId, setDeleteImageId] = useState([]);
   const handleChange = (value) => {
     console.log(value);
-    setTopic(topic);
+    setTopic(value);
   };
 
   const [imageBrowser, setImageBrowser] = useState(false);
@@ -37,9 +46,9 @@ const NewPostForm = ({ flag, setFlag, handleCloseNewPost, dataNewPost }) => {
     setImageBrowser(true);
   };
   const pickerItems = [
-    { label: "Q&A", value: "Q&A" },
-    { label: "Experience", value: "Experience" },
-    { label: "Sharing", value: "Sharing" },
+    { label: "Q&A", value: 1 },
+    { label: "Experience", value: 3 },
+    { label: "Sharing", value: 2 },
   ];
   const handleSpaceKeyPress = (event) => {
     // Detect space key press (key code 32)
@@ -68,8 +77,8 @@ const NewPostForm = ({ flag, setFlag, handleCloseNewPost, dataNewPost }) => {
     try {
       const response = await createPost(
         content,
-        false,
-        3,
+        isAnonymous,
+        topic,
         hashtagList,
         imageUrls
       );
@@ -78,7 +87,7 @@ const NewPostForm = ({ flag, setFlag, handleCloseNewPost, dataNewPost }) => {
       handleCloseNewPost();
       setImageUrls();
       setHashtagList();
-      setTopic();
+      setTopic(activeTag);
     } catch (error) {
       console.log(error.message);
     }
@@ -98,8 +107,8 @@ const NewPostForm = ({ flag, setFlag, handleCloseNewPost, dataNewPost }) => {
       const response = await updatePost(
         dataNewPost.id,
         content,
-        false,
-        3,
+        isAnonymous,
+        topic,
         hashtagList,
         imageUrls,
         dataNewPost.images.map((image) => {
@@ -127,7 +136,16 @@ const NewPostForm = ({ flag, setFlag, handleCloseNewPost, dataNewPost }) => {
     // Update the state with the modified array
     setImageUrls(updatedImageUrls);
   };
+  const getAvatarUrl = async () => {
+    const userProfile = await AsyncStorage.getItem("userProfile");
+    setuserInf(JSON.parse(userProfile).userProfile.user);
+  };
+  const changeAnonymous = (value) => {
+    setisAnonymous(value);
+    console.log(value);
+  };
   useEffect(() => {
+    getAvatarUrl();
     // (async () => {
     //   const { status } =
     //     await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -137,28 +155,52 @@ const NewPostForm = ({ flag, setFlag, handleCloseNewPost, dataNewPost }) => {
     // })();
     setContent(dataNewPost && dataNewPost.content);
     setHashtagList(dataNewPost && dataNewPost.tags.map((tag) => tag.name));
-
+    setisAnonymous(dataNewPost && dataNewPost.isAnonymous);
     setImageUrls(
       dataNewPost &&
         dataNewPost.images.map((image) => {
           return { uri: image.imagePath, id: image.id, isOriginal: true };
         })
     );
-  }, [dataNewPost]);
+    setTopic(activeTag);
+    console.log("activeTag", dataNewPost);
+  }, [dataNewPost, activeTag]);
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
       <View style={{ flex: 1 }}>
         <View style={styles.headerContainer}>
-          <View style={{ flex: 1 }}></View>
-          <View style={{ flex: 3 }}>
-            <HeaderText style={styles.centeredText}>New post</HeaderText>
+          <View style={{ flex: 1 }}>
+            <SwitchSelector
+              initial={isAnonymous == true ? 1 : 0}
+              onPress={(value) => {
+                changeAnonymous(value);
+              }}
+              textColor="#000"
+              selectedColor="#518B1A"
+              buttonColor="rgba(140, 200, 64, 0.2)"
+              borderColor="rgba(140, 200, 64, 0.2)"
+              fontSize={14}
+              height={30}
+              hasPadding
+              options={[
+                { label: "✓⃝", value: false },
+                { label: "❓ ", value: true },
+              ]}
+            />
+          </View>
+          <View style={{ flex: 2 }}>
+            <HeaderText style={styles.centeredText}>
+              {dataNewPost ? "Update Post" : "New Post"}
+            </HeaderText>
           </View>
           <View style={{ flex: 1, alignItems: "flex-end" }}>
             <TouchableOpacity
               style={styles.postButton}
               onPress={() => (dataNewPost ? handleUpdate() : handlePost())}
             >
-              <Text style={styles.postText}>Post</Text>
+              <Text style={styles.postText}>
+                {dataNewPost ? "Save" : "Post"}
+              </Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -167,18 +209,22 @@ const NewPostForm = ({ flag, setFlag, handleCloseNewPost, dataNewPost }) => {
             <View style={styles.avatarConatiner}>
               <Image
                 style={styles.avatar}
-                source={require("../assets/images/doctor.png")}
+                source={
+                  userInf
+                    ? { uri: userInf.img }
+                    : require("../assets/images/doctor.png")
+                }
               ></Image>
-              <HeaderText>Thien Duc</HeaderText>
+              <HeaderText>{userInf?.fullName}</HeaderText>
             </View>
             <View style={styles.actionContainer}>
               <RNPickerSelect
-                value={topic}
+                value={topic ? topic : 0}
                 onValueChange={(value) => handleChange(value)}
                 placeholder={{
                   label: "Choose topic",
                   color: "#8C8C8C",
-                  value: "default",
+                  value: 0,
                   fontSize: 6,
                 }}
                 items={pickerItems}

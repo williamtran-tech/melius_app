@@ -222,6 +222,7 @@ const CommunityScreen = () => {
       >
         <NewPostForm
           dataNewPost={dataNewPost}
+          activeTag={activeTag}
           flag={flag}
           setFlag={setFlag}
           handleCloseNewPost={handleCloseNewPost}

@@ -66,7 +66,6 @@ export const updatePost = async (
   isAnonymous,
   topicId,
   tags,
-
   photos,
   original
 ) => {

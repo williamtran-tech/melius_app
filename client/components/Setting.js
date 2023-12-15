@@ -1,5 +1,5 @@
 import { StyleSheet, Text, View, TouchableOpacity, Switch } from "react-native";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useTranslation } from "react-i18next";
 import { Button } from "react-native";
@@ -54,30 +54,59 @@ const Setting = () => {
     });
     // AsyncStorage.clear().then(console.log("cc"));
   };
-  const { t, i18n } = useTranslation();
-  const changeLanguage = (language) => {
-    i18n.changeLanguage(language);
+  const [languageState, setLanguageState] = useState("");
+  const checkLanguageField = async () => {
+    try {
+      // Check if the 'language' field exists in AsyncStorage
+      const existingLanguage = await AsyncStorage.getItem("language");
+      console.log("existingLanguage", existingLanguage);
+      if (existingLanguage === null) {
+        await AsyncStorage.setItem("language", "en");
+      } else {
+        setLanguageState(existingLanguage);
+      }
+    } catch (error) {
+      console.error("Error checking or creating language field:", error);
+    }
   };
+  const { t, i18n } = useTranslation();
+
+  const changeLanguage = async (language) => {
+    i18n.changeLanguage(language);
+    await AsyncStorage.setItem("language", language);
+  };
+  const changeLanguageState = async (language) => {
+    console.log(language);
+    await AsyncStorage.setItem("language", language);
+  };
+  useEffect(() => {
+    checkLanguageField();
+  }, []);
   return (
     <View style={styles.container}>
       <View style={styles.settingItem}>
         <SubText style={{ fontSize: 14 }}>Language</SubText>
         <View style={styles.SwitchContainer}>
-          <SwitchSelector
-            initial={0}
-            onPress={(value) => changeLanguage(value)}
-            textColor="#000"
-            selectedColor="#518B1A"
-            buttonColor="rgba(140, 200, 64, 0.2)"
-            borderColor="rgba(140, 200, 64, 0.2)"
-            fontSize={14}
-            height={30}
-            hasPadding
-            options={[
-              { label: "🇻🇳 VN", value: "vi" }, //images.feminino = require('./path_to/assets/img/feminino.png')
-              { label: "🇺🇸 US", value: "en" }, //images.masculino = require('./path_to/assets/img/masculino.png')
-            ]}
-          />
+          {languageState && (
+            <SwitchSelector
+              initial={languageState == "vi" ? 0 : 1}
+              onPress={(value) => {
+                changeLanguage(value);
+                changeLanguageState(value);
+              }}
+              textColor="#000"
+              selectedColor="#518B1A"
+              buttonColor="rgba(140, 200, 64, 0.2)"
+              borderColor="rgba(140, 200, 64, 0.2)"
+              fontSize={14}
+              height={30}
+              hasPadding
+              options={[
+                { label: "🇻🇳 VN", value: "vi" },
+                { label: "🇺🇸 US", value: "en" },
+              ]}
+            />
+          )}
         </View>
       </View>
       <View style={styles.settingItem}>

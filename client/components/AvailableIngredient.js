@@ -1,4 +1,4 @@
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import React, { useEffect, useState } from "react";
 import {
   deleteAllergy,
@@ -47,6 +47,10 @@ const AvailableIngredient = ({
               }}
             >
               <Text>{ingre.ingredient.name}</Text>
+              <Image
+                source={require("../assets/icon/deleteIcon.png")}
+                style={{ height: 16, width: 16 }}
+              ></Image>
             </TouchableOpacity>
           ))}
       </View>
@@ -68,5 +72,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 5,
     borderRadius: 20,
+    flexDirection: "row",
+    gap: 5,
+    alignItems: "center",
   },
 });
